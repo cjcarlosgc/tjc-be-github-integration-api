@@ -586,7 +586,7 @@
     ],
     "caseIds": [],
     "sprint": "Post-transition",
-    "status": "W-SPEC_VERIFIED",
+    "status": "W-IN_PROGRESS",
     "specPaths": [
       "spec/features/004-checks-publication/spec.md",
       "spec/features/004-checks-publication/plan.md",
@@ -594,7 +594,7 @@
       "spec/contracts/github-integration-contract.md"
     ],
     "transversalPaths": [],
-    "approved": false,
+    "approved": true,
     "decisionGate": {
       "checked": true,
       "blockingDecisionIds": [],
@@ -657,7 +657,7 @@
       "technicalChecksPassed": "G-NOT_RUN",
       "contractReviewed": "G-PASSED",
       "canonicalContractSynced": "G-PASSED",
-      "contractSyncPublished": "G-NOT_RUN",
+      "contractSyncPublished": "G-PASSED",
       "interopSyncChecked": "G-NOT_RUN",
       "noBlockingDecisions": "G-PASSED",
       "retryLimitRespected": "G-NOT_RUN"
@@ -673,14 +673,26 @@
           "deferredSyncIds": [],
           "notRelevantSyncIds": [],
           "checkedAt": "2026-09-25T17:51:45.874Z"
+        },
+        {
+          "checkpoint": "implementation-delivery",
+          "workItem": "WI-GH-004",
+          "relevantPendingSyncIds": [],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-09-25T18:06:09.170Z"
         }
       ],
-      "publishedSyncIds": [],
+      "publishedSyncIds": [
+        "CS-GH-20260925-003"
+      ],
       "pendingRelevantSyncIds": []
     },
     "evidence": [
       "harness/reports/wi-gh-004-spec-verification.md",
-      "harness/reports/wi-gh-004-contract-review.md"
+      "harness/reports/wi-gh-004-contract-review.md",
+      "harness/reports/wi-gh-004-start.md",
+      "harness/contract-sync/outbox/CS-GH-20260925-003.yaml"
     ],
     "blockedReason": null,
     "gateEvidence": {
@@ -696,7 +708,9 @@
       "canonicalContractSynced": [
         "harness/reports/wi-gh-004-contract-review.md"
       ],
-      "contractSyncPublished": [],
+      "contractSyncPublished": [
+        "harness/reports/wi-gh-004-start.md"
+      ],
       "interopSyncChecked": [],
       "noBlockingDecisions": [
         "harness/reports/wi-gh-004-spec-verification.md"

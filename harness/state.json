@@ -572,156 +572,198 @@
         ]
       },
       "closedAt": "2026-09-25T17:47:25.895Z"
+    },
+    {
+      "id": "WI-GH-004",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": [
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-004"
+      ],
+      "caseIds": [],
+      "sprint": "Post-transition",
+      "status": "W-DONE",
+      "specPaths": [
+        "spec/features/004-checks-publication/spec.md",
+        "spec/features/004-checks-publication/plan.md",
+        "spec/features/004-checks-publication/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [
+          "DEC-VAL-001"
+        ],
+        "checkedAt": "2026-09-25T18:05:10Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "implementer",
+        "contractReviewAgent": "contract-reviewer",
+        "reviewAgent": "reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [
+              "READY es status-only según el tipo normativo; la interpretación de la prosa se notificó a Core antes del cutover."
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "spec/features/004-checks-publication/spec.md",
+              "spec/features/004-checks-publication/plan.md",
+              "harness/work-items.json"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-004-spec-verification.md"
+            ],
+            "recommendedNextStep": "Mantener los dos Contract Sync salientes pendientes antes del cutover coordinado."
+          },
+          {
+            "agent": "reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "Se corrigieron el filtro base/head, el límite accidental de 100 KB, el deadline del upload, la consulta post-ref para PR abierto/cerrado y la compensación ante SHA inesperada. La ventana TOCTOU restante está documentada como limitación no bloqueante de la saga."
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "app/src/github/github-publication.service.ts",
+              "app/src/github/github-publication.service.spec.ts",
+              "app/src/github/github-api.client.ts",
+              "app/src/request-body-parsers.ts"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-004-independent-review.md"
+            ],
+            "recommendedNextStep": "Continuar con WI-GH-005; la aprobación final humana se difiere al cierre de toda la migración según la excepción aprobada."
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "La compensación ante cierre durante ref update está explicada sin afirmar que el PR se reabra o que la propuesta permanezca publicada. CS-GH-003 y CS-GH-004 continúan pendientes de Core solo para cutover."
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "spec/contracts/github-integration-contract.md",
+              "spec/features/004-checks-publication/spec.md",
+              "app/src/github/github-publication.service.ts"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-004-contract-review-final.md"
+            ],
+            "recommendedNextStep": "No realizar cutover hasta que Core resuelva las sincronizaciones contractuales pendientes."
+          }
+        ],
+        "reviewCycles": 2,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-PASSED",
+        "canonicalContractSynced": "G-PASSED",
+        "contractSyncPublished": "G-PASSED",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": true,
+        "publishesContract": true,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-004",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T17:51:45.874Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-004",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T18:06:09.170Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-004",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T18:24:46.183Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-004",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T19:02:53.762Z"
+          }
+        ],
+        "publishedSyncIds": [
+          "CS-GH-20260925-003",
+          "CS-GH-20260925-004"
+        ],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-004-spec-verification.md",
+        "harness/reports/wi-gh-004-implementation.md",
+        "harness/reports/wi-gh-004-independent-review.md",
+        "harness/reports/wi-gh-004-contract-review-final.md",
+        "harness/reports/wi-gh-004-contract-sync-004.md",
+        "harness/contract-sync/outbox/CS-GH-20260925-003.yaml",
+        "harness/contract-sync/outbox/CS-GH-20260925-004.yaml"
+      ],
+      "blockedReason": null,
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-004-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-004-implementation.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-004-independent-review.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-004-implementation.md"
+        ],
+        "contractReviewed": [
+          "harness/reports/wi-gh-004-contract-review-final.md"
+        ],
+        "canonicalContractSynced": [
+          "harness/reports/wi-gh-004-contract-review-final.md"
+        ],
+        "contractSyncPublished": [
+          "harness/reports/wi-gh-004-contract-sync-004.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-004-implementation.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-004-spec-verification.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-004-independent-review.md"
+        ]
+      },
+      "closedAt": "2026-09-25T19:05:17Z"
     }
   ],
-  "activeWorkItem": {
-    "id": "WI-GH-004",
-    "component": "GH",
-    "workItemType": "PRODUCT",
-    "storyIds": [
-      "HU16"
-    ],
-    "taskIds": [
-      "ST-GH-004"
-    ],
-    "caseIds": [],
-    "sprint": "Post-transition",
-    "status": "W-IN_PROGRESS",
-    "specPaths": [
-      "spec/features/004-checks-publication/spec.md",
-      "spec/features/004-checks-publication/plan.md",
-      "spec/features/004-checks-publication/tasks.md",
-      "spec/contracts/github-integration-contract.md"
-    ],
-    "transversalPaths": [],
-    "approved": true,
-    "decisionGate": {
-      "checked": true,
-      "blockingDecisionIds": [],
-      "nonBlockingDecisionIds": [
-        "DEC-VAL-001"
-      ],
-      "checkedAt": "2026-09-25T18:05:10Z"
-    },
-    "execution": {
-      "leaderAgent": "leader",
-      "analysisAgent": "sdd-analyst",
-      "implementationAgent": "implementer",
-      "contractReviewAgent": "contract-reviewer",
-      "reviewAgent": "reviewer",
-      "handoffs": [
-        {
-          "agent": "sdd-analyst",
-          "status": "APPROVED",
-          "findings": [
-            "El contrato vigente y las decisiones permiten implementar localmente; READY es status-only según tipo/tabla, Checks no decide freshness y la aclaración descriptiva se eleva por Contract Sync antes del cutover."
-          ],
-          "blockers": [],
-          "filesAffected": [
-            "spec/features/004-checks-publication/spec.md",
-            "spec/features/004-checks-publication/plan.md",
-            "spec/features/004-checks-publication/tasks.md",
-            "harness/work-items.json"
-          ],
-          "evidence": [
-            "harness/reports/wi-gh-004-spec-verification.md"
-          ],
-          "recommendedNextStep": "Implementar localmente bajo la interpretación de GH-INTEROP-1.0; Core debe aclarar la prosa antes del cutover."
-        },
-        {
-          "agent": "contract-reviewer",
-          "status": "APPROVED",
-          "findings": [
-            "No se cambian DTOs ni el contrato canónico; preflight READY permanece {status: READY}, Checks usa datos decididos por Core y la discrepancia prose/schema se notifica a Core."
-          ],
-          "blockers": [],
-          "filesAffected": [
-            "spec/features/004-checks-publication/spec.md",
-            "spec/features/004-checks-publication/plan.md",
-            "spec/features/004-checks-publication/tasks.md",
-            "harness/work-items.json"
-          ],
-          "evidence": [
-            "harness/reports/wi-gh-004-contract-review.md"
-          ],
-          "recommendedNextStep": "Implementar y volver a revisar contratos contra el código antes de cerrar el WI."
-        }
-      ],
-      "reviewCycles": 0,
-      "maxReviewCycles": 2
-    },
-    "gates": {
-      "sddVerified": "G-PASSED",
-      "implementationCompleted": "G-NOT_RUN",
-      "independentReviewPassed": "G-NOT_RUN",
-      "technicalChecksPassed": "G-NOT_RUN",
-      "contractReviewed": "G-NOT_RUN",
-      "canonicalContractSynced": "G-PASSED",
-      "contractSyncPublished": "G-PASSED",
-      "interopSyncChecked": "G-NOT_RUN",
-      "noBlockingDecisions": "G-PASSED",
-      "retryLimitRespected": "G-NOT_RUN"
-    },
-    "coordination": {
-      "contractImpact": true,
-      "publishesContract": true,
-      "pullCheckpoints": [
-        {
-          "checkpoint": "start",
-          "workItem": "WI-GH-004",
-          "relevantPendingSyncIds": [],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-09-25T17:51:45.874Z"
-        },
-        {
-          "checkpoint": "implementation-delivery",
-          "workItem": "WI-GH-004",
-          "relevantPendingSyncIds": [],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-09-25T18:06:09.170Z"
-        },
-        {
-          "checkpoint": "before-review",
-          "workItem": "WI-GH-004",
-          "relevantPendingSyncIds": [],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-09-25T18:24:46.183Z"
-        }
-      ],
-      "publishedSyncIds": [
-        "CS-GH-20260925-003"
-      ],
-      "pendingRelevantSyncIds": []
-    },
-    "evidence": [
-      "harness/reports/wi-gh-004-spec-verification.md",
-      "harness/reports/wi-gh-004-contract-review.md",
-      "harness/reports/wi-gh-004-start.md",
-      "harness/contract-sync/outbox/CS-GH-20260925-003.yaml"
-    ],
-    "blockedReason": null,
-    "gateEvidence": {
-      "sddVerified": [
-        "harness/reports/wi-gh-004-spec-verification.md"
-      ],
-      "implementationCompleted": [],
-      "independentReviewPassed": [],
-      "technicalChecksPassed": [],
-      "contractReviewed": [],
-      "canonicalContractSynced": [
-        "harness/reports/wi-gh-004-contract-review.md"
-      ],
-      "contractSyncPublished": [
-        "harness/reports/wi-gh-004-start.md"
-      ],
-      "interopSyncChecked": [],
-      "noBlockingDecisions": [
-        "harness/reports/wi-gh-004-spec-verification.md"
-      ],
-      "retryLimitRespected": []
-    }
-  }
+  "activeWorkItem": null
 }

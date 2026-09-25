@@ -1,6 +1,6 @@
 # Feature 004 — Checks y publicación companion PR
 
-**Estado:** implementación local disponible para `WI-GH-004`; cierre sujeto a consolidación de evidencia Harness.
+**Estado:** `WI-GH-004` implementado localmente; los Contract Sync salientes siguen pendientes antes del cutover coordinado.
 
 ## Valor relacionado
 

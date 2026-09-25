@@ -10,7 +10,7 @@
 - La búsqueda del companion PR coincide con `head` y `base`; Checks, Git blobs, refs y PR usan los parámetros y rutas esperados.
 - Solo las rutas privadas de publicación reciben JSON de hasta 136 MB y validan bearer antes del parseo. Cada blob UTF-8 tiene límite de 100 MB, límite documentado por GitHub; la llamada de blob admite hasta 180 s, sin cambiar el timeout de 10 s para otras llamadas.
 - La finalización revalida después de mover una ref. Si un PR se cierra durante el update, puede ejecutarse la restauración compensatoria; no se reabre ni se crea el PR y la propuesta no queda publicada. La saga y la carrera residual SHA-read/force-restore están explicitadas en contrato y feature spec.
-- No se cambió el espejo byte a byte de `GH-INTEROP-1.0` ni la API pública Core–Console. La interpretación de prosa `READY` sigue pendiente de ratificación por `CS-GH-20260925-003`; una aclaración separada de tamaño, parser y deadline debe publicarse en `CS-GH-20260925-004`.
+- No se cambió el espejo byte a byte de `GH-INTEROP-1.0` ni la API pública Core–Console. La interpretación de prosa `READY` sigue pendiente de ratificación por `CS-GH-20260925-003`; la aclaración separada de tamaño, parser, deadline y compensación se publicó en `CS-GH-20260925-004`. Ambos eventos siguen pendientes de respuesta de Core antes del cutover, no del cierre local.
 
 ## Evidencia
 

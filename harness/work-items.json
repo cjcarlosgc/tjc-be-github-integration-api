@@ -115,7 +115,7 @@
       "id": "WI-GH-004",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-IN_PROGRESS",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer Checks y publicación companion PR",

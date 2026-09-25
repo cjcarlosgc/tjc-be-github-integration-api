@@ -77,7 +77,7 @@
       "id": "WI-GH-003",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-IN_PROGRESS",
+      "status": "W-IN_REVIEW",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer lecturas de cambios y contenido de PR",

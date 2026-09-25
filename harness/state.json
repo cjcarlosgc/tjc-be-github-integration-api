@@ -395,7 +395,7 @@
     ],
     "caseIds": [],
     "sprint": "Post-transition",
-    "status": "W-IN_PROGRESS",
+    "status": "W-IN_REVIEW",
     "specPaths": [
       "spec/features/003-pr-snapshot-reads/spec.md",
       "spec/features/003-pr-snapshot-reads/plan.md",
@@ -450,7 +450,9 @@
             "app/src/github/github-integration.controller.spec.ts",
             "app/src/github/github.module.ts"
           ],
-          "evidence": ["harness/reports/wi-gh-003-contract-review.md"],
+          "evidence": [
+            "harness/reports/wi-gh-003-contract-review.md"
+          ],
           "recommendedNextStep": "Publicar Contract Sync de WI-GH-003; después presentar el WI al reviewer humano."
         }
       ],
@@ -464,8 +466,8 @@
       "technicalChecksPassed": "G-PASSED",
       "contractReviewed": "G-PASSED",
       "canonicalContractSynced": "G-NOT_RUN",
-      "contractSyncPublished": "G-NOT_RUN",
-      "interopSyncChecked": "G-NOT_RUN",
+      "contractSyncPublished": "G-PASSED",
+      "interopSyncChecked": "G-PASSED",
       "noBlockingDecisions": "G-PASSED",
       "retryLimitRespected": "G-NOT_RUN"
     },
@@ -480,27 +482,54 @@
           "deferredSyncIds": [],
           "notRelevantSyncIds": [],
           "checkedAt": "2026-09-25T16:19:52.037Z"
+        },
+        {
+          "checkpoint": "implementation-delivery",
+          "workItem": "WI-GH-003",
+          "relevantPendingSyncIds": [],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-09-25T16:43:29.648Z"
+        },
+        {
+          "checkpoint": "before-review",
+          "workItem": "WI-GH-003",
+          "relevantPendingSyncIds": [],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-09-25T16:43:36.309Z"
         }
       ],
-      "publishedSyncIds": [],
+      "publishedSyncIds": ["CS-GH-20260925-002"],
       "pendingRelevantSyncIds": []
     },
     "evidence": [
       "harness/reports/wi-gh-003-spec-verification.md",
       "harness/reports/wi-gh-003-implementation.md",
-      "harness/reports/wi-gh-003-contract-review.md"
+      "harness/reports/wi-gh-003-contract-review.md",
+      "harness/contract-sync/outbox/CS-GH-20260925-002.yaml"
     ],
     "blockedReason": null,
     "gateEvidence": {
-      "sddVerified": ["harness/reports/wi-gh-003-spec-verification.md"],
-      "implementationCompleted": ["harness/reports/wi-gh-003-implementation.md"],
+      "sddVerified": [
+        "harness/reports/wi-gh-003-spec-verification.md"
+      ],
+      "implementationCompleted": [
+        "harness/reports/wi-gh-003-implementation.md"
+      ],
       "independentReviewPassed": [],
-      "technicalChecksPassed": ["harness/reports/wi-gh-003-implementation.md"],
-      "contractReviewed": ["harness/reports/wi-gh-003-contract-review.md"],
+      "technicalChecksPassed": [
+        "harness/reports/wi-gh-003-implementation.md"
+      ],
+      "contractReviewed": [
+        "harness/reports/wi-gh-003-contract-review.md"
+      ],
       "canonicalContractSynced": [],
-      "contractSyncPublished": [],
-      "interopSyncChecked": [],
-      "noBlockingDecisions": ["harness/reports/wi-gh-003-spec-verification.md"],
+      "contractSyncPublished": ["harness/reports/wi-gh-003-implementation.md"],
+      "interopSyncChecked": ["harness/reports/wi-gh-003-implementation.md"],
+      "noBlockingDecisions": [
+        "harness/reports/wi-gh-003-spec-verification.md"
+      ],
       "retryLimitRespected": []
     }
   }

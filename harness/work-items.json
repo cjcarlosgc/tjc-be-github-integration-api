@@ -115,7 +115,7 @@
       "id": "WI-GH-004",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-PLANNED",
+      "status": "W-SPEC_VERIFIED",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer Checks y publicación companion PR",
@@ -132,8 +132,10 @@
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
-        "Checks y preflight/proposal-blobs/finalize implementan los DTOs y errores de GH-INTEROP-1.0.",
-        "La publicación vuelve a verificar HEAD y estado de PR cerrado antes de cada escritura visible; no introduce ramas, refs, commits, árboles publicados ni PRs en rutas stale.",
+        "Checks y preflight/proposal-blobs/finalize implementan los DTOs y errores exactos de GH-INTEROP-1.0: READY del preflight es solo {status: READY}; branch/base se verifican internamente, no se agregan al DTO.",
+        "Checks publica únicamente en el headSha, conclusión, título y resumen provistos por Core; GH no decide freshness/conclusión ni consulta el PR para esa ruta.",
+        "La publicación vuelve a verificar PR fuente abierto/HEAD vigente y estado de companion PR antes de cada blob y cada escritura visible; stale/cerrado no publica ramas, refs ni PRs.",
+        "No se habilita publicación de forks; Core aplica la elegibilidad y GH no decide reglas de dominio.",
         "El traslado de propuestas envía un archivo por llamada y conserva los límites de producto actuales de Core.",
         "Publica Contract Sync namespaced enlazado a WI-GH-004 para los consumidores afectados."
       ],

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 4,
+  "sddVersion": "3.0",
+  "planningBaseline": "2026-09-24-core-console-transition",
+  "allowedStatuses": [
+    "W-PLANNED",
+    "W-READY",
+    "W-SELECTED",
+    "W-SPEC_VERIFIED",
+    "W-AWAITING_APPROVAL",
+    "W-IN_PROGRESS",
+    "W-IN_REVIEW",
+    "W-DONE",
+    "W-BLOCKED",
+    "W-DECISION_REQUIRED",
+    "W-CANCELLED"
+  ],
+  "completedWorkItems": [],
+  "activeWorkItem": null
+}

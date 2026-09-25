@@ -1,3 +1,3 @@
 # Tareas — Bootstrap del servicio
 
-- [ ] **ST-GH-001 [T-READY] (WI-GH-001; HU02, HU14, HU16):** Preparar bootstrap, configuración validada y health/readiness sin dependencia remota; documentar y verificar el setup local.
+- [x] **ST-GH-001 [T-DONE] (WI-GH-001; HU02, HU14, HU16):** Implementar el bootstrap NestJS, configuración local y health sin operaciones GitHub, con código exclusivamente bajo `app/`.

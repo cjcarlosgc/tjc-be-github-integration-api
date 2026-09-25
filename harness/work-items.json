@@ -6,19 +6,26 @@
       "id": "WI-GH-001",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-READY",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Bootstrap, configuración y health del servicio",
-      "storyIds": ["HU02", "HU14", "HU16"],
-      "taskIds": ["ST-GH-001"],
+      "storyIds": [
+        "HU02",
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-001"
+      ],
       "caseIds": [],
       "dependsOn": [],
       "contractImpact": true,
-      "publishesContract": true,
+      "publishesContract": false,
       "acceptanceCriteria": [
         "El proceso NestJS valida la configuración local requerida sin registrar valores secretos.",
         "Liveness y readiness no dependen de conectividad a GitHub ni a Core.",
+        "GET /health distingue proceso vivo de configuración lista y no revela variables ni secretos.",
         "Las pruebas cubren configuración válida/inválida y health sin red externa.",
         "El código productivo, si se inicia tras seleccionar y aprobar el WI, se limita a app/ y no implementa operaciones GitHub."
       ],
@@ -33,21 +40,29 @@
       "id": "WI-GH-002",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-PLANNED",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer lectura de repositorios para vinculación",
-      "storyIds": ["HU02"],
-      "taskIds": ["ST-GH-002"],
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-002"
+      ],
       "caseIds": [],
-      "dependsOn": ["WI-GH-001"],
+      "dependsOn": [
+        "WI-GH-001"
+      ],
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
-        "Permanece W-PLANNED y no se selecciona ni implementa hasta que WI-GH-001 esté W-DONE.",
+        "La dependencia WI-GH-001 se verifica como W-DONE antes de seleccionar o implementar este corte.",
         "Implementa la información pública de App, discovery OAuth efímero, autorización/instalación de repositorio y organización, y consulta de ramas previstas en GH-INTEROP-1.0.",
         "Core conserva decisiones de autorización del dominio y RepositoryBinding; GH devuelve resultados normalizados.",
         "El token OAuth del usuario se usa solo en memoria para discovery; no se persiste, registra ni devuelve.",
+        "Readiness exige configuración local válida de GitHub App y bearer interno, sin llamadas externas ni exposición de secretos.",
+        "La lista de ramas se limita a 10 páginas y 30 segundos; al excederlos devuelve UNVERIFIABLE sin resultados parciales.",
         "Se reutiliza y extrae el código existente de Core por un corte revisable, sin duplicar ni alterar la API pública Core-Console.",
         "Publica Contract Sync namespaced enlazado a WI-GH-002 para los consumidores afectados."
       ],
@@ -66,10 +81,17 @@
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer lecturas de cambios y contenido de PR",
-      "storyIds": ["HU06", "HU14"],
-      "taskIds": ["ST-GH-003"],
+      "storyIds": [
+        "HU06",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-003"
+      ],
       "caseIds": [],
-      "dependsOn": ["WI-GH-002"],
+      "dependsOn": [
+        "WI-GH-002"
+      ],
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
@@ -93,10 +115,16 @@
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer Checks y publicación companion PR",
-      "storyIds": ["HU16"],
-      "taskIds": ["ST-GH-004"],
+      "storyIds": [
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-004"
+      ],
       "caseIds": [],
-      "dependsOn": ["WI-GH-003"],
+      "dependsOn": [
+        "WI-GH-003"
+      ],
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
@@ -120,10 +148,18 @@
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer webhooks y entrega normalizada a Core",
-      "storyIds": ["HU02", "HU14", "HU16"],
-      "taskIds": ["ST-GH-005"],
+      "storyIds": [
+        "HU02",
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-005"
+      ],
       "caseIds": [],
-      "dependsOn": ["WI-GH-004"],
+      "dependsOn": [
+        "WI-GH-004"
+      ],
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [

@@ -16,8 +16,15 @@ Servicio backend de RAG Test Studio responsable de toda la interacción directa 
 node scripts/sdd-check.mjs
 node harness/validate-work-items.mjs
 node harness/validate-harness.mjs
+cd app
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm test
+pnpm build
 ```
 
-El primer WI (`WI-GH-001`) establece el paquete NestJS mínimo con health/config local, sin operaciones de GitHub. Después, los WIs `WI-GH-002`–`WI-GH-005` cubren por separado discovery/repositorios, lecturas de PR, Checks/publicación y webhooks. Los secretos se suministran por entorno; no se guardan en Git.
+`WI-GH-001` establece el paquete NestJS mínimo con health/config local, sin operaciones de GitHub. Después, los WIs `WI-GH-002`–`WI-GH-005` cubren por separado discovery/repositorios, lecturas de PR, Checks/publicación y webhooks. Los secretos se suministran por entorno; no se guardan en Git.
+
+Para ejecutar rutas internas, configura `CORE_TO_GITHUB_INTEGRATION_TOKEN`, `GITHUB_APP_ID` y `GITHUB_APP_PRIVATE_KEY_BASE64` (PEM RSA de la App codificada en Base64). `PORT` tiene default. Si faltan credenciales, el proceso conserva liveness pero `/health` queda `503`; la readiness no realiza llamadas de red. `app/.env.example` solo contiene nombres vacíos, nunca credenciales reales.
 
 Consulta `AGENTS.md`, `spec/README.md` y `harness/WORKFLOW.md` antes de trabajar.

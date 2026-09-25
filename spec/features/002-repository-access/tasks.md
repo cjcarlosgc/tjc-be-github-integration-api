@@ -1,3 +1,3 @@
 # Tareas — Acceso a repositorio para vinculación
 
-- [ ] **ST-GH-002 [T-BACKLOGGED] (WI-GH-002; HU02):** Extraer App info, discovery OAuth efímero, autorización/instalación de repositorios y organizaciones, y ramas; solo después de cerrar WI-GH-001 y revisar el contrato.
+- [x] **ST-GH-002 [T-DONE] (WI-GH-002; HU02):** Extraer App info, discovery OAuth efímero, autorización/instalación de repositorios y organizaciones, y ramas; conservar el flujo/scope existente y dejar la autorización de dominio en Core.

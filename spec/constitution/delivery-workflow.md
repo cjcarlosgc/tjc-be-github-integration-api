@@ -6,7 +6,7 @@
 
 - `develop` es la base del trabajo.
 - La rama acordada para desarrollo es `feature/jean`, derivada de `develop`.
-- El bootstrap actual permanece sin commit en la rama local `develop`, que todavía no tiene historial. No se crea una rama de trabajo ni se publica nada en este corte.
+- El commit semilla local de SDD/Harness está en `develop`; el bootstrap y la extracción funcional se trabajan en `feature/jean`.
 - Un commit por corte lógico se realiza solo bajo la política vigente del repositorio; push/PR/merge o cambios de infraestructura externa necesitan solicitud explícita del usuario.
 
 ## Unidad de commit

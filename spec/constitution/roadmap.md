@@ -5,7 +5,7 @@ Las épicas, 18 HU y 15 OC se conservan sin ampliarlas. Los sprints de la tesis 
 | Corte | Prioridad | Alcance | Relación |
 | --- | --- | --- | --- |
 | WI-GH-001 | P1 | Bootstrap NestJS, health/readiness y configuración validada; no cambia el contrato ni conecta operaciones de GitHub. | HU02/HU14/HU16 como capacidades habilitadas. |
-| WI-GH-002 | P1 | Extraer operaciones de instalación, lectura de metadatos/permisos y ramas requeridas para vincular repositorios. | HU02; `W-PLANNED`, depende de `WI-GH-001`, no seleccionable antes de que ese WI termine. |
+| WI-GH-002 | P1 | Extraer operaciones de instalación, lectura de metadatos/permisos y ramas requeridas para vincular repositorios. | HU02; `W-DONE`, depende de `WI-GH-001`, que ya terminó. |
 | Cortes de extracción | P1 | Trasladar y adaptar GitHub App, autenticación interna, discovery, APIs de repositorio/Check/publicación y webhooks por operaciones contractuales. | HU02/HU14/HU16, más HU01/HU03/HU06 cuando apliquen. |
 | Formalización de OC | P2 | Aportar happy paths y subcasos verificables de OC01–OC15 cuando se apruebe cada caso. | HU relacionadas en `operational-cases.md`. |
 

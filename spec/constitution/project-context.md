@@ -1,6 +1,6 @@
 # Contexto operativo del proyecto
 
-**Estado:** frontera GitHub Integration aprobada; detalles contractuales en revisión
+**Estado:** frontera y contrato `GH-INTEROP-1.0` aprobados; implementación y despliegue pendientes
 **Alcance:** especificación, implementación y revisión del cuarto componente de RAG Test Studio.
 
 ## Identidad

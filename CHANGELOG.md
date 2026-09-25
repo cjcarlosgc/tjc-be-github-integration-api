@@ -4,7 +4,12 @@ Los cambios relevantes de comportamiento, contratos y línea base se registran a
 
 ## Unreleased
 
-- Inicializado el SDD 3.0 y Harness V3 local para el componente GitHub Integration, sin implementación productiva ni despliegue.
-- Registrado `WI-GH-001` para bootstrap, health y configuración del servicio; queda en `W-READY` hasta seleccionar y verificar el corte.
+- Inicializado el SDD 3.0 y Harness V3 local para el componente GitHub Integration; no se ha desplegado.
+- `WI-GH-001` implementa health/config local en `feature/jean`; lint, 9 tests, build, HTTP 200/503, Contract Sync y contract-reviewer pasan. El usuario revisó y aprobó el corte; quedó `W-DONE`, sin modificar consumidores ni infraestructura externa.
+- La validación posterior al cierre detectó que el test de dependencia GH-002 no simulaba el estado pre-cierre de GH-001; se corrigió únicamente el fixture para reproducir WI-GH-001 pendiente y copiar las specs requeridas. `validate-harness` y el pipeline local volvieron a pasar; sin cambios de producto.
 - Dividida la extracción funcional en `WI-GH-002` (discovery/acceso), `WI-GH-003` (lecturas PR), `WI-GH-004` (Checks/publicación) y `WI-GH-005` (webhooks), con subtareas locales, dependencias y Contract Sync.
+- Aclarado en `WI-GH-002` que sí extrae discovery OAuth existente sin cambiar login, flujo, scope, DTO ni respuestas exitosas; GH clasifica `401` como token inválido y `403`/`429` ambiguos como upstream reintentable. El `403 → 503` es una decisión interna no literal en GH-INTEROP-1.0 y Contract Sync solicitará ratificación a Core; el Core público no cambia porque el consumidor no se migra en este WI. Antes de cutover se acordará la traducción pública.
+- La readiness de GH-002 ahora exige configuración local válida de GitHub App además del bearer Core→GH; sigue sin consultar GitHub y no devuelve ni registra claves.
+- La implementación de GH-002 limita el listado de ramas a 10 páginas y 30 segundos; un listado que no pueda completarse devuelve `UNVERIFIABLE`, nunca un resultado parcial.
+- `WI-GH-002` quedó `W-DONE` con aprobación humana: extracción acotada completada, Contract Sync `CS-GH-20260925-001` publicado y pendiente de Core. Sin cutover, despliegue ni push.
 - El espejo local `GH-INTEROP-1.0` se sincroniza byte a byte con Core tras revisión independiente aprobada. Se especifican OAuth/provider-token transitorio, errores neutrales y publicación por archivo sin añadir límite de producto.

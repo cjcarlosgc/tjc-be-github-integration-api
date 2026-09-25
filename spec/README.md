@@ -11,7 +11,7 @@
 ## Contratos y sincronización
 
 - `SYSTEM-2.4` y `INTEROP-2.4` son espejos byte a byte de las fuentes canónicas compartidas por Core y Console; no se modifican unilateralmente.
-- Core es dueño canónico de `GH-INTEROP-1.0`; el espejo local coincide byte a byte y la revisión independiente del contrato está `APPROVED` en Core. Los WIs GH deben volver a comprobar decisiones y sync aplicables al seleccionarse; el contrato aprobado no significa implementación o despliegue.
+- Core es dueño canónico de `GH-INTEROP-1.0`. `SYSTEM-2.4` e `INTEROP-2.4` siguen siendo espejos byte a byte; este archivo local de GH ya difiere en aclaraciones de publicación de WI-GH-004 (`CS-GH-20260925-003/004`) y webhooks de WI-GH-005 (`CS-GH-20260925-005`), pendientes de Core. Hasta que Core resuelva esos eventos, no tratar el archivo GH entero como espejo byte a byte ni usar sus aclaraciones para cutover. Los WIs GH deben volver a comprobar decisiones y sync aplicables al seleccionarse; el contrato aprobado no significa implementación o despliegue.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 
 ## Planificación

@@ -13,6 +13,9 @@ function configWithToken(token?: string, complete = false): ConfigService {
   return {
     get: vi.fn((key: string) => {
       if (key === 'CORE_TO_GITHUB_INTEGRATION_TOKEN') return token;
+      if (key === 'CORE_API_BASE_URL') return complete ? 'http://127.0.0.1:3010' : undefined;
+      if (key === 'GITHUB_INTEGRATION_TO_CORE_TOKEN') return complete ? 'test-only-gh-to-core-token' : undefined;
+      if (key === 'GITHUB_WEBHOOK_SECRET') return complete ? 'test-only-webhook-secret' : undefined;
       if (key === 'GITHUB_APP_ID') return complete ? '4935151' : undefined;
       if (key === 'GITHUB_APP_PRIVATE_KEY_BASE64') return complete ? appKey() : undefined;
       return undefined;
@@ -62,7 +65,7 @@ describe('GET /health', () => {
 
     controller.getHealth(response);
 
-    expect(config.get).toHaveBeenCalledTimes(3);
+    expect(config.get).toHaveBeenCalledTimes(6);
     expect(config.get).toHaveBeenCalledWith('CORE_TO_GITHUB_INTEGRATION_TOKEN');
   });
 });

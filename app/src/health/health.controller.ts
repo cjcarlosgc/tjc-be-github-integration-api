@@ -23,6 +23,9 @@ export class HealthController {
       CORE_TO_GITHUB_INTEGRATION_TOKEN: this.config.get<string>(
         'CORE_TO_GITHUB_INTEGRATION_TOKEN',
       ),
+      CORE_API_BASE_URL: this.config.get<string>('CORE_API_BASE_URL'),
+      GITHUB_INTEGRATION_TO_CORE_TOKEN: this.config.get<string>('GITHUB_INTEGRATION_TO_CORE_TOKEN'),
+      GITHUB_WEBHOOK_SECRET: this.config.get<string>('GITHUB_WEBHOOK_SECRET'),
       GITHUB_APP_ID: this.config.get<string>('GITHUB_APP_ID'),
       GITHUB_APP_PRIVATE_KEY_BASE64: this.config.get<string>('GITHUB_APP_PRIVATE_KEY_BASE64'),
     });

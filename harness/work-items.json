@@ -151,7 +151,7 @@
       "id": "WI-GH-005",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-PLANNED",
+      "status": "W-IN_REVIEW",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Extraer webhooks y entrega normalizada a Core",
@@ -170,13 +170,16 @@
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
-        "Verifica HMAC-SHA256 sobre el body crudo antes de parsear, aplica límites seguros y rechaza firmas inválidas.",
+        "Verifica HMAC-SHA256 sobre el body crudo antes de parsear; limita el ingress a 25 MB (máximo documentado por GitHub) y rechaza firmas inválidas y bodies sobredimensionados.",
         "Normaliza únicamente los campos allowlisted del contrato y no reenvía body crudo ni headers de firma a Core.",
-        "Solo confirma a GitHub cuando Core acepta; timeout o fallo de Core devuelve 503 para habilitar reintento.",
-        "Pruebas cubren PR, lifecycle, ignorados, duplicados, retry, payload malformado y fallo Core sin depender de servicios externos.",
+        "Solo confirma a GitHub cuando Core acepta; la llamada GH→Core vence a los 8 s como máximo, y timeout, fallo o respuesta inválida devuelve 503 neutral para habilitar reintento.",
+        "La readiness exige configuración local completa para ambos sentidos de autenticación y webhook, sin consultar GitHub ni Core.",
+        "Pruebas cubren PR, lifecycle, ignorados, duplicados, retry, evento/header y payload malformados, body de 25 MB/excedido, respuesta inválida de Core y fallo Core sin depender de servicios externos.",
         "Publica Contract Sync namespaced enlazado a WI-GH-005 para el corte coordinado de consumidores."
       ],
       "specPaths": [
+        "README.md",
+        "spec/README.md",
         "spec/features/005-webhook-delivery/spec.md",
         "spec/features/005-webhook-delivery/plan.md",
         "spec/features/005-webhook-delivery/tasks.md",

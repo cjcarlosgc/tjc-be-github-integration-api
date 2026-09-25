@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateKeyPairSync } from 'node:crypto';
 import {
   hasCoreServiceCredential,
+  hasCoreWebhookDeliveryConfiguration,
   hasRequiredRuntimeConfiguration,
   validateEnvironment,
 } from './runtime-config.js';
@@ -15,6 +16,14 @@ function testGithubAppEnvironment(): Record<string, string> {
   };
 }
 
+function testWebhookDeliveryEnvironment(): Record<string, string> {
+  return {
+    CORE_API_BASE_URL: 'http://127.0.0.1:3010',
+    GITHUB_INTEGRATION_TO_CORE_TOKEN: 'test-only-gh-to-core-token',
+    GITHUB_WEBHOOK_SECRET: 'test-only-webhook-secret',
+  };
+}
+
 describe('runtime configuration', () => {
   it('defaults PORT without requiring remote services', () => {
     expect(validateEnvironment({})).toMatchObject({ PORT: 3000 });
@@ -25,6 +34,7 @@ describe('runtime configuration', () => {
       validateEnvironment({
         PORT: '4100',
         CORE_TO_GITHUB_INTEGRATION_TOKEN: 'test-only-service-token',
+        ...testWebhookDeliveryEnvironment(),
         ...testGithubAppEnvironment(),
       }),
     ).toMatchObject({ PORT: 4100 });
@@ -33,11 +43,17 @@ describe('runtime configuration', () => {
   it('keeps empty .env.example credentials optional so the process can start not-ready', () => {
     expect(validateEnvironment({
       CORE_TO_GITHUB_INTEGRATION_TOKEN: '',
+      CORE_API_BASE_URL: '',
+      GITHUB_INTEGRATION_TO_CORE_TOKEN: '',
+      GITHUB_WEBHOOK_SECRET: '',
       GITHUB_APP_ID: '',
       GITHUB_APP_PRIVATE_KEY_BASE64: '',
     })).toMatchObject({ PORT: 3000 });
     expect(hasRequiredRuntimeConfiguration({
       CORE_TO_GITHUB_INTEGRATION_TOKEN: '',
+      CORE_API_BASE_URL: '',
+      GITHUB_INTEGRATION_TO_CORE_TOKEN: '',
+      GITHUB_WEBHOOK_SECRET: '',
       GITHUB_APP_ID: '',
       GITHUB_APP_PRIVATE_KEY_BASE64: '',
     })).toBe(false);
@@ -53,6 +69,18 @@ describe('runtime configuration', () => {
     expect(() =>
       validateEnvironment({ CORE_TO_GITHUB_INTEGRATION_TOKEN: 'bad token' }),
     ).toThrow('Invalid internal service authentication configuration.');
+  });
+
+  it('rejects invalid Core URL and outbound bearer configuration without exposing values', () => {
+    expect(() => validateEnvironment({ CORE_API_BASE_URL: 'http://core.example.test' })).toThrow(
+      'Invalid Core service URL configuration.',
+    );
+    expect(() => validateEnvironment({ CORE_API_BASE_URL: 'https://core.example.test/internal' })).toThrow(
+      'Invalid Core service URL configuration.',
+    );
+    expect(() => validateEnvironment({ GITHUB_INTEGRATION_TO_CORE_TOKEN: 'bad token' })).toThrow(
+      'Invalid Core service authentication configuration.',
+    );
   });
 
   it('rejects incomplete or malformed GitHub App configuration without exposing key material', () => {
@@ -77,7 +105,13 @@ describe('runtime configuration', () => {
     expect(hasRequiredRuntimeConfiguration({})).toBe(false);
     expect(hasRequiredRuntimeConfiguration({
       CORE_TO_GITHUB_INTEGRATION_TOKEN: 'service',
+      ...testWebhookDeliveryEnvironment(),
       ...testGithubAppEnvironment(),
     })).toBe(true);
+  });
+
+  it('requires a webhook secret, distinct outbound service bearer, and Core URL for webhook readiness', () => {
+    expect(hasCoreWebhookDeliveryConfiguration({})).toBe(false);
+    expect(hasCoreWebhookDeliveryConfiguration(testWebhookDeliveryEnvironment())).toBe(true);
   });
 });

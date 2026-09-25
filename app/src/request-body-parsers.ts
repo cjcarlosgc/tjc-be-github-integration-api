@@ -1,4 +1,4 @@
-import { json, urlencoded } from 'express';
+import { json, raw, urlencoded } from 'express';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
@@ -9,11 +9,22 @@ const largeJsonRoutes = [
   '/internal/v1/github/publications/companion-pull-request/proposal-blobs',
   '/internal/v1/github/publications/companion-pull-request',
 ];
+const githubWebhookRoute = '/integrations/github/webhooks';
+const githubWebhookBodyLimit = '25mb';
 const coreRequestJsonLimit = '136mb';
 const defaultJsonLimit = '100kb';
 
 export function configureRequestBodyParsers(app: NestExpressApplication, coreServiceToken: string): void {
   const server = app.getHttpAdapter().getInstance();
+
+  server.post(
+    githubWebhookRoute,
+    (request, _response, next) => {
+      (request as Request & { webhookReceivedAt?: Date }).webhookReceivedAt = new Date();
+      next();
+    },
+    withNormalizedParserErrors(raw({ type: () => true, limit: githubWebhookBodyLimit, inflate: false })),
+  );
 
   for (const route of largeJsonRoutes) {
     server.post(
@@ -38,7 +49,8 @@ function withNormalizedParserErrors(parser: (request: Request, response: Respons
   return (request: Request, response: Response, next: NextFunction): void => {
     parser(request, response, (error?: unknown) => {
       if (error) {
-        writeRequestError(request, response, 400, 'INVALID_REQUEST', 'The request is invalid.', false);
+        const status = isPayloadTooLarge(error) ? 413 : 400;
+        writeRequestError(request, response, status, 'INVALID_REQUEST', 'The request is invalid.', false);
         return;
       }
       next();
@@ -46,10 +58,14 @@ function withNormalizedParserErrors(parser: (request: Request, response: Respons
   };
 }
 
+function isPayloadTooLarge(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'status' in error && error.status === 413;
+}
+
 function writeRequestError(
   request: Request,
   response: Response,
-  status: 400 | 401,
+  status: 400 | 401 | 413,
   code: 'INVALID_REQUEST' | 'SERVICE_UNAUTHORIZED',
   message: string,
   retryable: false,

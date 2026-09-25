@@ -8,7 +8,7 @@ Servicio backend de RAG Test Studio responsable de toda la interacción directa 
 - `develop` es la rama base. La rama de trabajo acordada es `feature/jean`, derivada de `develop`; el usuario ya autorizó iniciar ese trabajo.
 - El bootstrap documental sirve como baseline local. No se publica nada al remoto sin autorización expresa para ese push.
 - Sandbox permanece fuera de este corte y su homologación SDD sigue pendiente. No se declara una línea base común desplegada.
-- Core mantiene la versión canónica de `GH-INTEROP-1.0`; su revisión independiente está aprobada y esta copia está sincronizada byte a byte. Eso no declara integración implementada ni desplegada.
+- Core mantiene la versión canónica de `GH-INTEROP-1.0`. Esta copia contiene aclaraciones locales de publicación de WI-GH-004 (`CS-GH-20260925-003/004`) y webhooks de WI-GH-005 (`CS-GH-20260925-005`), pendientes de Core. No se declara sincronización byte a byte completa, integración desplegada ni cutover.
 
 ## Desarrollo
 
@@ -25,6 +25,6 @@ pnpm build
 
 `WI-GH-001` establece el paquete NestJS mínimo con health/config local, sin operaciones de GitHub. Después, los WIs `WI-GH-002`–`WI-GH-005` cubren por separado discovery/repositorios, lecturas de PR, Checks/publicación y webhooks. Los secretos se suministran por entorno; no se guardan en Git.
 
-Para ejecutar rutas internas, configura `CORE_TO_GITHUB_INTEGRATION_TOKEN`, `GITHUB_APP_ID` y `GITHUB_APP_PRIVATE_KEY_BASE64` (PEM RSA de la App codificada en Base64). `PORT` tiene default. Si faltan credenciales, el proceso conserva liveness pero `/health` queda `503`; la readiness no realiza llamadas de red. `app/.env.example` solo contiene nombres vacíos, nunca credenciales reales.
+Para usar el API completo configura `CORE_TO_GITHUB_INTEGRATION_TOKEN`, `GITHUB_APP_ID` y `GITHUB_APP_PRIVATE_KEY_BASE64` (PEM RSA de la App codificada en Base64), además de `GITHUB_WEBHOOK_SECRET`, `CORE_API_BASE_URL` y el bearer independiente `GITHUB_INTEGRATION_TO_CORE_TOKEN` para webhooks salientes. Core URL debe ser HTTPS (HTTP solo para loopback local). `PORT` tiene default. Si falta configuración, el proceso conserva liveness pero `/health` queda `503`; la readiness no realiza llamadas de red. `app/.env.example` solo contiene nombres vacíos, nunca credenciales reales.
 
 Consulta `AGENTS.md`, `spec/README.md` y `harness/WORKFLOW.md` antes de trabajar.

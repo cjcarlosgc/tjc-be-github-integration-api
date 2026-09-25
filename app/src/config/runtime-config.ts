@@ -3,6 +3,9 @@ import { createPrivateKey } from 'node:crypto';
 export interface RuntimeConfig extends Record<string, unknown> {
   PORT: number;
   CORE_TO_GITHUB_INTEGRATION_TOKEN?: string;
+  CORE_API_BASE_URL?: string;
+  GITHUB_INTEGRATION_TO_CORE_TOKEN?: string;
+  GITHUB_WEBHOOK_SECRET?: string;
   GITHUB_APP_ID?: string;
   GITHUB_APP_PRIVATE_KEY_BASE64?: string;
 }
@@ -27,6 +30,24 @@ export function validateEnvironment(
 
   if (typeof coreToken === 'string' && /\s/.test(coreToken)) {
     throw new Error('Invalid internal service authentication configuration.');
+  }
+
+  const coreApiBaseUrl = environment.CORE_API_BASE_URL === '' ? undefined : environment.CORE_API_BASE_URL;
+  if (coreApiBaseUrl !== undefined && !isValidCoreApiBaseUrl(coreApiBaseUrl)) {
+    throw new Error('Invalid Core service URL configuration.');
+  }
+
+  const coreWebhookToken = environment.GITHUB_INTEGRATION_TO_CORE_TOKEN === ''
+    ? undefined
+    : environment.GITHUB_INTEGRATION_TO_CORE_TOKEN;
+  if (coreWebhookToken !== undefined &&
+      (typeof coreWebhookToken !== 'string' || !coreWebhookToken || /\s/.test(coreWebhookToken))) {
+    throw new Error('Invalid Core service authentication configuration.');
+  }
+
+  const webhookSecret = environment.GITHUB_WEBHOOK_SECRET === '' ? undefined : environment.GITHUB_WEBHOOK_SECRET;
+  if (webhookSecret !== undefined && (typeof webhookSecret !== 'string' || !webhookSecret)) {
+    throw new Error('Invalid GitHub webhook configuration.');
   }
 
   const appId = environment.GITHUB_APP_ID === '' ? undefined : environment.GITHUB_APP_ID;
@@ -68,6 +89,27 @@ export function hasCoreServiceCredential(
 
 export function hasRequiredRuntimeConfiguration(environment: Record<string, unknown>): boolean {
   return hasCoreServiceCredential(environment) &&
+    hasCoreWebhookDeliveryConfiguration(environment) &&
     typeof environment.GITHUB_APP_ID === 'string' && /^[1-9]\d{0,19}$/.test(environment.GITHUB_APP_ID) &&
     typeof environment.GITHUB_APP_PRIVATE_KEY_BASE64 === 'string' && environment.GITHUB_APP_PRIVATE_KEY_BASE64.length > 0;
+}
+
+export function hasCoreWebhookDeliveryConfiguration(environment: Record<string, unknown>): boolean {
+  return typeof environment.GITHUB_WEBHOOK_SECRET === 'string' && environment.GITHUB_WEBHOOK_SECRET.length > 0 &&
+    typeof environment.GITHUB_INTEGRATION_TO_CORE_TOKEN === 'string' &&
+    environment.GITHUB_INTEGRATION_TO_CORE_TOKEN.length > 0 &&
+    !/\s/.test(environment.GITHUB_INTEGRATION_TO_CORE_TOKEN) &&
+    isValidCoreApiBaseUrl(environment.CORE_API_BASE_URL);
+}
+
+function isValidCoreApiBaseUrl(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  try {
+    const url = new URL(value);
+    const loopback = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(url.hostname);
+    return (url.protocol === 'https:' || (url.protocol === 'http:' && loopback)) &&
+      url.username === '' && url.password === '' && url.pathname === '/' && url.search === '' && url.hash === '';
+  } catch {
+    return false;
+  }
 }

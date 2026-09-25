@@ -2,7 +2,7 @@
 
 **Estado:** APROBADO por el usuario el 2026-09-25; el contrato define la frontera objetivo y no declara integración desplegada.
 **Línea base:** propuesta asociada a SDD 3.0; no declara integración desplegada ni homologación con Sandbox.
-**Autoridad:** RAG Core mantiene el original en este archivo; el repositorio hermano lo espejará byte por byte al inicializarse. Console no consume este contrato.
+**Autoridad:** RAG Core mantiene el original en este archivo. Las aclaraciones locales de publicación de WI-GH-004 (`CS-GH-20260925-003/004`) y de recepción/entrega de webhooks de WI-GH-005 (`CS-GH-20260925-005`) están pendientes de Core; este archivo completo no es actualmente un espejo byte a byte. Console no consume este contrato.
 
 ## Propósito y límites
 
@@ -132,12 +132,15 @@ Los errores internos no exponen la respuesta ni el cuerpo de GitHub y usan esta 
 
 | Código | HTTP | Uso |
 | --- | --- | --- |
-| `INVALID_REQUEST` | 400 | DTO/path inválido. |
+| `INVALID_REQUEST` | 400, 413 | DTO/path inválido; 413 indica body sobredimensionado. |
 | `SERVICE_UNAUTHORIZED` | 401 | Bearer servicio faltante o inválido en cualquier ruta privada. Es distinto de OAuth de usuario. |
 | `GITHUB_USER_TOKEN_INVALID` | 401 | Solo discovery: token OAuth GitHub de usuario rechazado/expirado. Core conserva su error público vigente. |
 | `GITHUB_RESOURCE_NOT_FOUND` | 404 | Recurso requerido por una operación directa no disponible; lecturas que usan `GithubLookup` devuelven su estado en vez de este error. |
 | `GITHUB_APP_CONFIGURATION_UNAVAILABLE` | 503 | Configuración local de GitHub App incompleta/incorrecta; `retryable: false`. |
 | `GITHUB_UPSTREAM_UNAVAILABLE` | 503 | Timeout, red, límite de tasa o fallo upstream de GitHub; `retryable: true`. |
+| `INVALID_WEBHOOK_SIGNATURE` | 401 | HMAC-SHA256 del webhook ausente o no válido; `retryable: false`. |
+| `GITHUB_WEBHOOK_UNAVAILABLE` | 503 | Secreto local del webhook no configurado; `retryable: false`. |
+| `CORE_WEBHOOK_UNAVAILABLE` | 503 | Core no confirmó el delivery dentro de 8 s o su respuesta no cumple el contrato; `retryable: true` para solicitar reintento a GitHub. |
 
 En respuestas `GithubLookup`, `NOT_FOUND` significa 404 confirmado bajo el recurso/instalación consultados; `NOT_INSTALLED` significa que GitHub confirma que la App no tiene instalación/acceso vigente; `UNVERIFIABLE` incluye permiso insuficiente, instalación suspendida o respuesta ambigua, 403 no clasificable, 429, 5xx y errores de red. `GITHUB_USER_TOKEN_INVALID` nunca se usa para un fallo del bearer de servicio. Los fallos directos de Checks/publicación usan el error envelope; las lecturas devuelven `GithubLookup`, con este mapeo por operación:
 
@@ -151,7 +154,7 @@ Para `POST /repositories/installation`, la ausencia confirmada de una instalaci�
 
 ## Webhooks y entrega a Core
 
-- GitHub envía `POST /integrations/github/webhooks` al host público de GitHub Integration con body crudo y `x-github-delivery`, `x-github-event`, `x-hub-signature-256`. El servicio verifica HMAC-SHA256 antes de parsear; firma inválida responde `401 INVALID_WEBHOOK_SIGNATURE`, configuración ausente `503 GITHUB_WEBHOOK_UNAVAILABLE` y falta delivery id `400 INVALID_REQUEST`.
+- GitHub envía `POST /integrations/github/webhooks` al host público de GitHub Integration con body crudo de hasta 25 MB y `x-github-delivery`, `x-github-event`, `x-hub-signature-256`. El servicio verifica HMAC-SHA256 antes de parsear; firma inválida responde `401 INVALID_WEBHOOK_SIGNATURE`, configuración ausente `503 GITHUB_WEBHOOK_UNAVAILABLE`, metadata requerida o payload malformados `400 INVALID_REQUEST`, y body excedido `413 INVALID_REQUEST`.
 - Tras verificar, el servicio envía `POST /internal/v1/github/webhook-events` a Core con bearer GH→Core y el esquema normalizado siguiente; no reenvía headers de firma ni el body crudo. Todos los eventos llevan `schemaVersion: 1`, `deliveryId`, `eventName`, `action` (string o `null`), `receivedAt` ISO-8601 y `data`. Los IDs numéricos de GitHub se serializan como strings salvo `pullRequestNumber`, que es integer.
 
 ```ts
@@ -180,7 +183,7 @@ type NormalizedWebhookEvent = {
 
 Para `pull_request`, el servicio solo normaliza los campos enumerados. `installation` conserva `id` y `account.id/type`; `installation_repositories` conserva installation id y los arrays `repositories_added/removed`; `repository` conserva id, `full_name`, `owner.id/login/type` e installation id si existe. `member` usa `member.id` + `repository.id`; `membership` usa `member.id` + `organization.id`; `organization` usa `organization.id/login` + `membership.user.id`; `team` usa `repository.id` y `organization.id`. Campos ausentes se convierten a `null`; el evento no se descarta solo por carecer de un id opcional, pues Core conserva la política vigente de ignorar/reconciliar lo que no pueda verificar. Para eventos no listados, `data.kind` es `IGNORED`; no se comparte ningún campo raw.
 
-- Core valida bearer, versión, forma y `deliveryId` antes de procesar; responde con el `GitHubWebhookAcceptedResponse` actual `{ deliveryId, accepted, duplicate, analysisRunId }`. PR duplicado ya persistido responde `200` y `duplicate: true`; toda aceptación nueva/no-op responde `202`. La integración devuelve ese resultado a GitHub solo tras la confirmación de Core; timeout, respuesta inválida o fallo de Core produce `503` para habilitar el reintento.
+- Core valida bearer, versión, forma y `deliveryId` antes de procesar; responde con el `GitHubWebhookAcceptedResponse` actual `{ deliveryId, accepted, duplicate, analysisRunId }`. PR duplicado ya persistido responde `200` y `duplicate: true`; toda aceptación nueva/no-op responde `202`. La integración devuelve ese resultado a GitHub solo tras la confirmación de Core dentro de 8 s; timeout, respuesta inválida o fallo de Core produce `503 CORE_WEBHOOK_UNAVAILABLE` para habilitar el reintento.
 - Core ejecuta la lógica actual: crea/cierra AnalysisRuns y jobs, actualiza/revoca bindings, renombra/oculta organizaciones y encola reverificación. El rol nunca se deriva del payload. Core conserva la idempotencia durable de PR por delivery id y el dedupe de jobs; handlers de acceso/repositorio/instalación conservan su semántica idempotente.
 - Core devuelve `202` cuando termina el efecto correspondiente: PR guarda delivery/AnalysisRun y encola su job; eventos de acceso encolan el job deduplicado; eventos de instalación/repositorio aplican el efecto idempotente; eventos no soportados se aceptan como no-op. Solo deliveries PR ya guardados devuelven `200` como duplicados; el resto puede repetirse con `202`. La respuesta conserva `GitHubWebhookAcceptedResponse`. Solo después GitHub Integration responde al emisor con ese resultado. Si Core no confirma por fallo o timeout, GitHub Integration responde `503` para que GitHub reintente. Un duplicado puede repetir efectos idempotentes; un error parcial de lifecycle conserva la política vigente de registrar el fallo y completar con reconciliación. No se agrega una segunda base de datos de dominio ni se confirma éxito antes de la aceptación de Core.
 

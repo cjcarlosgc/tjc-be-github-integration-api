@@ -14,4 +14,4 @@
 
 **Hallazgo resuelto:** inicialmente se aceptaba un `200 + duplicate: true` para eventos no PR. El cliente ahora valida el tipo normalizado y una prueba de regresión demuestra que rechaza esa respuesta con 503. El reviewer re-aprobó el delta y confirmó 106 pruebas.
 
-**Sincronización:** la copia GH añade detalles de body máximo, deadline 8 s y errores webhook que no están aún en la fuente canónica Core. `CS-GH-20260925-005` solicita a Core revisar/sincronizar esos detalles antes del cutover; el evento saliente no es una notificación entrante bloqueante para las pruebas locales GH.
+**Sincronización:** la copia GH añade detalles de body máximo, deadline 8 s y errores webhook que no están aún en la fuente canónica Core. `CS-GH-20260925-005` está publicado en el outbox y solicita a Core revisar/sincronizar esos detalles antes del cutover; el evento saliente no es una notificación entrante bloqueante para las pruebas locales GH.

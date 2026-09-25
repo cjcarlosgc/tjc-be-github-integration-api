@@ -852,7 +852,7 @@
           "evidence": [
             "harness/reports/wi-gh-005-contract-review.md"
           ],
-          "recommendedNextStep": "Publicar Contract Sync dirigido a Core; su ACK y WI-CORE-003 son prerequisitos del cutover."
+          "recommendedNextStep": "CS-GH-20260925-005 quedó publicado; obtener el ACK de Core y completar WI-CORE-003 antes del cutover."
         }
       ],
       "reviewCycles": 1,
@@ -865,7 +865,7 @@
       "technicalChecksPassed": "G-PASSED",
       "contractReviewed": "G-PASSED",
       "canonicalContractSynced": "G-NOT_RUN",
-      "contractSyncPublished": "G-NOT_RUN",
+      "contractSyncPublished": "G-PASSED",
       "interopSyncChecked": "G-PASSED",
       "noBlockingDecisions": "G-PASSED",
       "retryLimitRespected": "G-PASSED"
@@ -899,14 +899,17 @@
           "checkedAt": "2026-09-25T19:54:16.794Z"
         }
       ],
-      "publishedSyncIds": [],
+      "publishedSyncIds": [
+        "CS-GH-20260925-005"
+      ],
       "pendingRelevantSyncIds": []
     },
     "evidence": [
       "harness/reports/wi-gh-005-spec-verification.md",
       "harness/reports/wi-gh-005-implementation.md",
       "harness/reports/wi-gh-005-independent-review.md",
-      "harness/reports/wi-gh-005-contract-review.md"
+      "harness/reports/wi-gh-005-contract-review.md",
+      "harness/reports/wi-gh-005-contract-sync-005.md"
     ],
     "blockedReason": null
   }

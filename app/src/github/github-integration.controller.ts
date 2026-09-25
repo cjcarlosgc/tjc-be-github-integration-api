@@ -1,13 +1,18 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { GithubAccessService, GithubRepositoryDiscoveryService } from './github-access.service.js';
+import { GithubRepositoryContentService } from './github-repository-content.service.js';
 import {
   DiscoveryRequestDto,
   OrganizationMembershipRequestDto,
   OrganizationOwnersRequestDto,
+  PullRequestHeadRequestDto,
   RepositoryByIdRequestDto,
+  RepositoryCompareRequestDto,
+  RepositoryFilesBatchRequestDto,
   RepositoryInstallationRequestDto,
   RepositoryOwnerRequestDto,
   RepositoryPermissionRequestDto,
+  RepositoryTreeRequestDto,
 } from './github.dto.js';
 import { CoreServiceAuthGuard } from './core-service-auth.guard.js';
 import { invalidRequest } from './errors.js';
@@ -18,6 +23,7 @@ export class GithubIntegrationController {
   constructor(
     private readonly github: GithubAccessService,
     private readonly discovery: GithubRepositoryDiscoveryService,
+    private readonly content: GithubRepositoryContentService,
   ) {}
 
   @Get('app')
@@ -86,5 +92,29 @@ export class GithubIntegrationController {
   @HttpCode(HttpStatus.OK)
   listBranches(@Body() body: RepositoryOwnerRequestDto): Promise<unknown> {
     return this.github.listBranches(body.installationId, body.repositoryName);
+  }
+
+  @Post('repositories/compare')
+  @HttpCode(HttpStatus.OK)
+  compare(@Body() body: RepositoryCompareRequestDto): Promise<unknown> {
+    return this.content.compare(body.installationId, body.repositoryName, body.baseSha, body.headSha);
+  }
+
+  @Post('repositories/tree')
+  @HttpCode(HttpStatus.OK)
+  getTree(@Body() body: RepositoryTreeRequestDto): Promise<unknown> {
+    return this.content.getTree(body.installationId, body.repositoryName, body.commitSha);
+  }
+
+  @Post('repositories/files:batch')
+  @HttpCode(HttpStatus.OK)
+  getFilesBatch(@Body() body: RepositoryFilesBatchRequestDto): Promise<unknown> {
+    return this.content.getFilesBatch(body.installationId, body.repositoryName, body.commitSha, body.paths);
+  }
+
+  @Post('repositories/pull-request-head')
+  @HttpCode(HttpStatus.OK)
+  getPullRequestHead(@Body() body: PullRequestHeadRequestDto): Promise<unknown> {
+    return this.content.getPullRequestHead(body.installationId, body.repositoryName, body.pullRequestNumber);
   }
 }

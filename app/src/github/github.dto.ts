@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional, Matches, Max, Min } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
 
 const githubIdPattern = /^[1-9]\d*$/;
 const repositoryNamePattern = /^(?!\.{1,2}\/)[A-Za-z0-9_.-]+\/(?!\.{1,2}$)[A-Za-z0-9_.-]+$/;
@@ -77,4 +77,38 @@ export class OrganizationOwnersRequestDto {
   @IsNotEmpty()
   @Matches(/^(?!\.{1,2}$)[A-Za-z0-9_.-]{1,39}$/)
   organizationLogin!: string;
+}
+
+export class RepositoryCompareRequestDto extends RepositoryOwnerRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  baseSha!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  headSha!: string;
+}
+
+export class RepositoryTreeRequestDto extends RepositoryOwnerRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  commitSha!: string;
+}
+
+export class RepositoryFilesBatchRequestDto extends RepositoryTreeRequestDto {
+  @IsArray()
+  @ArrayMaxSize(8)
+  @IsString({ each: true })
+  @MaxLength(4096, { each: true })
+  @Matches(/^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))(?!.*(?:^|\/)\.(?:\/|$)).+$/, { each: true })
+  paths!: string[];
+}
+
+export class PullRequestHeadRequestDto extends RepositoryOwnerRequestDto {
+  @IsInt()
+  @Min(1)
+  pullRequestNumber!: number;
 }

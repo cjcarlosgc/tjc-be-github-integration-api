@@ -197,8 +197,12 @@
       "id": "WI-GH-002",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "storyIds": ["HU02"],
-      "taskIds": ["ST-GH-002"],
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-002"
+      ],
       "caseIds": [],
       "sprint": "Post-transition",
       "status": "W-DONE",
@@ -213,7 +217,9 @@
       "decisionGate": {
         "checked": true,
         "blockingDecisionIds": [],
-        "nonBlockingDecisionIds": ["DEC-VAL-001"],
+        "nonBlockingDecisionIds": [
+          "DEC-VAL-001"
+        ],
         "checkedAt": "2026-09-25T14:45:13Z"
       },
       "execution": {
@@ -236,7 +242,9 @@
               "spec/features/002-repository-access/plan.md",
               "spec/features/002-repository-access/tasks.md"
             ],
-            "evidence": ["harness/reports/wi-gh-002-spec-verification.md"],
+            "evidence": [
+              "harness/reports/wi-gh-002-spec-verification.md"
+            ],
             "recommendedNextStep": "Implementar conforme a la feature aprobada, sin migrar el consumidor Core."
           },
           {
@@ -254,7 +262,9 @@
               "spec/features/002-repository-access/spec.md",
               "spec/features/002-repository-access/plan.md"
             ],
-            "evidence": ["harness/reports/wi-gh-002-contract-review.md"],
+            "evidence": [
+              "harness/reports/wi-gh-002-contract-review.md"
+            ],
             "recommendedNextStep": "Esperar revisión humana final y mantener pendiente el Contract Sync dirigido a Core."
           },
           {
@@ -262,8 +272,14 @@
             "status": "APPROVED",
             "findings": [],
             "blockers": [],
-            "filesAffected": ["app/", "spec/features/002-repository-access/", "harness/"],
-            "evidence": ["harness/reports/wi-gh-002-review.md"],
+            "filesAffected": [
+              "app/",
+              "spec/features/002-repository-access/",
+              "harness/"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-002-review.md"
+            ],
             "recommendedNextStep": "Cerrar WI-GH-002 y preparar WI-GH-003; Core conserva su propio WI de cutover."
           }
         ],
@@ -286,12 +302,42 @@
         "contractImpact": true,
         "publishesContract": true,
         "pullCheckpoints": [
-          {"checkpoint": "start", "workItem": "WI-GH-002", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T14:45:13.826Z"},
-          {"checkpoint": "implementation-delivery", "workItem": "WI-GH-002", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T15:36:28.646Z"},
-          {"checkpoint": "before-review", "workItem": "WI-GH-002", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T15:36:28.721Z"},
-          {"checkpoint": "before-done", "workItem": "WI-GH-002", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T16:04:41.970Z"}
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-002",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T14:45:13.826Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-002",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T15:36:28.646Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-002",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T15:36:28.721Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-002",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-25T16:04:41.970Z"
+          }
         ],
-        "publishedSyncIds": ["CS-GH-20260925-001"],
+        "publishedSyncIds": [
+          "CS-GH-20260925-001"
+        ],
         "pendingRelevantSyncIds": []
       },
       "evidence": [
@@ -302,19 +348,160 @@
       ],
       "blockedReason": null,
       "gateEvidence": {
-        "sddVerified": ["harness/reports/wi-gh-002-spec-verification.md"],
-        "implementationCompleted": ["harness/reports/wi-gh-002-implementation.md"],
-        "independentReviewPassed": ["harness/reports/wi-gh-002-review.md"],
-        "technicalChecksPassed": ["harness/reports/wi-gh-002-implementation.md"],
-        "contractReviewed": ["harness/reports/wi-gh-002-contract-review.md"],
-        "canonicalContractSynced": ["harness/reports/wi-gh-002-contract-review.md"],
-        "contractSyncPublished": ["harness/reports/wi-gh-002-implementation.md"],
-        "interopSyncChecked": ["harness/reports/wi-gh-002-implementation.md"],
-        "noBlockingDecisions": ["harness/reports/wi-gh-002-spec-verification.md"],
-        "retryLimitRespected": ["harness/reports/wi-gh-002-review.md"]
+        "sddVerified": [
+          "harness/reports/wi-gh-002-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-002-implementation.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-002-review.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-002-implementation.md"
+        ],
+        "contractReviewed": [
+          "harness/reports/wi-gh-002-contract-review.md"
+        ],
+        "canonicalContractSynced": [
+          "harness/reports/wi-gh-002-contract-review.md"
+        ],
+        "contractSyncPublished": [
+          "harness/reports/wi-gh-002-implementation.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-002-implementation.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-002-spec-verification.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-002-review.md"
+        ]
       },
       "closedAt": "2026-09-25T16:05:44Z"
     }
   ],
-  "activeWorkItem": null
+  "activeWorkItem": {
+    "id": "WI-GH-003",
+    "component": "GH",
+    "workItemType": "PRODUCT",
+    "storyIds": [
+      "HU06",
+      "HU14"
+    ],
+    "taskIds": [
+      "ST-GH-003"
+    ],
+    "caseIds": [],
+    "sprint": "Post-transition",
+    "status": "W-IN_PROGRESS",
+    "specPaths": [
+      "spec/features/003-pr-snapshot-reads/spec.md",
+      "spec/features/003-pr-snapshot-reads/plan.md",
+      "spec/features/003-pr-snapshot-reads/tasks.md",
+      "spec/contracts/github-integration-contract.md"
+    ],
+    "transversalPaths": [],
+    "approved": true,
+    "decisionGate": {
+      "checked": true,
+      "blockingDecisionIds": [],
+      "nonBlockingDecisionIds": [
+        "DEC-VAL-001"
+      ],
+      "checkedAt": "2026-09-25T16:19:16Z"
+    },
+    "execution": {
+      "leaderAgent": "leader",
+      "analysisAgent": "sdd-analyst",
+      "implementationAgent": "implementer",
+      "contractReviewAgent": "contract-reviewer",
+      "reviewAgent": "human-reviewer",
+      "handoffs": [
+        {
+          "agent": "sdd-analyst",
+          "status": "APPROVED",
+          "findings": [
+            "Se confirma que GitHub pagina commits, no el arreglo files de compare; al llegar al máximo de 300 se devuelve UNVERIFIABLE. La discrepancia de redacción del GH-INTEROP canónico debe resolverse por Contract Sync antes de cerrar el gate contractual o habilitar el cutover."
+          ],
+          "blockers": [],
+          "filesAffected": [
+            "spec/features/003-pr-snapshot-reads/spec.md",
+            "spec/features/003-pr-snapshot-reads/plan.md",
+            "spec/features/003-pr-snapshot-reads/tasks.md",
+            "harness/work-items.json"
+          ],
+          "evidence": [
+            "harness/reports/wi-gh-003-spec-verification.md"
+          ],
+          "recommendedNextStep": "Continuar la implementación local y publicar Contract Sync namespaced a Core para ratificar/documentar el límite compare."
+        },
+        {
+          "agent": "contract-reviewer",
+          "status": "APPROVED",
+          "findings": [],
+          "blockers": [],
+          "filesAffected": [
+            "app/src/github/github-repository-content.service.ts",
+            "app/src/github/github-repository-content.service.spec.ts",
+            "app/src/github/github.dto.ts",
+            "app/src/github/github-integration.controller.ts",
+            "app/src/github/github-integration.controller.spec.ts",
+            "app/src/github/github.module.ts"
+          ],
+          "evidence": ["harness/reports/wi-gh-003-contract-review.md"],
+          "recommendedNextStep": "Publicar Contract Sync de WI-GH-003; después presentar el WI al reviewer humano."
+        }
+      ],
+      "reviewCycles": 0,
+      "maxReviewCycles": 2
+    },
+    "gates": {
+      "sddVerified": "G-PASSED",
+      "implementationCompleted": "G-PASSED",
+      "independentReviewPassed": "G-NOT_RUN",
+      "technicalChecksPassed": "G-PASSED",
+      "contractReviewed": "G-PASSED",
+      "canonicalContractSynced": "G-NOT_RUN",
+      "contractSyncPublished": "G-NOT_RUN",
+      "interopSyncChecked": "G-NOT_RUN",
+      "noBlockingDecisions": "G-PASSED",
+      "retryLimitRespected": "G-NOT_RUN"
+    },
+    "coordination": {
+      "contractImpact": true,
+      "publishesContract": true,
+      "pullCheckpoints": [
+        {
+          "checkpoint": "start",
+          "workItem": "WI-GH-003",
+          "relevantPendingSyncIds": [],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-09-25T16:19:52.037Z"
+        }
+      ],
+      "publishedSyncIds": [],
+      "pendingRelevantSyncIds": []
+    },
+    "evidence": [
+      "harness/reports/wi-gh-003-spec-verification.md",
+      "harness/reports/wi-gh-003-implementation.md",
+      "harness/reports/wi-gh-003-contract-review.md"
+    ],
+    "blockedReason": null,
+    "gateEvidence": {
+      "sddVerified": ["harness/reports/wi-gh-003-spec-verification.md"],
+      "implementationCompleted": ["harness/reports/wi-gh-003-implementation.md"],
+      "independentReviewPassed": [],
+      "technicalChecksPassed": ["harness/reports/wi-gh-003-implementation.md"],
+      "contractReviewed": ["harness/reports/wi-gh-003-contract-review.md"],
+      "canonicalContractSynced": [],
+      "contractSyncPublished": [],
+      "interopSyncChecked": [],
+      "noBlockingDecisions": ["harness/reports/wi-gh-003-spec-verification.md"],
+      "retryLimitRespected": []
+    }
+  }
 }

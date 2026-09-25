@@ -5,6 +5,7 @@ import { GithubAccessService, GithubRepositoryDiscoveryService } from './github-
 import { GithubAppAuthService } from './github-app-auth.service.js';
 import { GithubApiClient, GITHUB_FETCH } from './github-api.client.js';
 import { GithubIntegrationController } from './github-integration.controller.js';
+import { GithubRepositoryContentService } from './github-repository-content.service.js';
 import { InternalErrorFilter } from './internal-error.filter.js';
 
 @Module({
@@ -15,6 +16,7 @@ import { InternalErrorFilter } from './internal-error.filter.js';
     GithubAppAuthService,
     GithubAccessService,
     GithubRepositoryDiscoveryService,
+    GithubRepositoryContentService,
     { provide: GITHUB_FETCH, useValue: fetch },
     { provide: APP_FILTER, useClass: InternalErrorFilter },
   ],

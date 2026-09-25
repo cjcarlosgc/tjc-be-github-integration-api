@@ -8,6 +8,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { CoreServiceAuthGuard } from './core-service-auth.guard.js';
 import { GithubAccessService, GithubRepositoryDiscoveryService } from './github-access.service.js';
 import { GithubIntegrationController } from './github-integration.controller.js';
+import { GithubRepositoryContentService } from './github-repository-content.service.js';
 import { InternalErrorFilter } from './internal-error.filter.js';
 import { correlationIdMiddleware } from '../correlation-id.middleware.js';
 
@@ -17,6 +18,12 @@ const access = {
   listOrganizationInstallations: vi.fn().mockResolvedValue({ status: 'OK', value: [] }),
 };
 const discovery = { list: vi.fn() };
+const content = {
+  compare: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
+  getTree: vi.fn().mockResolvedValue({ status: 'OK', value: { paths: [], truncated: false } }),
+  getFilesBatch: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
+  getPullRequestHead: vi.fn().mockResolvedValue({ status: 'OK', value: { headSha: 'head-sha', state: 'open' } }),
+};
 
 @Module({
   controllers: [GithubIntegrationController],
@@ -25,6 +32,7 @@ const discovery = { list: vi.fn() };
     { provide: ConfigService, useValue: { get: (key: string) => key === 'CORE_TO_GITHUB_INTEGRATION_TOKEN' ? serviceToken : undefined } },
     { provide: GithubAccessService, useValue: access },
     { provide: GithubRepositoryDiscoveryService, useValue: discovery },
+    { provide: GithubRepositoryContentService, useValue: content },
     { provide: APP_FILTER, useClass: InternalErrorFilter },
   ],
 })
@@ -92,6 +100,61 @@ describe('private GitHub integration routes', () => {
     });
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ status: 'OK', value: [] });
+  });
+
+  it('routes snapshot reads through the content service with the GH-INTEROP request fields', async () => {
+    const headers = { Authorization: `Bearer ${serviceToken}`, 'Content-Type': 'application/json' };
+    const compare = await fetch(`${baseUrl}/repositories/compare`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', baseSha: 'base-sha', headSha: 'head-sha' }),
+    });
+    expect(compare.status).toBe(200);
+    expect(await compare.json()).toEqual({ status: 'OK', value: { files: [] } });
+    expect(content.compare).toHaveBeenCalledWith('13', 'acme/widgets', 'base-sha', 'head-sha');
+
+    const tree = await fetch(`${baseUrl}/repositories/tree`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', commitSha: 'commit-sha' }),
+    });
+    expect(tree.status).toBe(200);
+    expect(content.getTree).toHaveBeenCalledWith('13', 'acme/widgets', 'commit-sha');
+
+    const batch = await fetch(`${baseUrl}/repositories/files:batch`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', commitSha: 'commit-sha', paths: ['src/index.ts'] }),
+    });
+    expect(batch.status).toBe(200);
+    expect(content.getFilesBatch).toHaveBeenCalledWith('13', 'acme/widgets', 'commit-sha', ['src/index.ts']);
+
+    const head = await fetch(`${baseUrl}/repositories/pull-request-head`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42 }),
+    });
+    expect(head.status).toBe(200);
+    expect(content.getPullRequestHead).toHaveBeenCalledWith('13', 'acme/widgets', 42);
+  });
+
+  it('rejects malformed snapshot DTOs, paths above the eight-file batch cap, and unknown fields', async () => {
+    const headers = { Authorization: `Bearer ${serviceToken}`, 'Content-Type': 'application/json' };
+    const tooManyPaths = await fetch(`${baseUrl}/repositories/files:batch`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', commitSha: 'commit-sha', paths: Array(9).fill('src/index.ts') }),
+    });
+    expect(tooManyPaths.status).toBe(400);
+    expect(await tooManyPaths.json()).toMatchObject({ code: 'INVALID_REQUEST' });
+
+    const unsafePath = await fetch(`${baseUrl}/repositories/files:batch`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', commitSha: 'commit-sha', paths: ['src/../secret'] }),
+    });
+    expect(unsafePath.status).toBe(400);
+
+    const unexpected = await fetch(`${baseUrl}/repositories/tree`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', commitSha: 'commit-sha', extra: true }),
+    });
+    expect(unexpected.status).toBe(400);
+    expect(content.getFilesBatch).toHaveBeenCalledTimes(1);
   });
 
   it('normalizes unexpected failures without exposing provider tokens or exception text', async () => {

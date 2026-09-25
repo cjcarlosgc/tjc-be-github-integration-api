@@ -1,6 +1,6 @@
 # Feature 005 — Webhooks verificados y entrega normalizada
 
-**Estado:** implementación local realizada bajo `WI-GH-005`; revisión/cierre Harness y cutover Core siguen pendientes.
+**Estado:** `WI-GH-005` cerrado localmente; la integración end-to-end y el cutover siguen pendientes de `WI-CORE-003`.
 
 ## Valor relacionado
 

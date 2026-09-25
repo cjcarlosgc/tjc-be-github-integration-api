@@ -763,154 +763,116 @@
         ]
       },
       "closedAt": "2026-09-25T19:05:17Z"
+    },
+    {
+      "id": "WI-GH-005",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": ["HU02", "HU14", "HU16"],
+      "taskIds": ["ST-GH-005"],
+      "caseIds": [],
+      "sprint": "Post-transition",
+      "status": "W-DONE",
+      "specPaths": [
+        "README.md",
+        "spec/README.md",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/plan.md",
+        "spec/features/005-webhook-delivery/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": ["DEC-VAL-001"],
+        "checkedAt": "2026-09-25T19:22:43Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "implementer",
+        "contractReviewAgent": "contract-reviewer",
+        "reviewAgent": "reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": ["spec/features/005-webhook-delivery/spec.md", "spec/features/005-webhook-delivery/plan.md", "spec/features/005-webhook-delivery/tasks.md", "harness/work-items.json"],
+            "evidence": ["harness/reports/wi-gh-005-spec-verification.md"],
+            "recommendedNextStep": "Implementar el corte GH aprobado sin cambiar Core ni realizar cutover."
+          },
+          {
+            "agent": "reviewer",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": ["app/src/github-webhooks", "app/src/request-body-parsers.ts", "app/src/config/runtime-config.ts", "app/src/health/health.controller.ts"],
+            "evidence": ["harness/reports/wi-gh-005-independent-review.md"],
+            "recommendedNextStep": "Presentar diff y evidencia para la única aprobación humana final de la migración."
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "findings": ["Resuelto P2: GH rechaza 200 + duplicate:true para cualquier evento distinto de PULL_REQUEST."],
+            "blockers": [],
+            "filesAffected": ["app/src/github-webhooks/github-webhook-core-client.ts", "app/src/github-webhooks/github-webhook-core-client.spec.ts", "spec/contracts/github-integration-contract.md"],
+            "evidence": ["harness/reports/wi-gh-005-contract-review.md"],
+            "recommendedNextStep": "CS-GH-20260925-005 quedó publicado; obtener el ACK de Core y completar WI-CORE-003 antes del cutover."
+          }
+        ],
+        "reviewCycles": 1,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-PASSED",
+        "canonicalContractSynced": "G-PASSED",
+        "contractSyncPublished": "G-PASSED",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "gateEvidence": {
+        "sddVerified": ["harness/reports/wi-gh-005-spec-verification.md"],
+        "implementationCompleted": ["harness/reports/wi-gh-005-implementation.md"],
+        "independentReviewPassed": ["harness/reports/wi-gh-005-independent-review.md"],
+        "technicalChecksPassed": ["harness/reports/wi-gh-005-implementation.md"],
+        "contractReviewed": ["harness/reports/wi-gh-005-contract-review.md"],
+        "canonicalContractSynced": ["harness/reports/wi-gh-005-canonical-sync.md"],
+        "contractSyncPublished": ["harness/reports/wi-gh-005-contract-sync-005.md"],
+        "interopSyncChecked": ["harness/reports/wi-gh-005-implementation.md"],
+        "noBlockingDecisions": ["harness/reports/wi-gh-005-spec-verification.md"],
+        "retryLimitRespected": ["harness/reports/wi-gh-005-independent-review.md"]
+      },
+      "coordination": {
+        "contractImpact": true,
+        "publishesContract": true,
+        "pullCheckpoints": [
+          {"checkpoint": "start", "workItem": "WI-GH-005", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T19:19:16.383Z"},
+          {"checkpoint": "implementation-delivery", "workItem": "WI-GH-005", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T19:54:16.627Z"},
+          {"checkpoint": "before-review", "workItem": "WI-GH-005", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T19:54:16.794Z"},
+          {"checkpoint": "before-done", "workItem": "WI-GH-005", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-25T21:27:25.211Z"}
+        ],
+        "publishedSyncIds": ["CS-GH-20260925-005"],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-005-spec-verification.md",
+        "harness/reports/wi-gh-005-implementation.md",
+        "harness/reports/wi-gh-005-independent-review.md",
+        "harness/reports/wi-gh-005-contract-review.md",
+        "harness/reports/wi-gh-005-canonical-sync.md"
+      ],
+      "blockedReason": null,
+      "closedAt": "2026-09-25T21:29:08.000Z"
     }
   ],
-  "activeWorkItem": {
-    "id": "WI-GH-005",
-    "component": "GH",
-    "workItemType": "PRODUCT",
-    "storyIds": [
-      "HU02",
-      "HU14",
-      "HU16"
-    ],
-    "taskIds": [
-      "ST-GH-005"
-    ],
-    "caseIds": [],
-    "sprint": "Post-transition",
-    "status": "W-IN_REVIEW",
-    "specPaths": [
-      "README.md",
-      "spec/README.md",
-      "spec/features/005-webhook-delivery/spec.md",
-      "spec/features/005-webhook-delivery/plan.md",
-      "spec/features/005-webhook-delivery/tasks.md",
-      "spec/contracts/github-integration-contract.md"
-    ],
-    "transversalPaths": [],
-    "approved": true,
-    "decisionGate": {
-      "checked": true,
-      "blockingDecisionIds": [],
-      "nonBlockingDecisionIds": [
-        "DEC-VAL-001"
-      ],
-      "checkedAt": "2026-09-25T19:22:43Z"
-    },
-    "execution": {
-      "leaderAgent": "leader",
-      "analysisAgent": "sdd-analyst",
-      "implementationAgent": "implementer",
-      "contractReviewAgent": "contract-reviewer",
-      "reviewAgent": "reviewer",
-      "handoffs": [
-        {
-          "agent": "sdd-analyst",
-          "status": "APPROVED",
-          "findings": [],
-          "blockers": [],
-          "filesAffected": [
-            "spec/features/005-webhook-delivery/spec.md",
-            "spec/features/005-webhook-delivery/plan.md",
-            "spec/features/005-webhook-delivery/tasks.md",
-            "harness/work-items.json"
-          ],
-          "evidence": [
-            "harness/reports/wi-gh-005-spec-verification.md"
-          ],
-          "recommendedNextStep": "Implementar el corte GH aprobado sin cambiar Core ni realizar cutover."
-        },
-        {
-          "agent": "reviewer",
-          "status": "APPROVED",
-          "findings": [],
-          "blockers": [],
-          "filesAffected": [
-            "app/src/github-webhooks",
-            "app/src/request-body-parsers.ts",
-            "app/src/config/runtime-config.ts",
-            "app/src/health/health.controller.ts"
-          ],
-          "evidence": [
-            "harness/reports/wi-gh-005-independent-review.md"
-          ],
-          "recommendedNextStep": "Presentar diff y evidencia para la única aprobación humana final de la migración."
-        },
-        {
-          "agent": "contract-reviewer",
-          "status": "APPROVED",
-          "findings": [
-            "Resuelto P2: GH rechaza 200 + duplicate:true para cualquier evento distinto de PULL_REQUEST."
-          ],
-          "blockers": [],
-          "filesAffected": [
-            "app/src/github-webhooks/github-webhook-core-client.ts",
-            "app/src/github-webhooks/github-webhook-core-client.spec.ts",
-            "spec/contracts/github-integration-contract.md"
-          ],
-          "evidence": [
-            "harness/reports/wi-gh-005-contract-review.md"
-          ],
-          "recommendedNextStep": "CS-GH-20260925-005 quedó publicado; obtener el ACK de Core y completar WI-CORE-003 antes del cutover."
-        }
-      ],
-      "reviewCycles": 1,
-      "maxReviewCycles": 2
-    },
-    "gates": {
-      "sddVerified": "G-PASSED",
-      "implementationCompleted": "G-PASSED",
-      "independentReviewPassed": "G-PASSED",
-      "technicalChecksPassed": "G-PASSED",
-      "contractReviewed": "G-PASSED",
-      "canonicalContractSynced": "G-NOT_RUN",
-      "contractSyncPublished": "G-PASSED",
-      "interopSyncChecked": "G-PASSED",
-      "noBlockingDecisions": "G-PASSED",
-      "retryLimitRespected": "G-PASSED"
-    },
-    "coordination": {
-      "contractImpact": true,
-      "publishesContract": true,
-      "pullCheckpoints": [
-        {
-          "checkpoint": "start",
-          "workItem": "WI-GH-005",
-          "relevantPendingSyncIds": [],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-09-25T19:19:16.383Z"
-        },
-        {
-          "checkpoint": "implementation-delivery",
-          "workItem": "WI-GH-005",
-          "relevantPendingSyncIds": [],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-09-25T19:54:16.627Z"
-        },
-        {
-          "checkpoint": "before-review",
-          "workItem": "WI-GH-005",
-          "relevantPendingSyncIds": [],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-09-25T19:54:16.794Z"
-        }
-      ],
-      "publishedSyncIds": [
-        "CS-GH-20260925-005"
-      ],
-      "pendingRelevantSyncIds": []
-    },
-    "evidence": [
-      "harness/reports/wi-gh-005-spec-verification.md",
-      "harness/reports/wi-gh-005-implementation.md",
-      "harness/reports/wi-gh-005-independent-review.md",
-      "harness/reports/wi-gh-005-contract-review.md",
-      "harness/reports/wi-gh-005-contract-sync-005.md"
-    ],
-    "blockedReason": null
-  }
+  "activeWorkItem": null
 }

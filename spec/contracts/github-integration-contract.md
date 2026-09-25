@@ -2,7 +2,7 @@
 
 **Estado:** APROBADO por el usuario el 2026-09-25; el contrato define la frontera objetivo y no declara integración desplegada.
 **Línea base:** propuesta asociada a SDD 3.0; no declara integración desplegada ni homologación con Sandbox.
-**Autoridad:** RAG Core mantiene el original en este archivo. Las aclaraciones locales de publicación de WI-GH-004 (`CS-GH-20260925-003/004`) y de recepción/entrega de webhooks de WI-GH-005 (`CS-GH-20260925-005`) están pendientes de Core; este archivo completo no es actualmente un espejo byte a byte. Console no consume este contrato.
+**Autoridad:** RAG Core mantiene el original en este archivo; `tjc-be-github-integration-api` espeja esta versión byte por byte. Console no consume este contrato.
 
 ## Propósito y límites
 
@@ -44,7 +44,7 @@ Todas las operaciones internas requieren el bearer Core→GH. Discovery además 
 | Membresía organizacional | `POST /internal/v1/github/organizations/membership` | `{ installationId, organizationLogin, githubUserId }` → `GithubLookup<OrganizationMembership>`. |
 | Owners organizacionales | `POST /internal/v1/github/organizations/owners` | `{ installationId, organizationLogin }` → `GithubLookup<OrganizationOwner[]>`; un `200` vacío se mantiene `UNVERIFIABLE`. |
 | Ramas | `POST /internal/v1/github/repositories/branches` | `{ installationId, repositoryName }` → `GithubLookup<{ items: RepositoryBranch[] }>`, paginadas por el servicio. |
-| Compare | `POST /internal/v1/github/repositories/compare` | `{ installationId, repositoryName, baseSha, headSha }` → `GithubLookup<{ files: CompareFile[] }>`. |
+| Compare | `POST /internal/v1/github/repositories/compare` | `{ installationId, repositoryName, baseSha, headSha }` → `GithubLookup<{ files: CompareFile[] }>`. GitHub expone como máximo 300 archivos cambiados en la primera página de compare; alcanzar ese límite es `UNVERIFIABLE`, nunca un `OK` parcial. |
 | Árbol | `POST /internal/v1/github/repositories/tree` | `{ installationId, repositoryName, commitSha }` → `GithubLookup<{ paths: string[], truncated: boolean }>`. |
 | Contenido por lote | `POST /internal/v1/github/repositories/files:batch` | `{ installationId, repositoryName, commitSha, paths[] }` → `GithubLookup<{ files: [{ path, contentBase64 }] }>`, máximo 8 paths por llamada; todos los datos quedan ligados al SHA solicitado. |
 | Head de PR | `POST /internal/v1/github/repositories/pull-request-head` | `{ installationId, repositoryName, pullRequestNumber }` → `GithubLookup<PullRequestHead>`, para que Core aplique freshness. |
@@ -134,10 +134,10 @@ Los errores internos no exponen la respuesta ni el cuerpo de GitHub y usan esta 
 | --- | --- | --- |
 | `INVALID_REQUEST` | 400, 413 | DTO/path inválido; 413 indica body sobredimensionado. |
 | `SERVICE_UNAUTHORIZED` | 401 | Bearer servicio faltante o inválido en cualquier ruta privada. Es distinto de OAuth de usuario. |
-| `GITHUB_USER_TOKEN_INVALID` | 401 | Solo discovery: token OAuth GitHub de usuario rechazado/expirado. Core conserva su error público vigente. |
+| `GITHUB_USER_TOKEN_INVALID` | 401 | Solo discovery: GitHub rechaza el provider token con HTTP 401. Un 403 es ambiguo (puede indicar rate limit o restricciones) y no se presenta como sesión expirada. |
 | `GITHUB_RESOURCE_NOT_FOUND` | 404 | Recurso requerido por una operación directa no disponible; lecturas que usan `GithubLookup` devuelven su estado en vez de este error. |
 | `GITHUB_APP_CONFIGURATION_UNAVAILABLE` | 503 | Configuración local de GitHub App incompleta/incorrecta; `retryable: false`. |
-| `GITHUB_UPSTREAM_UNAVAILABLE` | 503 | Timeout, red, límite de tasa o fallo upstream de GitHub; `retryable: true`. |
+| `GITHUB_UPSTREAM_UNAVAILABLE` | 503 | Timeout, red, límite de tasa, HTTP 403 ambiguo en discovery o fallo upstream de GitHub; `retryable: true`. |
 | `INVALID_WEBHOOK_SIGNATURE` | 401 | HMAC-SHA256 del webhook ausente o no válido; `retryable: false`. |
 | `GITHUB_WEBHOOK_UNAVAILABLE` | 503 | Secreto local del webhook no configurado; `retryable: false`. |
 | `CORE_WEBHOOK_UNAVAILABLE` | 503 | Core no confirmó el delivery dentro de 8 s o su respuesta no cumple el contrato; `retryable: true` para solicitar reintento a GitHub. |

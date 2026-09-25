@@ -1,7 +1,7 @@
 # WI-GH-005 — implementación y comprobaciones
 
 **Fecha:** 2026-09-25  
-**Estado:** implementación local y comprobaciones técnicas aprobadas; revisión independiente y cierre final pendientes.
+**Estado:** WI-GH-005 cerrado localmente; la integración end-to-end y el cutover siguen pendientes de WI-CORE-003.
 
 ## Alcance implementado
 
@@ -24,4 +24,4 @@
 - `git diff --check` — aprobado.
 - Contract Sync `start`, `implementation-delivery` y `before-review` — sin eventos entrantes relevantes.
 
-La prueba HTTP integrada cubre cuerpo exactamente al máximo configurado y uno byte por encima; el exceso se rechaza antes de invocar el controlador. Las llamadas a Core usan fetch simulado. El contrato local añade restricciones/códigos de webhook todavía pendientes de revisión del dueño canónico Core mediante `CS-GH-20260925-005`; por eso no se declara que el espejo completo esté sincronizado. No hubo llamadas a GitHub real, modificaciones en Core/Console/Sandbox, cambios de credenciales, webhook registrado, despliegue ni cutover. La aprobación humana se difiere al final de la migración conforme a la excepción temporal registrada en `harness/reports/gh-migration-final-approval.md`.
+La prueba HTTP integrada cubre cuerpo exactamente al máximo configurado y uno byte por encima; el exceso se rechaza antes de invocar el controlador. Las llamadas a Core usan fetch simulado. `GH-INTEROP-1.0` quedó sincronizado byte por byte con el canónico Core (SHA-256 `98662fa978968e14265ba9d6d208f5f2cc87015a6f8d58d47086cc7ce7262d9`); los cinco Contract Sync relacionados permanecen `C-ACKNOWLEDGED`, pues Core aún no implementa los cambios. No hubo llamadas a GitHub real, modificaciones en Core/Console/Sandbox, cambios de credenciales, webhook registrado, despliegue ni cutover. La aprobación humana global se difiere al final de la migración conforme a `harness/reports/gh-migration-final-approval.md`.

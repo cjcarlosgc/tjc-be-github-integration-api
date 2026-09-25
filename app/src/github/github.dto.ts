@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
+import { ArrayMinSize, ArrayMaxSize, IsArray, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Matches, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 
 const githubIdPattern = /^[1-9]\d*$/;
 const repositoryNamePattern = /^(?!\.{1,2}\/)[A-Za-z0-9_.-]+\/(?!\.{1,2}$)[A-Za-z0-9_.-]+$/;
@@ -111,4 +111,88 @@ export class PullRequestHeadRequestDto extends RepositoryOwnerRequestDto {
   @IsInt()
   @Min(1)
   pullRequestNumber!: number;
+}
+
+const shaPattern = /^(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})$/;
+const relativePathPattern = /^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))(?!.*(?:^|\/)\.(?:\/|$))(?!.*\/\/)[^\\]+$/;
+
+export class GithubCheckRequestDto extends RepositoryOwnerRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  name!: string;
+
+  @IsString()
+  @Matches(shaPattern)
+  headSha!: string;
+
+  @IsIn(['success', 'failure', 'neutral', 'cancelled', 'action_required'])
+  conclusion!: 'success' | 'failure' | 'neutral' | 'cancelled' | 'action_required';
+
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  summary!: string;
+
+  @IsOptional()
+  @MaxLength(2048)
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
+  detailsUrl?: string;
+}
+
+export class PublicationRequestDto extends RepositoryOwnerRequestDto {
+  @IsInt()
+  @Min(1)
+  pullRequestNumber!: number;
+
+  @IsString()
+  @Matches(shaPattern)
+  sourceHeadSha!: string;
+}
+
+export class PublicationProposalBlobRequestDto extends PublicationRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(4096)
+  @Matches(relativePathPattern)
+  path!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(133333336)
+  contentBase64!: string;
+}
+
+export class CompanionProposalFileDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(4096)
+  @Matches(relativePathPattern)
+  path!: string;
+
+  @IsString()
+  @Matches(shaPattern)
+  blobSha!: string;
+}
+
+export class CompanionPullRequestRequestDto extends PublicationRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  sourceHeadRef!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  @Matches(/^[A-Za-z0-9._:-]+$/)
+  analysisRunId!: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => CompanionProposalFileDto)
+  proposalFiles!: CompanionProposalFileDto[];
 }

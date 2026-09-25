@@ -1,10 +1,15 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { GithubAccessService, GithubRepositoryDiscoveryService } from './github-access.service.js';
 import { GithubRepositoryContentService } from './github-repository-content.service.js';
+import { GithubPublicationService } from './github-publication.service.js';
 import {
+  CompanionPullRequestRequestDto,
   DiscoveryRequestDto,
+  GithubCheckRequestDto,
   OrganizationMembershipRequestDto,
   OrganizationOwnersRequestDto,
+  PublicationProposalBlobRequestDto,
+  PublicationRequestDto,
   PullRequestHeadRequestDto,
   RepositoryByIdRequestDto,
   RepositoryCompareRequestDto,
@@ -24,6 +29,7 @@ export class GithubIntegrationController {
     private readonly github: GithubAccessService,
     private readonly discovery: GithubRepositoryDiscoveryService,
     private readonly content: GithubRepositoryContentService,
+    private readonly publication: GithubPublicationService,
   ) {}
 
   @Get('app')
@@ -116,5 +122,29 @@ export class GithubIntegrationController {
   @HttpCode(HttpStatus.OK)
   getPullRequestHead(@Body() body: PullRequestHeadRequestDto): Promise<unknown> {
     return this.content.getPullRequestHead(body.installationId, body.repositoryName, body.pullRequestNumber);
+  }
+
+  @Post('checks')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  createCheck(@Body() body: GithubCheckRequestDto): Promise<void> {
+    return this.publication.createCheck(body);
+  }
+
+  @Post('publications/companion-pull-request/preflight')
+  @HttpCode(HttpStatus.OK)
+  preflightPublication(@Body() body: PublicationRequestDto): Promise<unknown> {
+    return this.publication.preflight(body);
+  }
+
+  @Post('publications/companion-pull-request/proposal-blobs')
+  @HttpCode(HttpStatus.OK)
+  uploadProposalBlob(@Body() body: PublicationProposalBlobRequestDto): Promise<unknown> {
+    return this.publication.uploadProposalBlob(body);
+  }
+
+  @Post('publications/companion-pull-request')
+  @HttpCode(HttpStatus.OK)
+  finalizePublication(@Body() body: CompanionPullRequestRequestDto): Promise<unknown> {
+    return this.publication.finalize(body);
   }
 }

@@ -20,6 +20,14 @@ describe('GithubApiClient', () => {
     expect(init.signal).toBeInstanceOf(AbortSignal);
   });
 
+  it('allows a request-specific deadline up to the configured maximum', async () => {
+    const timeout = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(new AbortController().signal);
+    const client = new GithubApiClient(vi.fn().mockResolvedValue(new Response('{}', { status: 200 })));
+    await client.request('/repos/acme/widgets/git/blobs', 'app-token', { timeoutMs: 180_000 });
+    expect(timeout).toHaveBeenCalledWith(180_000);
+    timeout.mockRestore();
+  });
+
   it('drops network exception content instead of preserving secret-bearing causes', async () => {
     const fetcher = vi.fn().mockRejectedValue(new Error('request included private token material'));
     const client = new GithubApiClient(fetcher);

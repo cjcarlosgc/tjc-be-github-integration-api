@@ -7,7 +7,8 @@ export type GithubFetch = (input: string | URL | Request, init?: RequestInit) =>
 
 const API_BASE_URL = 'https://api.github.com';
 const API_VERSION = '2022-11-28';
-const REQUEST_TIMEOUT_MS = 10_000;
+const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
+const MAX_REQUEST_TIMEOUT_MS = 180_000;
 
 @Injectable()
 export class GithubApiClient {
@@ -16,7 +17,7 @@ export class GithubApiClient {
   async request(
     path: string,
     token: string,
-    options: { method?: 'GET' | 'POST'; body?: unknown; timeoutMs?: number } = {},
+    options: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown; timeoutMs?: number } = {},
   ): Promise<Response> {
     let response: Response;
     try {
@@ -31,7 +32,7 @@ export class GithubApiClient {
           ...(options.body === undefined ? {} : { 'Content-Type': 'application/json' }),
         },
         ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
-        signal: AbortSignal.timeout(Math.min(REQUEST_TIMEOUT_MS, options.timeoutMs ?? REQUEST_TIMEOUT_MS)),
+        signal: AbortSignal.timeout(Math.min(MAX_REQUEST_TIMEOUT_MS, options.timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS)),
       });
     } catch {
       // Do not keep the original exception: fetch errors can contain request URLs or headers.

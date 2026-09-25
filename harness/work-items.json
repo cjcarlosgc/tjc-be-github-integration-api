@@ -134,9 +134,10 @@
       "acceptanceCriteria": [
         "Checks y preflight/proposal-blobs/finalize implementan los DTOs y errores exactos de GH-INTEROP-1.0: READY del preflight es solo {status: READY}; branch/base se verifican internamente, no se agregan al DTO.",
         "Checks publica únicamente en el headSha, conclusión, título y resumen provistos por Core; GH no decide freshness/conclusión ni consulta el PR para esa ruta.",
-        "La publicación vuelve a verificar PR fuente abierto/HEAD vigente y estado de companion PR antes de cada blob y cada escritura visible; stale/cerrado no publica ramas, refs ni PRs.",
+        "La publicación vuelve a verificar PR fuente abierto/HEAD vigente y estado de companion PR que coincida en head y base esperados antes de cada blob y escritura visible, y vuelve a validar tras actualizar una ref; stale/cerrado detectado antes de escribir no publica refs ni PRs, y el cierre durante un update activa compensación best-effort.",
         "No se habilita publicación de forks; Core aplica la elegibilidad y GH no decide reglas de dominio.",
-        "El traslado de propuestas envía un archivo por llamada y conserva los límites de producto actuales de Core.",
+        "El traslado de propuestas envía un archivo por llamada, conserva el límite nativo de GitHub de 100 MB por blob, permite hasta 180 s en la llamada de blob y no inventa un límite agregado de archivos; solo la ruta privada autenticada admite el cuerpo Base64 grande.",
+        "Los resultados ambiguos de una escritura no provocan borrado o sobrescritura de refs a ciegas; los límites de compensación quedan documentados y probados.",
         "Publica Contract Sync namespaced enlazado a WI-GH-004 para los consumidores afectados."
       ],
       "specPaths": [

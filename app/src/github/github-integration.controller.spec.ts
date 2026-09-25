@@ -9,8 +9,10 @@ import { CoreServiceAuthGuard } from './core-service-auth.guard.js';
 import { GithubAccessService, GithubRepositoryDiscoveryService } from './github-access.service.js';
 import { GithubIntegrationController } from './github-integration.controller.js';
 import { GithubRepositoryContentService } from './github-repository-content.service.js';
+import { GithubPublicationService } from './github-publication.service.js';
 import { InternalErrorFilter } from './internal-error.filter.js';
 import { correlationIdMiddleware } from '../correlation-id.middleware.js';
+import { configureRequestBodyParsers } from '../request-body-parsers.js';
 
 const serviceToken = 'test-only-core-to-gh-token';
 const access = {
@@ -24,6 +26,15 @@ const content = {
   getFilesBatch: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
   getPullRequestHead: vi.fn().mockResolvedValue({ status: 'OK', value: { headSha: 'head-sha', state: 'open' } }),
 };
+const publication = {
+  createCheck: vi.fn().mockResolvedValue(undefined),
+  preflight: vi.fn().mockResolvedValue({ status: 'READY' }),
+  uploadProposalBlob: vi.fn().mockResolvedValue({ status: 'UPLOADED', path: 'tests/new.spec.ts', blobSha: 'b'.repeat(40) }),
+  finalize: vi.fn().mockResolvedValue({
+    status: 'PUBLISHED', branchName: 'rag-tests/pr-42-aaaaaaa', commitSha: 'c'.repeat(40),
+    pullRequest: { number: 51, url: 'https://github.com/acme/widgets/pull/51' },
+  }),
+};
 
 @Module({
   controllers: [GithubIntegrationController],
@@ -33,6 +44,7 @@ const content = {
     { provide: GithubAccessService, useValue: access },
     { provide: GithubRepositoryDiscoveryService, useValue: discovery },
     { provide: GithubRepositoryContentService, useValue: content },
+    { provide: GithubPublicationService, useValue: publication },
     { provide: APP_FILTER, useClass: InternalErrorFilter },
   ],
 })
@@ -43,8 +55,9 @@ describe('private GitHub integration routes', () => {
   let baseUrl: string;
 
   beforeAll(async () => {
-    app = await NestFactory.create(GithubControllerTestModule, { logger: false });
+    app = await NestFactory.create(GithubControllerTestModule, { logger: false, bodyParser: false });
     app.use(correlationIdMiddleware);
+    configureRequestBodyParsers(app, serviceToken);
     app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true, forbidUnknownValues: true }));
     await app.listen(0, '127.0.0.1');
     const address = app.getHttpServer().address() as AddressInfo;
@@ -155,6 +168,95 @@ describe('private GitHub integration routes', () => {
     });
     expect(unexpected.status).toBe(400);
     expect(content.getFilesBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('routes Checks and the stateless companion-publication sequence with the contract DTOs', async () => {
+    const headers = { Authorization: `Bearer ${serviceToken}`, 'Content-Type': 'application/json' };
+    const sourceHeadSha = 'a'.repeat(40);
+    const checkBody = {
+      installationId: '13', repositoryName: 'acme/widgets', name: 'RAG validation', headSha: sourceHeadSha,
+      conclusion: 'success', title: 'Passed', summary: 'Analysis complete.', detailsUrl: 'https://app.example/runs/1',
+    };
+    const check = await fetch(`${baseUrl}/checks`, { method: 'POST', headers, body: JSON.stringify(checkBody) });
+    expect(check.status).toBe(204);
+    expect(await check.text()).toBe('');
+    expect(publication.createCheck).toHaveBeenCalledWith(checkBody);
+
+    const request = { installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42, sourceHeadSha };
+    const preflight = await fetch(`${baseUrl}/publications/companion-pull-request/preflight`, {
+      method: 'POST', headers, body: JSON.stringify(request),
+    });
+    expect(preflight.status).toBe(200);
+    expect(await preflight.json()).toEqual({ status: 'READY' });
+    expect(publication.preflight).toHaveBeenCalledWith(request);
+
+    const blobRequest = { ...request, path: 'tests/new.spec.ts', contentBase64: Buffer.from('test').toString('base64') };
+    const blob = await fetch(`${baseUrl}/publications/companion-pull-request/proposal-blobs`, {
+      method: 'POST', headers, body: JSON.stringify(blobRequest),
+    });
+    expect(await blob.json()).toEqual({ status: 'UPLOADED', path: 'tests/new.spec.ts', blobSha: 'b'.repeat(40) });
+    expect(publication.uploadProposalBlob).toHaveBeenCalledWith(blobRequest);
+
+    const finalizeRequest = {
+      ...request, sourceHeadRef: 'feature/new-tests', analysisRunId: 'run-1',
+      proposalFiles: [{ path: 'tests/new.spec.ts', blobSha: 'b'.repeat(40) }],
+    };
+    const finalized = await fetch(`${baseUrl}/publications/companion-pull-request`, {
+      method: 'POST', headers, body: JSON.stringify(finalizeRequest),
+    });
+    expect(await finalized.json()).toEqual({
+      status: 'PUBLISHED', branchName: 'rag-tests/pr-42-aaaaaaa', commitSha: 'c'.repeat(40),
+      pullRequest: { number: 51, url: 'https://github.com/acme/widgets/pull/51' },
+    });
+    expect(publication.finalize).toHaveBeenCalledWith(finalizeRequest);
+  });
+
+  it('accepts proposal JSON above Express’s default body limit only on the authenticated proposal routes', async () => {
+    const largeBlob = { installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42, sourceHeadSha: 'a'.repeat(40), path: 'tests/large.spec.ts', contentBase64: 'YQ=='.repeat(30_000) };
+    const body = JSON.stringify(largeBlob);
+    expect(Buffer.byteLength(body)).toBeGreaterThan(100_000);
+
+    const accepted = await fetch(`${baseUrl}/publications/companion-pull-request/proposal-blobs`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${serviceToken}`, 'Content-Type': 'application/json' },
+      body,
+    });
+    expect(accepted.status).toBe(200);
+    expect(publication.uploadProposalBlob).toHaveBeenCalledWith(largeBlob);
+
+    const unauthorized = await fetch(`${baseUrl}/publications/companion-pull-request/proposal-blobs`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body,
+    });
+    expect(unauthorized.status).toBe(401);
+    expect(await unauthorized.json()).toMatchObject({ code: 'SERVICE_UNAUTHORIZED', retryable: false });
+  });
+
+  it('rejects invalid publication paths, check conclusions, and unexpected fields', async () => {
+    const headers = { Authorization: `Bearer ${serviceToken}`, 'Content-Type': 'application/json' };
+    const invalidCheck = await fetch(`${baseUrl}/checks`, {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        installationId: '13', repositoryName: 'acme/widgets', name: 'check', headSha: 'a'.repeat(40),
+        conclusion: 'in_progress', title: 'title', summary: 'summary',
+      }),
+    });
+    expect(invalidCheck.status).toBe(400);
+
+    const invalidPath = await fetch(`${baseUrl}/publications/companion-pull-request/proposal-blobs`, {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42,
+        sourceHeadSha: 'a'.repeat(40), path: '../escape.ts', contentBase64: Buffer.from('test').toString('base64'),
+      }),
+    });
+    expect(invalidPath.status).toBe(400);
+
+    const extra = await fetch(`${baseUrl}/publications/companion-pull-request/preflight`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42, sourceHeadSha: 'a'.repeat(40), extra: true }),
+    });
+    expect(extra.status).toBe(400);
+    expect(await extra.json()).toMatchObject({ code: 'INVALID_REQUEST' });
   });
 
   it('normalizes unexpected failures without exposing provider tokens or exception text', async () => {

@@ -655,7 +655,7 @@
       "implementationCompleted": "G-NOT_RUN",
       "independentReviewPassed": "G-NOT_RUN",
       "technicalChecksPassed": "G-NOT_RUN",
-      "contractReviewed": "G-PASSED",
+      "contractReviewed": "G-NOT_RUN",
       "canonicalContractSynced": "G-PASSED",
       "contractSyncPublished": "G-PASSED",
       "interopSyncChecked": "G-NOT_RUN",
@@ -681,6 +681,14 @@
           "deferredSyncIds": [],
           "notRelevantSyncIds": [],
           "checkedAt": "2026-09-25T18:06:09.170Z"
+        },
+        {
+          "checkpoint": "before-review",
+          "workItem": "WI-GH-004",
+          "relevantPendingSyncIds": [],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-09-25T18:24:46.183Z"
         }
       ],
       "publishedSyncIds": [
@@ -702,9 +710,7 @@
       "implementationCompleted": [],
       "independentReviewPassed": [],
       "technicalChecksPassed": [],
-      "contractReviewed": [
-        "harness/reports/wi-gh-004-contract-review.md"
-      ],
+      "contractReviewed": [],
       "canonicalContractSynced": [
         "harness/reports/wi-gh-004-contract-review.md"
       ],

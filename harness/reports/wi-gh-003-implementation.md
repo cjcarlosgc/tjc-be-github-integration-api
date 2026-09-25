@@ -1,7 +1,7 @@
 # WI-GH-003 — Evidencia de implementación
 
 **Fecha:** 2026-09-25  
-**Estado:** implementación local lista para revisión humana; WI todavía abierto.
+**Estado:** `WI-GH-003` quedó `W-DONE` con revisión independiente aprobada. La aprobación humana se difiere al cierre conjunto de WI-GH-003–005 por excepción temporal del usuario.
 
 ## Cambios
 
@@ -26,7 +26,7 @@ En la raíz:
 
 ## Revisión y límites
 
-- `oauth_contract_review` aprobó el código tras corregir la paginación de Compare; no sustituye la revisión humana del WI.
-- `core_sdd_analyst` aprobó continuar con la regla fail-closed y señaló que la frase de paginación del contrato canónico debe aclararse vía Contract Sync. Este evento queda pendiente del consumidor y es requisito antes del cutover Core.
-- `oauth_contract_review` aprobó el código; el Harness queda en `W-IN_REVIEW` esperando tu revisión independiente. El Contract Sync pendiente debe resolverse antes del cutover Core.
-- No se ha realizado revisión humana final ni cierre del WI.
+- `oauth_contract_review` aprobó el código como contract-reviewer. `core_sdd_analyst`, actuando como reviewer independiente distinto del implementer, aprobó el WI sin hallazgos bloqueantes; ver `wi-gh-003-independent-review.md`.
+- El espejo canónico es byte a byte igual al contrato de Core, por lo que `canonicalContractSynced` puede pasar con esa evidencia. `CS-GH-20260925-002` continúa `C-PENDING`: Core debe ratificar/documentar el límite antes del cutover, pero esa respuesta no es gate de cierre local GH.
+- El usuario autorizó que su aprobación humana se recoja una sola vez al finalizar WI-GH-005; esta excepción no cambia los demás gates ni autoriza push o cutover.
+- No se han hecho llamadas live a GitHub ni cambios a Core, Console, Sandbox, credenciales o despliegue. No se ha hecho push.

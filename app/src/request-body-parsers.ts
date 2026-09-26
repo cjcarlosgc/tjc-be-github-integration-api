@@ -5,10 +5,9 @@ import { randomUUID } from 'node:crypto';
 import { isValidCoreServiceBearer } from './core-service-token.js';
 import type { CorrelatedRequest } from './correlation-id.middleware.js';
 
-const largeJsonRoutes = [
+export const LARGE_JSON_BODY_ROUTES = [
   '/internal/v1/github/publications/companion-pull-request/proposal-blobs',
-  '/internal/v1/github/publications/companion-pull-request',
-];
+] as const;
 const githubWebhookRoute = '/integrations/github/webhooks';
 const githubWebhookBodyLimit = '25mb';
 const coreRequestJsonLimit = '136mb';
@@ -26,7 +25,7 @@ export function configureRequestBodyParsers(app: NestExpressApplication, coreSer
     withNormalizedParserErrors(raw({ type: () => true, limit: githubWebhookBodyLimit, inflate: false })),
   );
 
-  for (const route of largeJsonRoutes) {
+  for (const route of LARGE_JSON_BODY_ROUTES) {
     server.post(
       route,
       (request, response, next) => {

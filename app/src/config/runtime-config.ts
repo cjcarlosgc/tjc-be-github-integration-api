@@ -8,6 +8,7 @@ export interface RuntimeConfig extends Record<string, unknown> {
   GITHUB_WEBHOOK_SECRET?: string;
   GITHUB_APP_ID?: string;
   GITHUB_APP_PRIVATE_KEY_BASE64?: string;
+  CONSOLE_CORS_ORIGINS?: string;
 }
 
 export function validateEnvironment(
@@ -33,7 +34,8 @@ export function validateEnvironment(
   }
 
   const coreApiBaseUrl = environment.CORE_API_BASE_URL === '' ? undefined : environment.CORE_API_BASE_URL;
-  if (coreApiBaseUrl !== undefined && !isValidCoreApiBaseUrl(coreApiBaseUrl)) {
+  const allowCoreHttpLoopback = environment.NODE_ENV !== 'production';
+  if (coreApiBaseUrl !== undefined && !isValidCoreApiBaseUrl(coreApiBaseUrl, allowCoreHttpLoopback)) {
     throw new Error('Invalid Core service URL configuration.');
   }
 
@@ -74,6 +76,13 @@ export function validateEnvironment(
     }
   }
 
+  const consoleCorsOrigins = environment.CONSOLE_CORS_ORIGINS === ''
+    ? undefined
+    : environment.CONSOLE_CORS_ORIGINS;
+  if (consoleCorsOrigins !== undefined && !parseConsoleCorsOrigins(consoleCorsOrigins, environment.NODE_ENV !== 'production')) {
+    throw new Error('Invalid Console CORS origin configuration.');
+  }
+
   return {
     ...environment,
     PORT: port,
@@ -90,8 +99,30 @@ export function hasCoreServiceCredential(
 export function hasRequiredRuntimeConfiguration(environment: Record<string, unknown>): boolean {
   return hasCoreServiceCredential(environment) &&
     hasCoreWebhookDeliveryConfiguration(environment) &&
+    parseConsoleCorsOrigins(environment.CONSOLE_CORS_ORIGINS, environment.NODE_ENV !== 'production') !== undefined &&
     typeof environment.GITHUB_APP_ID === 'string' && /^[1-9]\d{0,19}$/.test(environment.GITHUB_APP_ID) &&
     typeof environment.GITHUB_APP_PRIVATE_KEY_BASE64 === 'string' && environment.GITHUB_APP_PRIVATE_KEY_BASE64.length > 0;
+}
+
+export function parseConsoleCorsOrigins(value: unknown, allowHttpLoopback = true): string[] | undefined {
+  if (typeof value !== 'string' || value.trim().length === 0) return undefined;
+  const origins = value.split(',').map((origin) => origin.trim());
+  if (origins.some((origin) => !isValidConsoleOrigin(origin, allowHttpLoopback)) || new Set(origins).size !== origins.length) {
+    return undefined;
+  }
+  return origins;
+}
+
+function isValidConsoleOrigin(value: string, allowHttpLoopback: boolean): boolean {
+  try {
+    const url = new URL(value);
+    const loopback = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(url.hostname);
+    return (url.protocol === 'https:' || (url.protocol === 'http:' && allowHttpLoopback && loopback)) &&
+      url.username === '' && url.password === '' && url.pathname === '/' && url.search === '' &&
+      url.hash === '' && url.origin === value && value !== '*';
+  } catch {
+    return false;
+  }
 }
 
 export function hasCoreWebhookDeliveryConfiguration(environment: Record<string, unknown>): boolean {
@@ -99,15 +130,15 @@ export function hasCoreWebhookDeliveryConfiguration(environment: Record<string, 
     typeof environment.GITHUB_INTEGRATION_TO_CORE_TOKEN === 'string' &&
     environment.GITHUB_INTEGRATION_TO_CORE_TOKEN.length > 0 &&
     !/\s/.test(environment.GITHUB_INTEGRATION_TO_CORE_TOKEN) &&
-    isValidCoreApiBaseUrl(environment.CORE_API_BASE_URL);
+    isValidCoreApiBaseUrl(environment.CORE_API_BASE_URL, environment.NODE_ENV !== 'production');
 }
 
-function isValidCoreApiBaseUrl(value: unknown): value is string {
+function isValidCoreApiBaseUrl(value: unknown, allowHttpLoopback: boolean): value is string {
   if (typeof value !== 'string' || value.length === 0) return false;
   try {
     const url = new URL(value);
     const loopback = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(url.hostname);
-    return (url.protocol === 'https:' || (url.protocol === 'http:' && loopback)) &&
+    return (url.protocol === 'https:' || (url.protocol === 'http:' && allowHttpLoopback && loopback)) &&
       url.username === '' && url.password === '' && url.pathname === '/' && url.search === '' && url.hash === '';
   } catch {
     return false;

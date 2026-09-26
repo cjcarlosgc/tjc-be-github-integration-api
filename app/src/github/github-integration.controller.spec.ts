@@ -211,7 +211,7 @@ describe('private GitHub integration routes', () => {
     expect(publication.finalize).toHaveBeenCalledWith(finalizeRequest);
   });
 
-  it('accepts proposal JSON above Express’s default body limit only on the authenticated proposal routes', async () => {
+  it('accepts large JSON only for authenticated proposal blobs, not finalization', async () => {
     const largeBlob = { installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42, sourceHeadSha: 'a'.repeat(40), path: 'tests/large.spec.ts', contentBase64: 'YQ=='.repeat(30_000) };
     const body = JSON.stringify(largeBlob);
     expect(Buffer.byteLength(body)).toBeGreaterThan(100_000);
@@ -229,6 +229,14 @@ describe('private GitHub integration routes', () => {
     });
     expect(unauthorized.status).toBe(401);
     expect(await unauthorized.json()).toMatchObject({ code: 'SERVICE_UNAUTHORIZED', retryable: false });
+
+    const oversizedFinalization = await fetch(`${baseUrl}/publications/companion-pull-request`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${serviceToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payload: 'a'.repeat(110_000) }),
+    });
+    expect(oversizedFinalization.status).toBe(413);
+    expect(await oversizedFinalization.json()).toMatchObject({ code: 'INVALID_REQUEST' });
   });
 
   it('rejects invalid publication paths, check conclusions, and unexpected fields', async () => {

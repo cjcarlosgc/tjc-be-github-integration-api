@@ -223,6 +223,59 @@ export class GithubAccessService {
 export class GithubRepositoryDiscoveryService {
   constructor(private readonly api: GithubApiClient) {}
 
+  async getAuthenticatedUser(providerToken: string): Promise<{ githubUserId: string }> {
+    let response: Response;
+    try {
+      response = await this.api.request('/user', providerToken);
+    } catch {
+      throw upstreamUnavailable();
+    }
+    if (response.status === 401) {
+      throw new GithubIntegrationError('GITHUB_USER_TOKEN_INVALID', 'GitHub provider token is invalid or expired.', 401, false);
+    }
+    if (!response.ok) throw upstreamUnavailable();
+    const body = await readJson<{ id?: unknown }>(response);
+    if (!body || !Number.isSafeInteger(body.id) || Number(body.id) < 1) throw upstreamUnavailable();
+    return { githubUserId: String(body.id) };
+  }
+
+  async getRepositoryFacts(providerToken: string, repositoryName: string): Promise<{
+    repositoryId: string;
+    repositoryName: string;
+    ownerId: string;
+    ownerLogin: string;
+    ownerType: 'User' | 'Organization';
+    permission: RepositoryPermissionLevel | 'none';
+  }> {
+    let response: Response;
+    try {
+      response = await this.api.request(`/repos/${repositoryPath(repositoryName)}`, providerToken);
+    } catch {
+      throw upstreamUnavailable();
+    }
+    if (response.status === 401) {
+      throw new GithubIntegrationError('GITHUB_USER_TOKEN_INVALID', 'GitHub provider token is invalid or expired.', 401, false);
+    }
+    if (response.status === 404) {
+      throw new GithubIntegrationError('GITHUB_RESOURCE_NOT_FOUND', 'The GitHub repository is unavailable.', 404, false);
+    }
+    if (!response.ok) throw upstreamUnavailable();
+    const body = await readJson<ApiRepository>(response);
+    const ownerType = toOwnerType(body?.owner?.type);
+    if (!body || !Number.isSafeInteger(body.id) || body.full_name !== repositoryName ||
+      !Number.isSafeInteger(body.owner?.id) || typeof body.owner?.login !== 'string' || !ownerType) {
+      throw upstreamUnavailable();
+    }
+    return {
+      repositoryId: String(body.id),
+      repositoryName: body.full_name,
+      ownerId: String(body.owner.id),
+      ownerLogin: body.owner.login,
+      ownerType,
+      permission: toPermissionLevel(body.permissions ?? {}) ?? 'none',
+    };
+  }
+
   async list(
     providerToken: string,
     page: number,
@@ -230,9 +283,10 @@ export class GithubRepositoryDiscoveryService {
     filters: { personalOwnerId?: string; organizationOwnerId?: string },
   ): Promise<{ items: Array<{
     repositoryId: string; name: string; repositoryName: string;
-    owner: { login: string; type: 'Organization' | 'User'; avatarUrl: string | null };
+    owner: { id: string; login: string; type: 'Organization' | 'User'; avatarUrl: string | null };
     private: boolean; defaultBranch: string;
     permissions: { admin: boolean; maintain: boolean; push: boolean; pull: boolean };
+    permission: RepositoryPermissionLevel | 'none';
   }>; hasNextPage: boolean }> {
     if (filters.personalOwnerId && filters.organizationOwnerId) throw invalidRequest();
     const affiliation = filters.personalOwnerId ? '&affiliation=owner' : filters.organizationOwnerId ? '&affiliation=organization_member' : '';
@@ -254,11 +308,12 @@ export class GithubRepositoryDiscoveryService {
     const items = visible.map((repo) => {
       const owner = repo.owner;
       if (!Number.isSafeInteger(repo.id) || typeof repo.name !== 'string' || typeof repo.full_name !== 'string' ||
-        !owner || typeof owner.login !== 'string' || !toOwnerType(owner.type) || typeof repo.private !== 'boolean' ||
+        !owner || !Number.isSafeInteger(owner.id) || typeof owner.login !== 'string' || !toOwnerType(owner.type) || typeof repo.private !== 'boolean' ||
         typeof repo.default_branch !== 'string') throw upstreamUnavailable();
       return {
         repositoryId: String(repo.id), name: repo.name, repositoryName: repo.full_name,
         owner: {
+          id: String(owner.id),
           login: owner.login,
           type: owner.type === 'Organization' ? 'Organization' as const : 'User' as const,
           avatarUrl: typeof owner.avatar_url === 'string' ? owner.avatar_url : null,
@@ -270,6 +325,7 @@ export class GithubRepositoryDiscoveryService {
           push: repo.permissions?.push === true,
           pull: repo.permissions?.pull === true,
         },
+        permission: (toPermissionLevel(repo.permissions ?? {}) ?? 'none') as RepositoryPermissionLevel | 'none',
       };
     });
     return { items, hasNextPage: repos.length === perPage };
@@ -281,9 +337,20 @@ function toOwnerType(value: unknown): 'User' | 'Organization' | null {
   return null;
 }
 
-function toPermissionLevel(body: { role_name?: unknown; permission?: unknown }): RepositoryPermissionLevel | null {
+function toPermissionLevel(body: {
+  role_name?: unknown;
+  permission?: unknown;
+  admin?: unknown;
+  maintain?: unknown;
+  push?: unknown;
+  pull?: unknown;
+}): RepositoryPermissionLevel | null {
   const known = ['admin', 'maintain', 'write', 'triage', 'read'];
   if (typeof body.role_name === 'string' && known.includes(body.role_name)) return body.role_name as RepositoryPermissionLevel;
   if (body.permission === 'admin' || body.permission === 'write' || body.permission === 'read') return body.permission;
+  if (body.admin === true) return 'admin';
+  if (body.maintain === true) return 'maintain';
+  if (body.push === true) return 'write';
+  if (body.pull === true) return 'read';
   return null;
 }

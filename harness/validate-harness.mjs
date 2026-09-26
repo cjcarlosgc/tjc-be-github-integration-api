@@ -9,11 +9,13 @@ const workItemCheck = spawnSync(process.execPath, [path.join(root, 'harness/vali
 const workItemTests = spawnSync(process.execPath, ['--test', path.join(root, 'harness/validate-work-items.test.mjs')], { cwd: root, encoding: 'utf8' });
 const completionCheck = spawnSync(process.execPath, [path.join(root, 'harness/validate-completions.mjs')], { cwd: root, encoding: 'utf8' });
 const completionTests = spawnSync(process.execPath, ['--test', path.join(root, 'harness/validate-completions.test.mjs')], { cwd: root, encoding: 'utf8' });
+const contractSyncLifecycleTests = spawnSync(process.execPath, ['--test', path.join(root, 'harness/contract-sync-lifecycle.test.mjs')], { cwd: root, encoding: 'utf8' });
 const failures = [];
 if (workItemCheck.status !== 0) failures.push(workItemCheck.stderr.trim() || workItemCheck.error?.message || 'work item validation failed');
 if (workItemTests.status !== 0) failures.push(workItemTests.stderr.trim() || workItemTests.stdout.trim() || workItemTests.error?.message || 'work item tests failed');
 if (completionCheck.status !== 0) failures.push(completionCheck.stderr.trim() || completionCheck.error?.message || 'completion validation failed');
 if (completionTests.status !== 0) failures.push(completionTests.stderr.trim() || completionTests.stdout.trim() || completionTests.error?.message || 'completion tests failed');
+if (contractSyncLifecycleTests.status !== 0) failures.push(contractSyncLifecycleTests.stderr.trim() || contractSyncLifecycleTests.stdout.trim() || contractSyncLifecycleTests.error?.message || 'Contract Sync lifecycle tests failed');
 const assignmentTests = spawnSync(process.execPath, ['--test', path.join(root, 'harness/agent-assignment.test.mjs')], { cwd: root, encoding: 'utf8' });
 if (assignmentTests.status !== 0) failures.push(assignmentTests.stderr.trim() || assignmentTests.stdout.trim() || assignmentTests.error?.message || 'agent assignment tests failed');
 const contractSyncTests = spawnSync(process.execPath, ['--test', path.join(root, 'harness/contract-sync.test.mjs')], { cwd: root, encoding: 'utf8' });

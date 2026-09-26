@@ -26,6 +26,8 @@ node harness/contract-sync.mjs check --checkpoint implementation-delivery --work
 node harness/contract-sync.mjs check --checkpoint before-review --work-item WI-GH-001 --record
 node harness/contract-sync.mjs check --checkpoint before-done --work-item WI-GH-001 --record
 node harness/contract-sync.mjs import --from /ruta/al/harness/contract-sync/outbox
+node harness/contract-sync.mjs acknowledge --id CS-CORE-YYYYMMDD-NNN --work-item WI-GH-NNN --evidence harness/reports/contract-sync-review.md
+node harness/contract-sync.mjs resolve --id CS-CORE-YYYYMMDD-NNN --work-item WI-GH-NNN --evidence harness/reports/contract-sync-implementation.md
 # Plantilla: requiere un WI registrado con contractImpact=true y publishesContract=true.
 node harness/contract-sync.mjs publish --id CS-GH-YYYYMMDD-NNN --work-item WI-GH-NNN --targets core --scope-paths spec/contracts/github-integration-contract.md --breaking false --changed 'approved contract change' --required-action 'review compatibility' --source-revision abc1234
 ```
@@ -33,3 +35,5 @@ node harness/contract-sync.mjs publish --id CS-GH-YYYYMMDD-NNN --work-item WI-GH
 `check` exige un WI activo registrado; `--record` guarda checkpoints una vez y en orden si no hay pendientes relevantes. `scopePaths` admite `*` o rutas compartidas `spec/contracts/...`. Los eventos históricos sin ese campo se consideran globales. Todo evento relevante no `C-RESOLVED` impide el gate de interoperabilidad salvo una clasificación `NOT_RELEVANT` por WI con motivo, hash estable y reporte existente; esa clasificación no cambia estado ni acciones del evento. Una notificación no autoriza implementar un endpoint nuevo sin contrato aprobado.
 
 `publish` exige un WI local registrado con `contractImpact` y `publishesContract` habilitados; el ID debe usar el namespace del emisor y el evento registra ese WI en `sourceWorkItem`. Publicar Contract Sync no actualiza el espejo local ni a Core automáticamente: requiere import/revisión del consumidor y sus WIs propios.
+
+Cada importación añade `consumerImportedAt` local. `acknowledge`/`resolve` guardan evidencia; `resolve` exige WI activo en `W-IN_PROGRESS`, `implementationCompleted: G-PASSED` y reporte existente. Importaciones posteriores al cierre no alteran snapshots previos; los eventos antiguos sin marca se consideran conocidos conservadoramente.

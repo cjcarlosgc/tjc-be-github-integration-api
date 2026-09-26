@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { contractSyncIdIssue } from './contract-sync-id.mjs';
+import { contractSyncWasKnownAt, stableContractSyncPayload } from './contract-sync-lifecycle.mjs';
 
 const state = JSON.parse(fs.readFileSync('harness/state.json', 'utf8'));
 const registry = JSON.parse(fs.readFileSync('harness/work-items.json', 'utf8'));
@@ -20,7 +21,7 @@ const requiredCheckpoints = ['start', 'implementation-delivery', 'before-review'
 const validReport = (value) => typeof value === 'string' && value.startsWith('harness/reports/') && !value.includes('..') && fs.existsSync(path.resolve(value));
 const scalar = (body, field) => body.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'))?.[1]?.trim();
 const list = (body, field) => body.match(new RegExp(`^${field}:\\s*\\[([^\\]]*)\\]$`, 'm'))?.[1]?.split(',').map((value) => value.trim()).filter(Boolean);
-const stableSyncDigest = (body) => createHash('sha256').update(body.replace(/^status:\s*.*$/m, 'status: <status>')).digest('hex');
+const stableSyncDigest = (body) => createHash('sha256').update(stableContractSyncPayload(body)).digest('hex');
 for (const item of registry.workItems ?? []) {
   const record = records.get(item.id);
   if (item.status !== 'W-DONE') {
@@ -88,6 +89,12 @@ for (const item of registry.workItems ?? []) {
     const scopes = list(body, 'scopePaths') ?? ['*'];
     const relevant = paths.includes('*') || scopes.includes('*') || scopes.some((scope) => paths.includes(scope) || (item.contractImpact && scope.startsWith('spec/contracts/')));
     if (!relevant || ['RESOLVED', 'C-RESOLVED'].includes(scalar(body, 'status'))) continue;
+    const importedAt = body.match(/^consumerImportedAt:\s*(.+)$/m)?.[1]?.trim();
+    if (importedAt) {
+      const timestamp = Date.parse(importedAt);
+      assert(Number.isFinite(timestamp) && new Date(timestamp).toISOString() === importedAt, `${item.id} has invalid consumerImportedAt on CONTRACT_SYNC ${scalar(body, 'id')}`);
+    }
+    if (!contractSyncWasKnownAt(body, record.closedAt)) continue;
     const eventId = scalar(body, 'id');
     const digest = createHash('sha256').update(body).digest('hex');
     if (reviewedNotRelevantIds.has(eventId)) continue;

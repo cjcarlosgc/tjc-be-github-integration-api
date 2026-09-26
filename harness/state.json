@@ -874,5 +874,73 @@
       "closedAt": "2026-09-25T21:29:08.000Z"
     }
   ],
-  "activeWorkItem": null
+  "activeWorkItem": {
+    "id": "WI-GH-006",
+    "component": "GH",
+    "workItemType": "PRODUCT",
+    "storyIds": ["HU01", "HU02", "HU14", "HU16"],
+    "taskIds": ["ST-GH-006", "ST-GH-007"],
+    "caseIds": [],
+    "sprint": "Post-transition",
+    "status": "W-IN_PROGRESS",
+    "specPaths": [
+      "spec/features/006-console-github-api/spec.md",
+      "spec/features/006-console-github-api/plan.md",
+      "spec/features/006-console-github-api/tasks.md",
+      "spec/contracts/github-integration-contract.md"
+    ],
+    "transversalPaths": [],
+    "approved": true,
+    "contractSyncReview": [],
+    "decisionGate": {
+      "checked": true,
+      "blockingDecisionIds": [],
+      "nonBlockingDecisionIds": [],
+      "checkedAt": "2026-09-26T10:00:00.000Z"
+    },
+    "execution": {
+      "leaderAgent": "leader",
+      "analysisAgent": "sdd-analyst",
+      "implementationAgent": "implementer",
+      "contractReviewAgent": "contract-reviewer",
+      "reviewAgent": "human-reviewer",
+      "handoffs": [],
+      "reviewCycles": 0,
+      "maxReviewCycles": 2
+    },
+    "gates": {
+      "sddVerified": "G-PASSED",
+      "implementationCompleted": "G-NOT_RUN",
+      "independentReviewPassed": "G-NOT_RUN",
+      "technicalChecksPassed": "G-NOT_RUN",
+      "contractReviewed": "G-NOT_RUN",
+      "canonicalContractSynced": "G-NOT_RUN",
+      "contractSyncPublished": "G-NOT_RUN",
+      "interopSyncChecked": "G-NOT_RUN",
+      "noBlockingDecisions": "G-PASSED",
+      "retryLimitRespected": "G-PASSED"
+    },
+    "gateEvidence": {
+    "sddVerified": [
+      "harness/reports/wi-gh-006-spec-verification.md"
+    ],
+    "noBlockingDecisions": [
+      "harness/reports/wi-gh-006-spec-verification.md"
+    ]
+    },
+    "coordination": {
+      "contractImpact": true,
+      "publishesContract": true,
+      "pullCheckpoints": [
+        {"checkpoint": "start", "workItem": "WI-GH-006", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-09-26T10:00:00.000Z"}
+      ],
+      "publishedSyncIds": ["CS-GH-20260926-001"],
+      "pendingRelevantSyncIds": []
+    },
+    "evidence": [
+      "harness/reports/wi-gh-006-spec-verification.md",
+      "harness/reports/wi-gh-006-implementation.md"
+    ],
+    "blockedReason": null
+  }
 }

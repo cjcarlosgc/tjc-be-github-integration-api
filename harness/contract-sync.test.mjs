@@ -122,3 +122,41 @@ test('publish emite sourceWorkItem y rechaza IDs simples incluso si su fecha par
     fs.rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test('import registra hora local y los consumers pueden acknowledge/resolve con evidencia', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tjc-gh-contract-sync-lifecycle-'));
+  try {
+    prepareCheckRoot(directory);
+    const registryPath = path.join(directory, 'harness/work-items.json');
+    const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    registry.workItems[0].status = 'W-IN_PROGRESS';
+    fs.writeFileSync(registryPath, JSON.stringify(registry));
+    const statePath = path.join(directory, 'harness/state.json');
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    state.activeWorkItem.status = 'W-IN_PROGRESS';
+    state.activeWorkItem.gates = { implementationCompleted: 'G-PASSED' };
+    state.activeWorkItem.gateEvidence = { implementationCompleted: ['harness/reports/implementation.md'] };
+    fs.writeFileSync(statePath, JSON.stringify(state));
+    fs.mkdirSync(path.join(directory, 'harness/reports'), { recursive: true });
+    fs.writeFileSync(path.join(directory, 'harness/reports/review.md'), 'Reviewed API and compatibility.\n');
+    fs.writeFileSync(path.join(directory, 'harness/reports/implementation.md'), 'Verified the consumer code.\n');
+
+    const externalOutbox = path.join(directory, 'external-outbox');
+    fs.mkdirSync(externalOutbox);
+    const sourceEvent = makeEvent('CS-CORE-20260926-998', 'core', 'WI-CORE-003');
+    fs.writeFileSync(path.join(externalOutbox, 'CS-CORE-20260926-998.yaml'), sourceEvent);
+    const imported = spawnSync(process.execPath, [script, 'import', '--from', externalOutbox], { cwd: directory, encoding: 'utf8' });
+    assert.equal(imported.status, 0, imported.stderr);
+    const inboxPath = path.join(directory, 'harness/contract-sync/inbox/CS-CORE-20260926-998.yaml');
+    assert.match(fs.readFileSync(inboxPath, 'utf8'), /^consumerImportedAt: \d{4}-\d\d-\d\dT/m);
+
+    const ack = spawnSync(process.execPath, [script, 'acknowledge', '--id', 'CS-CORE-20260926-998', '--work-item', 'WI-GH-999', '--evidence', 'harness/reports/review.md'], { cwd: directory, encoding: 'utf8' });
+    assert.equal(ack.status, 0, ack.stderr);
+    assert.match(fs.readFileSync(inboxPath, 'utf8'), /^status: C-ACKNOWLEDGED$/m);
+    const resolved = spawnSync(process.execPath, [script, 'resolve', '--id', 'CS-CORE-20260926-998', '--work-item', 'WI-GH-999', '--evidence', 'harness/reports/implementation.md'], { cwd: directory, encoding: 'utf8' });
+    assert.equal(resolved.status, 0, resolved.stderr);
+    assert.match(fs.readFileSync(inboxPath, 'utf8'), /^status: C-RESOLVED$/m);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});

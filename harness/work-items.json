@@ -185,6 +185,37 @@
         "spec/features/005-webhook-delivery/tasks.md",
         "spec/contracts/github-integration-contract.md"
       ]
+    },
+    {
+      "id": "WI-GH-006",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-IN_PROGRESS",
+      "priority": "P1",
+      "sprint": "Post-transition",
+      "title": "Añadir API autenticada de GitHub para Console",
+      "storyIds": ["HU01", "HU02", "HU14", "HU16"],
+      "taskIds": ["ST-GH-006", "ST-GH-007"],
+      "caseIds": [],
+      "dependsOn": ["WI-GH-001", "WI-GH-005"],
+      "contractImpact": true,
+      "publishesContract": true,
+      "acceptanceCriteria": [
+        "App info, discovery, verify-access y branches se exponen bajo /v1/github/*; ninguna ruta /internal/v1/github/* se reutiliza desde Console.",
+        "Cada ruta valida sesión Supabase a través del callback síncrono Core con JWT de usuario y hechos GitHub allowlisted; denegación, timeout o fallo Core cierran el acceso.",
+        "Core conserva las decisiones Project/workspace, emite evidencia de binding firmada y breve; el navegador nunca impone installationId ni rol.",
+        "CORS usa allowlist de Console. Provider token es efímero, no se envía a Core, persiste, registra ni retorna.",
+        "El parser ampliado de 136 MB solo cubre proposal-blobs; finalización conserva el parser general de 100 KB.",
+        "Pruebas locales cubren auth, CORS, callback, errores, evidence scope, provider-token redaction y parsers; lint, build y validadores SDD/Harness pasan.",
+        "Contract Sync GH-INTEROP-1.1 se sincroniza a Core/Console; no se cambia Sandbox ni se realiza deploy/cutover.",
+        "El Harness soporta importación idempotente con hora local, acknowledge/resolve con evidencia y snapshots inmutables frente a eventos posteriores."
+      ],
+      "specPaths": [
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ]
     }
   ]
 }

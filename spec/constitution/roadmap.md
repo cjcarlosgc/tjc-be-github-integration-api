@@ -6,7 +6,8 @@ Las épicas, 18 HU y 15 OC se conservan sin ampliarlas. Los sprints de la tesis 
 | --- | --- | --- | --- |
 | WI-GH-001 | P1 | Bootstrap NestJS, health/readiness y configuración validada; no cambia el contrato ni conecta operaciones de GitHub. | HU02/HU14/HU16 como capacidades habilitadas. |
 | WI-GH-002 | P1 | Extraer operaciones de instalación, lectura de metadatos/permisos y ramas requeridas para vincular repositorios. | HU02; `W-DONE`, depende de `WI-GH-001`, que ya terminó. |
-| Cortes de extracción | P1 | Trasladar y adaptar GitHub App, autenticación interna, discovery, APIs de repositorio/Check/publicación y webhooks por operaciones contractuales. | HU02/HU14/HU16, más HU01/HU03/HU06 cuando apliquen. |
+| WI-GH-003–005 | P1 | Extraer lecturas de PR, Checks/publicación y webhooks normalizados para el pipeline Core. | HU02/HU14/HU16, más HU03/HU06 cuando apliquen; WIs cerrados conservan su evidencia. |
+| WI-GH-006 | P1 | Añadir API de usuario autenticada para Console y autorización síncrona Integration→Core. | HU01/HU02/HU14/HU16; activo, sin revisión personal ni cutover. |
 | Formalización de OC | P2 | Aportar happy paths y subcasos verificables de OC01–OC15 cuando se apruebe cada caso. | HU relacionadas en `operational-cases.md`. |
 
-La secuencia exacta de extracción debe decidirse en features/WIs posteriores. Este roadmap no autoriza desplegar App, cambiar secrets/DNS, introducir persistencia, ni cambiar la API pública Core↔Console.
+Este roadmap no autoriza desplegar App, cambiar secrets/DNS, introducir persistencia, retirar rutas Core de compatibilidad ni cambiar Sandbox.

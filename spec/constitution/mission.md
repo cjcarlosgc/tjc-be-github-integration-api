@@ -1,12 +1,12 @@
 # Misión
 
-**Estado:** frontera y contrato `GH-INTEROP-1.0` aprobados; implementación y despliegue pendientes
+**Estado:** frontera y contrato `GH-INTEROP-1.1` aprobados; WI-GH-006 en implementación fuente, revisión personal y despliegue pendientes
 
 Implementar el servicio backend que concentra toda interacción GitHub de RAG Test Studio y ofrece a Core operaciones internas autenticadas, normalizadas, trazables y seguras.
 
-## Usuario/consumidor principal
+## Usuarios y consumidores
 
-RAG Core API es el único consumidor backend de las operaciones privadas de GitHub Integration. GitHub es el emisor de webhooks públicos.
+RAG Core API consume las operaciones privadas del pipeline. Developer Console consume rutas autenticadas limitadas a App info, discovery, verificación GitHub y ramas. GitHub emite webhooks públicos.
 
 ## Principios
 

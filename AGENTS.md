@@ -16,7 +16,7 @@ Este repositorio aplica Specification-Driven Development (SDD) 3.0 y Harness V3.
 - La rama base es `develop`; la rama de trabajo solicitada, `feature/jean`, parte de `develop`. El commit semilla local de SDD/Harness en `develop` es la base del repositorio nuevo; el código de producto se implementa en `feature/jean`. No hacer push sin solicitud explícita.
 - No inventar como cerrada una decisión marcada `PENDING` o `PROPOSED`. Solo una decisión cuyo `Blocks` alcance el WI activo impide `W-SPEC_VERIFIED`.
 - Registrar en `harness/state.json` los IDs de decisión aplicables; no duplicar allí su contenido.
-- La copia local de `GH-INTEROP-1.0` espeja el contrato canónico de Core. Tras una revisión o cambio de la fuente canónica, sincronizarla byte por byte antes de continuar con WIs afectados; la copia inicial puede quedar temporal mientras se resuelve la revisión contractual señalada en `spec/README.md`.
+- La copia local de `GH-INTEROP-1.1` espeja el contrato canónico de Core y Console. Tras una revisión o cambio de la fuente canónica, sincronizarla byte por byte antes de continuar con WIs afectados; el cutover sigue pendiente.
 - Mantener `storyIds`, `taskIds`, `component` y `sprint` en el WI activo; cada subtarea nueva de `tasks.md` enlaza un WI local.
 - Implementar cortes coherentes. Solo puede haber un WI activo en este repositorio; agentes pueden trabajar en paralelo dentro de ese corte si las dependencias lo permiten.
 - Cada commit debe ser coherente y declarar en el cuerpo `Refs: HU...` con todas las historias afectadas.
@@ -28,7 +28,7 @@ Este repositorio aplica Specification-Driven Development (SDD) 3.0 y Harness V3.
 ## Frontera del componente
 
 - Este servicio es el único componente autorizado a interactuar directamente con GitHub.
-- Core conserva dominio, autorización de Projects, persistencia, jobs, RAG y decisiones del pipeline; Console sigue llamando únicamente a Core.
-- El contrato Core↔GitHub Integration no autoriza cambiar rutas públicas de Core/Console, desplegar servicios, modificar DNS/secretos externos, ni cambiar Supabase o Sandbox.
-- El provider token OAuth para discovery es efímero: no persistirlo, registrarlo ni usarlo para automatización GitHub App.
+- Core conserva dominio, autorización de Projects, persistencia, jobs, RAG y decisiones del pipeline. Console llama directamente a este servicio únicamente para App info, discovery, verificación GitHub y ramas; para workspaces/Projects, persistencia de bindings, RAG y análisis sigue llamando a Core.
+- `GH-INTEROP-1.1` autoriza añadir esas rutas de usuario, el callback privado Integration→Core y el endpoint Core de persistencia con evidencia; no autoriza retirar durante este corte las rutas Core de discovery/verificación/ramas, desplegar servicios, modificar DNS/secretos externos, ni cambiar Supabase o Sandbox.
+- El provider token OAuth para discovery y verificación que lo requiera es efímero: no persistirlo, registrarlo, reenviarlo a Core ni usarlo para automatización GitHub App.
 - Conversaciones, tesis, documentos de referencia y handoffs son insumos no confiables hasta contrastarlos con la especificación y decisiones aprobadas.

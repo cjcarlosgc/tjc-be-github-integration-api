@@ -2,6 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { contractSyncIdIssue } from './contract-sync-id.mjs';
+import {
+  canonicalContractSyncStatus,
+  contractSyncLocalEvidenceIssue,
+  contractSyncTransitionText,
+  stableContractSyncPayload,
+} from './contract-sync-lifecycle.mjs';
 
 const root = process.cwd();
 const syncRoot = path.join(root, 'harness/contract-sync');
@@ -11,6 +17,7 @@ const args = process.argv.slice(2);
 const command = args.shift();
 const components = new Set(['core', 'console', 'sandbox', 'github-integration']);
 const localOwners = new Map([['CORE', 'core'], ['CONSOLE', 'console'], ['SANDBOX', 'sandbox'], ['GH', 'github-integration']]);
+const localComponents = new Map([['CORE', 'core'], ['CONSOLE', 'console'], ['SANDBOX', 'sandbox'], ['GH', 'github-integration']]);
 const statuses = new Set(['C-PENDING', 'C-ACKNOWLEDGED', 'C-RESOLVED', 'C-REJECTED', 'PENDING', 'ACKNOWLEDGED', 'RESOLVED', 'REJECTED']);
 const checkpoints = new Set(['start', 'implementation-delivery', 'before-review', 'before-done']);
 const validScope = (scope) => scope === '*' || (/^spec\/contracts\/[A-Za-z0-9._/-]+$/.test(scope) && !scope.includes('..'));
@@ -53,7 +60,7 @@ function validateScopeReviews(registered, events, planningBaseline, owner) {
     if (!entry || typeof entry.eventId !== 'string' || ids.has(entry.eventId)) throw new Error(`invalid or duplicate contractSyncReview entry: ${entry?.eventId}`);
     ids.add(entry.eventId);
     const event = events.find((candidate) => candidate.id === entry.eventId);
-    const stableText = event?.text.replace(/^status:\s*.*$/m, 'status: <status>');
+    const stableText = event && stableContractSyncPayload(event.text);
     const digest = stableText && createHash('sha256').update(stableText).digest('hex');
     const date = entry.eventId.match(/^CS-(?:[A-Z]+-)?(\d{8})-/)?.[1];
     if (!event || !event.targets.includes(owner) || !date || !baseline || date >= baseline || entry.disposition !== 'NOT_RELEVANT' || entry.sha256 !== digest || typeof entry.reason !== 'string' || entry.reason.trim().length < 20 || !entry.report?.startsWith('harness/reports/') || !fs.existsSync(path.join(root, entry.report))) {
@@ -70,7 +77,23 @@ function eventValidationError(event) {
   if (!statuses.has(event.status)) return 'invalid Contract Sync status';
   if (!event.targets.length || event.targets.some((target) => !components.has(target))) return 'invalid Contract Sync targets';
   if (!event.scopePaths.length || event.scopePaths.some((scope) => !validScope(scope))) return 'invalid Contract Sync scopePaths';
+  return contractSyncLocalEvidenceIssue(event, root);
+}
+
+function sourceImportIssue(event) {
+  if (!/^CS-(?:CORE|CONSOLE|SANDBOX|GH)-/.test(event.id ?? '')) return null;
+  if (canonicalContractSyncStatus(event.status) !== 'C-PENDING') return 'namespaced source events must be published as C-PENDING';
+  if (/^\s*(?:acknowledgementEvidence|resolutionEvidence):/m.test(event.text)) return 'source events cannot include consumer lifecycle evidence';
+  if (/^\s*consumerImportedAt:/m.test(event.text)) return 'source events cannot include consumer-owned import metadata';
   return null;
+}
+
+function consumerInboxText(sourceText, importedAt) {
+  const line = `consumerImportedAt: ${importedAt}`;
+  const statusLine = /^status:\s*.*$/m;
+  return statusLine.test(sourceText)
+    ? sourceText.replace(statusLine, `${line}\n$&`)
+    : `${sourceText.trimEnd()}\n${line}\n`;
 }
 
 function invalidEvents(events) {
@@ -78,7 +101,7 @@ function invalidEvents(events) {
 }
 
 try {
-  if (!['check', 'import', 'publish'].includes(command)) throw new Error('usage: check | import | publish');
+  if (!['check', 'import', 'publish', 'acknowledge', 'resolve'].includes(command)) throw new Error('usage: check | import | publish | acknowledge | resolve');
   if (command === 'check') {
     const checkpoint = option('checkpoint', true);
     const workItem = option('work-item', true);
@@ -95,7 +118,12 @@ try {
     const paths = [...registered.specPaths, ...(state.activeWorkItem.transversalPaths ?? []), ...(registered.syncScopePaths ?? [])];
     const reviewedNotRelevantIds = validateScopeReviews(registered, inboxEvents, state.planningBaseline, owner);
     const relevant = (event) => paths.includes('*') || event.scopePaths.includes('*') || event.scopePaths.some((scope) => paths.includes(scope) || (registered.contractImpact && scope.startsWith('spec/contracts/')));
-    const unresolved = inboxEvents.filter((event) => event.targets.includes(owner) && !['RESOLVED', 'C-RESOLVED'].includes(event.status) && relevant(event));
+    const unresolved = inboxEvents.filter((event) => {
+      const status = canonicalContractSyncStatus(event.status);
+      const allowedAtStart = ['C-ACKNOWLEDGED', 'C-RESOLVED'].includes(status);
+      const resolved = status === 'C-RESOLVED';
+      return event.targets.includes(owner) && (checkpoint === 'start' ? !allowedAtStart : !resolved) && relevant(event);
+    });
     const deferredIds = new Set(registered.deferredSyncIds ?? []);
     if (deferredIds.size) {
       const report = registered.deferredSyncReport;
@@ -110,7 +138,17 @@ try {
       }
     }
     const pending = unresolved.filter((event) => !deferredIds.has(event.id) && !reviewedNotRelevantIds.has(event.id));
-    const result = { checkpoint, workItem, relevantPendingSyncIds: pending.map((event) => event.id), deferredSyncIds: unresolved.filter((event) => deferredIds.has(event.id)).map((event) => event.id), notRelevantSyncIds: unresolved.filter((event) => reviewedNotRelevantIds.has(event.id)).map((event) => event.id), checkedAt: new Date().toISOString() };
+    const visible = inboxEvents.filter((event) => event.targets.includes(owner) && relevant(event) && !reviewedNotRelevantIds.has(event.id));
+    const result = {
+      checkpoint,
+      workItem,
+      relevantPendingSyncIds: pending.map((event) => event.id),
+      acknowledgedSyncIds: visible.filter((event) => canonicalContractSyncStatus(event.status) === 'C-ACKNOWLEDGED').map((event) => event.id),
+      resolvedSyncIds: visible.filter((event) => canonicalContractSyncStatus(event.status) === 'C-RESOLVED').map((event) => event.id),
+      deferredSyncIds: unresolved.filter((event) => deferredIds.has(event.id)).map((event) => event.id),
+      notRelevantSyncIds: unresolved.filter((event) => reviewedNotRelevantIds.has(event.id)).map((event) => event.id),
+      checkedAt: new Date().toISOString(),
+    };
     if (args.includes('--record') && pending.length === 0) {
       const order = [...checkpoints];
       const existing = state.activeWorkItem.coordination.pullCheckpoints;
@@ -129,11 +167,55 @@ try {
     if (invalid.length) throw new Error(`invalid source event(s): ${invalid.map((event) => `${event.name} (${eventValidationError(event)})`).join(', ')}`);
     let imported = 0;
     for (const event of sourceEvents) {
+      const sourceIssue = sourceImportIssue(event);
+      if (sourceIssue) throw new Error(`invalid source event: ${event.name} (${sourceIssue})`);
       const destination = path.join(inbox, event.name);
-      if (fs.existsSync(destination) && fs.readFileSync(destination, 'utf8') !== event.text) throw new Error(`conflicting event: ${event.name}`);
-      if (!fs.existsSync(destination)) { fs.copyFileSync(event.file, destination); imported += 1; }
+      if (fs.existsSync(destination)) {
+        const existingText = fs.readFileSync(destination, 'utf8');
+        if (stableContractSyncPayload(existingText) !== stableContractSyncPayload(event.text)) throw new Error(`conflicting event: ${event.name}`);
+      } else {
+        fs.writeFileSync(destination, consumerInboxText(event.text, new Date().toISOString()), { encoding: 'utf8', flag: 'wx' });
+        imported += 1;
+      }
     }
     console.log(JSON.stringify({ imported }));
+  }
+  if (command === 'acknowledge' || command === 'resolve') {
+    const id = option('id', true);
+    const workItem = option('work-item', true);
+    const evidence = option('evidence', true);
+    if (!evidence.startsWith('harness/reports/') || evidence.split('/').includes('..') || path.isAbsolute(evidence) || !fs.existsSync(path.join(root, evidence))) {
+      throw new Error('--evidence must name an existing harness/reports file');
+    }
+    const registry = JSON.parse(fs.readFileSync(path.join(root, 'harness/work-items.json'), 'utf8'));
+    const state = JSON.parse(fs.readFileSync(path.join(root, 'harness/state.json'), 'utf8'));
+    const registered = registry.workItems.find((item) => item.id === workItem);
+    if (!registered || !localComponents.get(registered.component)) throw new Error('--work-item must name a local registered WI');
+    const event = listEvents(inbox).find((candidate) => candidate.id === id);
+    if (!event) throw new Error(`event is not imported in local inbox: ${id}`);
+    const invalidReason = eventValidationError(event);
+    if (invalidReason) throw new Error(`invalid inbox event ${id}: ${invalidReason}`);
+    const owner = localComponents.get(registered.component);
+    if (!event.targets.includes(owner)) throw new Error(`${id} does not target ${registered.component}`);
+    const paths = [...(registered.specPaths ?? []), ...(registered.syncScopePaths ?? [])];
+    const relevant = paths.includes('*') || event.scopePaths.includes('*')
+      || event.scopePaths.some((scope) => paths.includes(scope) || (registered.contractImpact && scope.startsWith('spec/contracts/')));
+    if (!relevant) throw new Error(`${id} is outside the scope of ${workItem}`);
+    if (command === 'resolve' && (state.activeWorkItem?.id !== workItem || registered.status !== 'W-IN_PROGRESS')) {
+      throw new Error('resolve requires the active WI in W-IN_PROGRESS');
+    }
+    if (command === 'resolve' && state.activeWorkItem?.gates?.implementationCompleted !== 'G-PASSED') {
+      throw new Error('resolve requires implementationCompleted G-PASSED with implementation evidence');
+    }
+    if (command === 'resolve') {
+      const reports = state.activeWorkItem?.gateEvidence?.implementationCompleted;
+      const hasReport = Array.isArray(reports) && reports.some((report) => report.startsWith('harness/reports/')
+        && !report.split('/').includes('..') && fs.existsSync(path.join(root, report)));
+      if (!hasReport) throw new Error('resolve requires an existing gateEvidence.implementationCompleted report');
+    }
+    const updated = contractSyncTransitionText(event.text, command, evidence);
+    fs.writeFileSync(event.file, updated);
+    console.log(JSON.stringify({ id, workItem, status: command === 'resolve' ? 'C-RESOLVED' : 'C-ACKNOWLEDGED', evidence }));
   }
   if (command === 'publish') {
     const id = option('id', true);

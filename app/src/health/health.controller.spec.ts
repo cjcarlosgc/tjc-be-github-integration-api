@@ -18,6 +18,8 @@ function configWithToken(token?: string, complete = false): ConfigService {
       if (key === 'GITHUB_WEBHOOK_SECRET') return complete ? 'test-only-webhook-secret' : undefined;
       if (key === 'GITHUB_APP_ID') return complete ? '4935151' : undefined;
       if (key === 'GITHUB_APP_PRIVATE_KEY_BASE64') return complete ? appKey() : undefined;
+      if (key === 'CONSOLE_CORS_ORIGINS') return complete ? 'https://console.example.test' : undefined;
+      if (key === 'NODE_ENV') return 'development';
       return undefined;
     }),
   } as unknown as ConfigService;
@@ -65,7 +67,8 @@ describe('GET /health', () => {
 
     controller.getHealth(response);
 
-    expect(config.get).toHaveBeenCalledTimes(6);
+    expect(config.get).toHaveBeenCalledTimes(8);
     expect(config.get).toHaveBeenCalledWith('CORE_TO_GITHUB_INTEGRATION_TOKEN');
+    expect(config.get).toHaveBeenCalledWith('NODE_ENV');
   });
 });

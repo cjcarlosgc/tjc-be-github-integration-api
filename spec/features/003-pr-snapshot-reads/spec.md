@@ -8,7 +8,7 @@ Habilita HU06 y HU14: obtener un changeset y una vista reproducible del contenid
 
 ## Alcance
 
-- Implementar `compare`, `tree`, `files:batch` y `pull-request-head` de `GH-INTEROP-1.0`.
+- Implementar `compare`, `tree`, `files:batch` y `pull-request-head` de `GH-INTEROP-1.1`.
 - Todas las operaciones internas autentican al servicio Core→GH y devuelven los wrappers `GithubLookup<T>` establecidos.
 - `compare` obtiene `files` de la primera respuesta del endpoint Compare. GitHub pagina commits, no los archivos del changeset: solo incluye el arreglo `files` en la primera página y lo limita a 300. Si la respuesta alcanza ese tope, la completitud es ambigua y el servicio devuelve `UNVERIFIABLE`; nunca presenta el tope como lista completa.
 - Fallo, timeout, JSON inválido o forma de respuesta incorrecta en `compare` devuelve el estado aplicable sin archivos parciales.
@@ -20,7 +20,7 @@ Habilita HU06 y HU14: obtener un changeset y una vista reproducible del contenid
 
 ## Criterios verificables
 
-- DTOs, rutas, valores y respuestas coinciden con `GH-INTEROP-1.0`; no se altera la API pública Core–Console.
+- DTOs, rutas, valores y respuestas coinciden con `GH-INTEROP-1.1`; no se altera la API pública Core–Console.
 - La paginación y las lecturas por archivo no filtran respuestas crudas, tokens ni mensajes de GitHub.
 - Pruebas con transporte simulado cubren compare por debajo del tope y el tope de 300, 404, instalación no disponible, error/timeout upstream, JSON inválido, `tree.truncated` y fallo de un elemento del batch sin resultado parcial.
 - La limitación del endpoint compare se comunica al dueño del contrato GH-INTEROP mediante Contract Sync para ratificar/documentar la interpretación conservadora de `UNVERIFIABLE` al alcanzar 300 archivos.

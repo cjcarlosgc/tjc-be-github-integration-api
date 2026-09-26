@@ -20,6 +20,8 @@ Contract Sync se ejecuta en `start`, `implementation-delivery`, `before-review` 
 
 Los Contract Sync nuevos usan `CS-CORE-*`, `CS-CONSOLE-*`, `CS-SANDBOX-*` o `CS-GH-*` y requieren `sourceWorkItem` de ese componente. Los IDs simples anteriores al corte siguen legibles sin reescritura. Este Harness solo valida WIs de su propio repositorio; dependencias entre componentes requieren comprobar manualmente el estado/evidencia del WI origen además de importar y resolver su evento. `dependsOn` no acepta IDs de otro repo.
 
+Las importaciones de Contract Sync registran `consumerImportedAt` local. El validador de completions ignora eventos que llegaron después del `closedAt` del snapshot histórico, sin excluirlos para WIs activos o futuros; los eventos antiguos sin marca se tratan de forma conservadora.
+
 ## Validación local
 
 ```sh

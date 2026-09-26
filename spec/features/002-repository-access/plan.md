@@ -9,7 +9,7 @@
 5. Añadir pruebas de contrato/paridad y entregar un handoff de consumidores Core afectados. Core solo migra su consumidor en un WI propio.
 6. Publicar Contract Sync `CS-GH-YYYYMMDD-NNN` con `sourceWorkItem: WI-GH-002` para todos los consumidores afectados.
 
-Para discovery, GH no copia la clasificación ambigua de Core que trata todo `403` como token OAuth inválido: solo `401` tiene esa clasificación; `403`/`429` se devuelven como fallo upstream reintentable. El caso `403` es una decisión de implementación local aún no literal en GH-INTEROP-1.0; Contract Sync debe pedir a Core que la ratifique. Esto no cambia el comportamiento público actual porque Core no se migra en este WI. Antes del cutover, el futuro WI de Core debe confirmar cómo traducir ese resultado.
+La regla de errores del corte se consolidó después en `GH-INTEROP-1.1`: solo un `401` explícito del provider token es inválido; `403` ambiguo/`429` son upstream reintentable y Core los traduce a `503 GITHUB_VERIFICATION_UNAVAILABLE`. La afirmación histórica de que Core aún no migraba pertenecía al plan original de `WI-GH-002`; la vigencia de Console directo y callback Core se especifica en `spec/features/006-console-github-api/`.
 
 ## Precondiciones
 

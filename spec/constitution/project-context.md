@@ -1,6 +1,6 @@
 # Contexto operativo del proyecto
 
-**Estado:** frontera y contrato `GH-INTEROP-1.0` aprobados; implementación y despliegue pendientes
+**Estado:** topología y contrato `GH-INTEROP-1.1` aprobados; WI-GH-006 en implementación fuente, revisión personal y cutover pendientes
 **Alcance:** especificación, implementación y revisión del cuarto componente de RAG Test Studio.
 
 ## Identidad
@@ -10,12 +10,14 @@
 ## Topología
 
 ```text
-Developer Console ──API pública──> RAG Core API ──GH-INTEROP-1.0──> GitHub Integration ──> GitHub
+Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.1──> GitHub Integration ──> GitHub
+       └──rutas UI autenticadas──────────────────────────────────> GitHub Integration
 GitHub ──webhook firmado──> GitHub Integration ──evento verificado──> RAG Core API
+GitHub Integration ──sesión + hechos allowlisted──> autorización síncrona Core
 ```
 
 - Core mantiene identidad de dominio, autorización de Projects, persistencia, jobs, RAG y decisiones del pipeline.
-- Console consume Core; no llama a GitHub Integration directamente.
+- Console llama a GitHub Integration solo para App info, discovery, verificación GitHub y ramas; consume Core para dominio, persistencia, RAG y análisis.
 - GitHub Integration mantiene App JWTs, installation tokens, API/SDK de GitHub, webhooks y publicación.
 - Supabase Auth mantiene la identidad de personas. El provider token de discovery es efímero, no se persiste ni registra.
 - Core conserva snapshot ZIP interno, Storage y URLs firmadas que consume Docker/Sandbox. No se reintroducen carga manual de ZIP ni descarga agrupada de artefactos.

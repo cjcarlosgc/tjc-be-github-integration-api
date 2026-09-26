@@ -179,8 +179,9 @@ describe('GithubRepositoryDiscoveryService', () => {
     await expect(service.list('token', 2, 2, { organizationOwnerId: '8' })).resolves.toEqual({
       items: [{
         repositoryId: '1', name: 'repo', repositoryName: 'acme/repo',
-        owner: { login: 'acme', type: 'Organization', avatarUrl: null },
+        owner: { id: '8', login: 'acme', type: 'Organization', avatarUrl: null },
         private: true, defaultBranch: 'main',
+        permission: 'write',
         permissions: { admin: false, maintain: false, push: true, pull: false },
       }],
       hasNextPage: true,

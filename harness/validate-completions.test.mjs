@@ -91,6 +91,38 @@ test('W-DONE is rejected when a relevant inbox event is merely acknowledged', ()
   assert.match(result.stderr, /unresolved relevant CONTRACT_SYNC/);
 });
 
+test('a Contract Sync imported after closure does not rewrite an immutable completion snapshot', () => {
+  const event = [
+    'type: CONTRACT_SYNC',
+    'id: CS-CORE-20260926-001',
+    'source: core',
+    'sourceWorkItem: WI-CORE-003',
+    'targets: [github-integration]',
+    'scopePaths: [*]',
+    'status: C-PENDING',
+    'consumerImportedAt: 2026-09-26T07:48:21.433Z',
+    '',
+  ].join('\n');
+  assert.equal(run([completion], [event]).status, 0);
+});
+
+test('a Contract Sync known before closure still blocks a completion snapshot', () => {
+  const event = [
+    'type: CONTRACT_SYNC',
+    'id: CS-CORE-20260923-001',
+    'source: core',
+    'sourceWorkItem: WI-CORE-002',
+    'targets: [github-integration]',
+    'scopePaths: [*]',
+    'status: C-ACKNOWLEDGED',
+    'consumerImportedAt: 2026-09-23T07:48:21.433Z',
+    '',
+  ].join('\n');
+  const result = run([completion], [event]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /unresolved relevant CONTRACT_SYNC/);
+});
+
 test('W-DONE accepts a namespaced GH Contract Sync with its sourceWorkItem', () => {
   const result = runPublishedEvent('CS-GH-20260925-998');
   assert.equal(result.status, 0, result.stderr);

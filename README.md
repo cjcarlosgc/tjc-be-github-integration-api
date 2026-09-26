@@ -1,6 +1,6 @@
 # GitHub Integration API
 
-Servicio backend de RAG Test Studio responsable de toda la interacción directa con GitHub para RAG Core: GitHub App, discovery, repositorios, ramas, contenido por commit, Checks, Git Data API, companion PRs y webhooks.
+Servicio backend de RAG Test Studio responsable de toda la interacción directa con GitHub: GitHub App, discovery, repositorios, ramas, contenido por commit, Checks, Git Data API, companion PRs y webhooks. Console lo consume directamente solo para App info, discovery, verificación GitHub y ramas; Core conserva dominio y pipeline.
 
 ## Línea base
 
@@ -8,7 +8,7 @@ Servicio backend de RAG Test Studio responsable de toda la interacción directa 
 - `develop` es la rama base. La rama de trabajo acordada es `feature/jean`, derivada de `develop`; el usuario ya autorizó iniciar ese trabajo.
 - El bootstrap documental sirve como baseline local. No se publica nada al remoto sin autorización expresa para ese push.
 - Sandbox permanece fuera de este corte y su homologación SDD sigue pendiente. No se declara una línea base común desplegada.
-- Core mantiene la versión canónica de `GH-INTEROP-1.0`. Esta copia contiene aclaraciones locales de publicación de WI-GH-004 (`CS-GH-20260925-003/004`) y webhooks de WI-GH-005 (`CS-GH-20260925-005`), pendientes de Core. No se declara sincronización byte a byte completa, integración desplegada ni cutover.
+- Core mantiene la versión canónica de `GH-INTEROP-1.1`; Console y GitHub Integration conservan copias espejo. WI-GH-006 añade rutas autenticadas de usuario y autorización síncrona con Core. La revisión personal de los WIs, configuración externa y cutover siguen pendientes; no se declara integración desplegada.
 
 ## Desarrollo
 

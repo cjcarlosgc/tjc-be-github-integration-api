@@ -28,6 +28,8 @@ export class HealthController {
       GITHUB_WEBHOOK_SECRET: this.config.get<string>('GITHUB_WEBHOOK_SECRET'),
       GITHUB_APP_ID: this.config.get<string>('GITHUB_APP_ID'),
       GITHUB_APP_PRIVATE_KEY_BASE64: this.config.get<string>('GITHUB_APP_PRIVATE_KEY_BASE64'),
+      CONSOLE_CORS_ORIGINS: this.config.get<string>('CONSOLE_CORS_ORIGINS'),
+      NODE_ENV: this.config.get<string>('NODE_ENV'),
     });
     const status: HealthStatus = ready ? 'ok' : 'not_ready';
 

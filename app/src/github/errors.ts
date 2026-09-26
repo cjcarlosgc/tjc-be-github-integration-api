@@ -9,11 +9,26 @@ export type InternalGithubErrorCode =
   | 'GITHUB_WEBHOOK_UNAVAILABLE'
   | 'CORE_WEBHOOK_UNAVAILABLE';
 
+export type PublicGithubErrorCode =
+  | 'AUTH_REQUIRED'
+  | 'GITHUB_ACCOUNT_REQUIRED'
+  | 'INVALID_ACCESS_TOKEN'
+  | 'GITHUB_IDENTITY_REQUIRED'
+  | 'IDENTITY_UNAVAILABLE'
+  | 'PROJECT_NOT_FOUND'
+  | 'PROJECT_ROLE_INSUFFICIENT'
+  | 'GITHUB_APP_ACCESS_REQUIRED'
+  | 'REPOSITORY_PERMISSION_INSUFFICIENT'
+  | 'GITHUB_REPOSITORY_NOT_FOUND'
+  | 'INTEGRATION_BRANCH_NOT_FOUND'
+  | 'GITHUB_ACCESS_DENIED'
+  | 'CORE_AUTHORIZATION_UNAVAILABLE';
+
 export class GithubIntegrationError extends Error {
   constructor(
-    public readonly code: InternalGithubErrorCode,
+    public readonly code: InternalGithubErrorCode | PublicGithubErrorCode,
     message: string,
-    public readonly status: 400 | 401 | 404 | 413 | 503,
+    public readonly status: 400 | 401 | 403 | 404 | 413 | 503,
     public readonly retryable: boolean,
   ) {
     super(message);
@@ -80,5 +95,59 @@ export function coreWebhookUnavailable(): GithubIntegrationError {
     'Core could not accept the GitHub webhook; retry later.',
     503,
     true,
+  );
+}
+
+export function coreAuthorizationUnavailable(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'CORE_AUTHORIZATION_UNAVAILABLE',
+    'Core could not authorize this GitHub operation; retry later.',
+    503,
+    true,
+  );
+}
+
+export function githubAccessDenied(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'GITHUB_ACCESS_DENIED',
+    'Core denied this GitHub operation.',
+    403,
+    false,
+  );
+}
+
+export function githubAccountRequired(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'GITHUB_ACCOUNT_REQUIRED',
+    'Renueva tu acceso a GitHub para continuar.',
+    401,
+    false,
+  );
+}
+
+export function githubAppAccessRequired(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'GITHUB_APP_ACCESS_REQUIRED',
+    'The GitHub App does not have access to this repository.',
+    403,
+    false,
+  );
+}
+
+export function repositoryPermissionInsufficient(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'REPOSITORY_PERMISSION_INSUFFICIENT',
+    'The GitHub user needs maintain, write, or admin permission on this repository.',
+    403,
+    false,
+  );
+}
+
+export function integrationBranchNotFound(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'INTEGRATION_BRANCH_NOT_FOUND',
+    'The selected integration branch is unavailable.',
+    404,
+    false,
   );
 }

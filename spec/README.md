@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Línea base:** SDD 3.0 / SYSTEM-2.4 / INTEROP-2.4 / GH-INTEROP-1.0. La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
+**Línea base:** SDD 3.0 / SYSTEM-2.5 / INTEROP-2.5 / GH-INTEROP-1.1. La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
 
 ## Orden de lectura
 
@@ -10,15 +10,15 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.4` y `INTEROP-2.4` son espejos byte a byte de las fuentes canónicas compartidas por Core y Console; no se modifican unilateralmente.
-- Core es dueño canónico de `GH-INTEROP-1.0`. Tras la sincronización de `CS-GH-20260925-001`–`005`, este archivo también coincide byte por byte con Core. Core registró ACK para planificar el trabajo, no RESOLVED: su integración sigue pendiente en `WI-CORE-003`, por lo que la igualdad documental no representa integración end-to-end ni autoriza cutover. Los WIs GH vuelven a comprobar decisiones y sync aplicables al seleccionarse; el contrato aprobado no significa implementación o despliegue.
+- `SYSTEM-2.5` y `INTEROP-2.5` son copias espejo de las fuentes canónicas de Core, también mantenidas por Console; Sandbox conserva una línea base local anterior hasta su homologación.
+- Core es dueño canónico de `GH-INTEROP-1.1`. Los WIs GH-002–005 conservan su historial; WI-GH-006 añade las rutas directas de Console y su autorización síncrona con Core. El cambio no está desplegado ni cortado.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 
 ## Planificación
 
 El catálogo de seis épicas, 18 HU y 15 OC se mantiene idéntico al backlog global; no se abre una HU por cada componente. El trabajo técnico se define como subtareas en `tasks.md` y WIs locales en `harness/work-items.json`. Las 18 HU y 15 OC son referencias de alcance, no evidencia de que GH las implemente o cubra.
 
-`WI-GH-001` prepara la base del servicio, health y configuración local. Los cortes siguientes son locales al API: `WI-GH-002` discovery/autorización/repositorios/organizaciones/ramas, `WI-GH-003` lecturas de compare/tree/files/PR, `WI-GH-004` Checks/publicación, `WI-GH-005` webhooks y entrega normalizada. Todos deben sincronizar su contrato con Core; los WIs 002–005 tienen dependencias explícitas y no se seleccionan antes del cierre de sus predecesores. Ningún WI incluye cambiar contratos sin sincronización con su dueño.
+`WI-GH-001` prepara la base del servicio, health y configuración local. `WI-GH-002` discovery interno/autorización/repositorios/organizaciones/ramas, `WI-GH-003` compare/tree/files/PR, `WI-GH-004` Checks/publicación, `WI-GH-005` webhooks y `WI-GH-006` rutas de usuario Console/autorización síncrona. Los WIs 002–005 conservan sus snapshots de cierre; el nuevo corte requiere Contract Sync con Core y Console antes de la revisión final.
 
 ## Decisiones
 

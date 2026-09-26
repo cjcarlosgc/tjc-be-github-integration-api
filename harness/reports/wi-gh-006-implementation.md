@@ -23,4 +23,10 @@
 
 ## Pendiente
 
-La revisión técnica delegada halló un vacío P2 en las pruebas HTTP de estas rutas; se añadió cobertura y la revisión focalizada posterior confirmó 11/11 pruebas dirigidas y no encontró regresión/bypass. Esto no sustituye tu visto bueno personal: `independentReviewPassed` y los demás gates de cierre siguen `G-NOT_RUN`. No pasar a `W-DONE`, no hacer push ni declarar deploy/cutover.
+La revisión técnica delegada halló un vacío P2 en las pruebas HTTP de estas rutas; se añadió cobertura y la revisión focalizada posterior confirmó 11/11 pruebas dirigidas y no encontró regresión/bypass. Esto no sustituye tu visto bueno personal: `independentReviewPassed` y los demás gates de cierre siguen `G-NOT_RUN`. No pasar a `W-DONE` ni declarar deploy/cutover.
+
+## Addendum — Contract Sync consumidor y autorización de push (2026-09-26)
+
+Core y Console verificaron el espejo GH-INTEROP-1.1 y resolvieron localmente CS-GH-20260926-001 en sus WIs aún W-IN_PROGRESS. Sus reportes documentan la evidencia y el checkpoint before-review sin pendientes. Los tres WIs permanecen abiertos para tu visto bueno personal; este addendum no autoriza deploy ni cutover.
+
+En GH, implementationCompleted, technicalChecksPassed y contractSyncPublished ya están G-PASSED con evidencia local. La revisión independiente y contractual para cierre del WI siguen pendientes.

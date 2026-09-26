@@ -910,12 +910,12 @@
     },
     "gates": {
       "sddVerified": "G-PASSED",
-      "implementationCompleted": "G-NOT_RUN",
+      "implementationCompleted": "G-PASSED",
       "independentReviewPassed": "G-NOT_RUN",
-      "technicalChecksPassed": "G-NOT_RUN",
+      "technicalChecksPassed": "G-PASSED",
       "contractReviewed": "G-NOT_RUN",
       "canonicalContractSynced": "G-NOT_RUN",
-      "contractSyncPublished": "G-NOT_RUN",
+      "contractSyncPublished": "G-PASSED",
       "interopSyncChecked": "G-NOT_RUN",
       "noBlockingDecisions": "G-PASSED",
       "retryLimitRespected": "G-PASSED"
@@ -923,6 +923,15 @@
     "gateEvidence": {
     "sddVerified": [
       "harness/reports/wi-gh-006-spec-verification.md"
+    ],
+    "implementationCompleted": [
+      "harness/reports/wi-gh-006-implementation.md"
+    ],
+    "technicalChecksPassed": [
+      "harness/reports/wi-gh-006-implementation.md"
+    ],
+    "contractSyncPublished": [
+      "harness/reports/wi-gh-006-implementation.md"
     ],
     "noBlockingDecisions": [
       "harness/reports/wi-gh-006-spec-verification.md"

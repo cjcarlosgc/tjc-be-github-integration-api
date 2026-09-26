@@ -6,7 +6,7 @@
 
 ## Rango revisado
 
-- Base remota develop: 0f275f766787a2a9e5cca3d4508a46bd1585611e.
+- Base local develop: 29aedbe112958e0024004ff3ea8bb4270999db62, ancestro de feature/jean. El remoto todavía no contiene ramas publicadas.
 - Corte funcional: 4b2ddbd14a6a76f65b4d7d0093d8154f8a61b904.
 - Evidencia de gates técnicos y resolución en consumidores: ca624da.
 - Historias: HU01, HU02, HU14, HU16.

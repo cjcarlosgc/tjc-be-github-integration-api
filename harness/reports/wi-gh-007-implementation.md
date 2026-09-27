@@ -20,3 +20,5 @@ Las pruebas cubren conversión de offsets a UTC, ausencia, formato inválido, d�
 - SHA-256 del contrato local y de Core coincide: `9c58c9afa1d2bda201b604d82d606a57e86b3244578d14054f2cb5a9a7f5d9b6`.
 
 El evento entrante `CS-CORE-20260927-002` quedó `C-RESOLVED` con esta evidencia. El checkpoint Contract Sync `implementation-delivery` se registró sin pendientes relevantes el `2026-09-27T21:48:09Z`. La publicación GH→Core/Console se registra después de crear el commit de implementación, para que su `sourceRevision` apunte a un commit verificable.
+
+Disponibilidad publicada a Core y Console mediante `CS-GH-20260927-001`, con `sourceRevision` `35bd9f2006240ebcd12ce0c3353d3a43bb1c1d0c`; véase `harness/reports/wi-gh-007-contract-sync-publication.md`.

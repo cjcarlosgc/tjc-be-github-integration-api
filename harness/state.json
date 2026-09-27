@@ -1143,7 +1143,7 @@
     ],
     "caseIds": [],
     "sprint": "Post-transition",
-    "status": "W-IN_PROGRESS",
+    "status": "W-IN_REVIEW",
     "specPaths": [
       "spec/README.md",
       "harness/roles/contract-reviewer.md",
@@ -1223,7 +1223,7 @@
       "technicalChecksPassed": "G-PASSED",
       "contractReviewed": "G-PASSED",
       "canonicalContractSynced": "G-PASSED",
-      "contractSyncPublished": "G-NOT_RUN",
+      "contractSyncPublished": "G-PASSED",
       "interopSyncChecked": "G-PASSED",
       "noBlockingDecisions": "G-PASSED",
       "retryLimitRespected": "G-NOT_RUN"
@@ -1255,9 +1255,23 @@
           "deferredSyncIds": [],
           "notRelevantSyncIds": [],
           "checkedAt": "2026-09-27T21:48:09.194Z"
+        },
+        {
+          "checkpoint": "before-review",
+          "workItem": "WI-GH-007",
+          "relevantPendingSyncIds": [],
+          "acknowledgedSyncIds": [],
+          "resolvedSyncIds": [
+            "CS-CORE-20260927-002"
+          ],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-09-27T21:49:10.625Z"
         }
       ],
-      "publishedSyncIds": [],
+      "publishedSyncIds": [
+        "CS-GH-20260927-001"
+      ],
       "pendingRelevantSyncIds": []
     },
     "evidence": [
@@ -1265,7 +1279,8 @@
       "harness/reports/wi-gh-007-contract-sync-review.md",
       "harness/reports/wi-gh-007-spec-verification.md",
       "harness/reports/wi-gh-007-contract-review.md",
-      "harness/reports/wi-gh-007-implementation.md"
+      "harness/reports/wi-gh-007-implementation.md",
+      "harness/reports/wi-gh-007-contract-sync-publication.md"
     ],
     "blockedReason": null,
     "gateEvidence": {
@@ -1277,6 +1292,9 @@
       ],
       "interopSyncChecked": [
         "harness/reports/wi-gh-007-implementation.md"
+      ],
+      "contractSyncPublished": [
+        "harness/reports/wi-gh-007-contract-sync-publication.md"
       ]
     }
   }

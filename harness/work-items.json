@@ -221,7 +221,7 @@
       "id": "WI-GH-007",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-IN_REVIEW",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Entregar fecha original del PR para elegibilidad temporal",

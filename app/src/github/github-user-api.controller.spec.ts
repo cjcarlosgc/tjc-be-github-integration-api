@@ -96,6 +96,14 @@ describe('authenticated GitHub user API routes', () => {
     expect(userApi.listRepositories).toHaveBeenCalledWith(sessionToken, providerToken, projectId, undefined, 10, 'ui.trace-02');
   });
 
+  it('lists branches with only the Supabase session, never an OAuth provider token', async () => {
+    const response = await fetch(`${baseUrl}/repositories/octocat/repo/branches?projectId=${projectId}`, {
+      headers: { Authorization: `Bearer ${sessionToken}`, 'X-Correlation-ID': 'ui.trace-branches' },
+    });
+    expect(response.status).toBe(200);
+    expect(userApi.listBranches).toHaveBeenCalledWith(sessionToken, projectId, 'octocat/repo', 'ui.trace-branches');
+  });
+
   it('rejects unexpected body/query fields before dispatching a user operation', async () => {
     const extraBody = await fetch(`${baseUrl}/repositories/verify-access`, {
       method: 'POST',

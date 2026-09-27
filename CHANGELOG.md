@@ -4,6 +4,7 @@ Los cambios relevantes de comportamiento, contratos y línea base se registran a
 
 ## Unreleased
 
+- **Cierre local de la migración GitHub (2026-09-26):** `WI-GH-006` quedó revisado y `W-DONE`; Core y Console también cerraron sus WIs consumidores. El cambio de fecha original de PR y el corte de historial pre-binding quedan planificados en `WI-GH-007`, sin implementación ni deploy/cutover.
 - **Evidencia del perímetro HTTP de usuario (2026-09-26):** se añadieron pruebas de sesión obligatoria, validación estricta de DTOs, `no-store`, separación de bearer servicio/JWT y fail-closed ante timeout, redirect, respuesta malformada o denegación. El cliente GH→Core rechaza campos ajenos al contrato. INTEROP-2.5 aclara que Core autoriza el owner scope y este componente filtra los resultados GitHub. `WI-GH-006` sigue abierto para revisión y visto bueno personal.
 - **CORS de Console en producción:** se rechazan orígenes HTTP de loopback cuando `NODE_ENV=production`; HTTPS sigue permitido y HTTP loopback queda para entornos no productivos. `WI-GH-006` permanece abierto para revisión y visto bueno personal.
 - **Ciclo Contract Sync del Harness (2026-09-26):** importaciones idempotentes llevan timestamp local, acknowledge/resolve preservan evidencia y validación de completions respeta el cierre histórico. El Contract Sync emitido para Core/Console sigue pendiente en los consumidores; el WI GH continúa abierto.

@@ -24,7 +24,9 @@ const content = {
   compare: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
   getTree: vi.fn().mockResolvedValue({ status: 'OK', value: { paths: [], truncated: false } }),
   getFilesBatch: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
-  getPullRequestHead: vi.fn().mockResolvedValue({ status: 'OK', value: { headSha: 'head-sha', state: 'open' } }),
+  getPullRequestHead: vi.fn().mockResolvedValue({
+    status: 'OK', value: { headSha: 'head-sha', state: 'open', createdAt: '2026-09-25T12:00:00.000Z' },
+  }),
 };
 const publication = {
   createCheck: vi.fn().mockResolvedValue(undefined),
@@ -145,6 +147,9 @@ describe('private GitHub integration routes', () => {
     });
     expect(head.status).toBe(200);
     expect(content.getPullRequestHead).toHaveBeenCalledWith('13', 'acme/widgets', 42);
+    expect(await head.json()).toEqual({
+      status: 'OK', value: { headSha: 'head-sha', state: 'open', createdAt: '2026-09-25T12:00:00.000Z' },
+    });
   });
 
   it('rejects malformed snapshot DTOs, paths above the eight-file batch cap, and unknown fields', async () => {

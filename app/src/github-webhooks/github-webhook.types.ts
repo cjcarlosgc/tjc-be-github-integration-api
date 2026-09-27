@@ -8,6 +8,7 @@ export type NormalizedWebhookData =
         title: string;
         draft: boolean;
         merged: boolean;
+        createdAt: string | null;
         base: { ref: string; sha: string };
         head: { ref: string; sha: string };
         userLogin: string | null;

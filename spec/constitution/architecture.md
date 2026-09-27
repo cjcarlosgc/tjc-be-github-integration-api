@@ -1,6 +1,6 @@
 # Arquitectura del servicio
 
-**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; despliegue y cutover externos pendientes. `WI-GH-007` planifica por separado entregar `pullRequest.createdAt`.
+**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; `WI-GH-007` implementa la fecha original verificable del PR según `GH-INTEROP-1.2`. Despliegue y cutover externos siguen pendientes.
 
 ## Fronteras
 

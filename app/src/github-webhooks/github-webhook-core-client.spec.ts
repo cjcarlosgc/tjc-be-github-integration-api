@@ -23,6 +23,7 @@ const pullRequestEvent: NormalizedWebhookEvent = {
     pullRequestNumber: 3,
     pullRequest: {
       title: 'Change', draft: false, merged: false,
+      createdAt: '2026-09-25T12:00:00.000Z',
       base: { ref: 'main', sha: 'a'.repeat(40) },
       head: { ref: 'feature', sha: 'b'.repeat(40) },
       userLogin: 'contributor',
@@ -43,9 +44,9 @@ function client(fetcher: typeof fetch): GithubWebhookCoreClient {
 describe('GitHub webhook Core client', () => {
   it('sends the normalized event with the independent bearer and correlation id', async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({
-      deliveryId: event.deliveryId, accepted: true, duplicate: false, analysisRunId: null,
+      deliveryId: pullRequestEvent.deliveryId, accepted: true, duplicate: false, analysisRunId: null,
     }), { status: 202 }));
-    const result = await client(fetcher).deliver(event, { correlationId: 'trace-1' });
+    const result = await client(fetcher).deliver(pullRequestEvent, { correlationId: 'trace-1' });
     expect(fetcher).toHaveBeenCalledWith('https://core.example.test/internal/v1/github/webhook-events', expect.objectContaining({
       method: 'POST',
       redirect: 'error',
@@ -53,9 +54,9 @@ describe('GitHub webhook Core client', () => {
         Authorization: 'Bearer gh-to-core-test-token',
         'X-Correlation-ID': 'trace-1',
       }),
-      body: JSON.stringify(event),
+      body: JSON.stringify(pullRequestEvent),
     }));
-    expect(result).toEqual({ status: 202, body: { deliveryId: event.deliveryId, accepted: true, duplicate: false, analysisRunId: null } });
+    expect(result).toEqual({ status: 202, body: { deliveryId: pullRequestEvent.deliveryId, accepted: true, duplicate: false, analysisRunId: null } });
   });
 
   it('accepts a matching persisted duplicate response from Core', async () => {

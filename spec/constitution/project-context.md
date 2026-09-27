@@ -1,6 +1,6 @@
 # Contexto operativo del proyecto
 
-**Estado:** topología y contrato `GH-INTEROP-1.1` implementados y revisados localmente en `WI-GH-006`; el servicio no está desplegado ni cortado
+**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; `GH-INTEROP-1.2` extiende la fecha original verificable del PR y se implementa en `WI-GH-007`; el servicio no está desplegado ni cortado
 **Alcance:** especificación, implementación y revisión del cuarto componente de RAG Test Studio.
 
 ## Identidad
@@ -10,7 +10,7 @@
 ## Topología
 
 ```text
-Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.1──> GitHub Integration ──> GitHub
+Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.2──> GitHub Integration ──> GitHub
        └──rutas UI autenticadas──────────────────────────────────> GitHub Integration
 GitHub ──webhook firmado──> GitHub Integration ──evento verificado──> RAG Core API
 GitHub Integration ──sesión + hechos allowlisted──> autorización síncrona Core

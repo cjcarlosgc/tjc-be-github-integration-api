@@ -10,6 +10,7 @@ describe('GitHub webhook normalizer', () => {
       installation: { id: 42 },
       repository: { id: 101, full_name: 'acme/widgets' },
       pull_request: {
+        created_at: '2026-09-24T11:30:00-05:00',
         title: 'Add feature', draft: false, merged: false,
         base: { ref: 'main', sha: 'a'.repeat(40) },
         head: { ref: 'feature', sha: 'b'.repeat(40) },
@@ -29,13 +30,36 @@ describe('GitHub webhook normalizer', () => {
         installationId: '42',
         pullRequestNumber: 12,
         pullRequest: {
-          title: 'Add feature', draft: false, merged: false,
+          title: 'Add feature', draft: false, merged: false, createdAt: '2026-09-24T16:30:00.000Z',
           base: { ref: 'main', sha: 'a'.repeat(40) },
           head: { ref: 'feature', sha: 'b'.repeat(40) },
           userLogin: 'contributor',
         },
       },
     });
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['invalid', 'not-a-date'],
+    ['invalid calendar date', '2026-02-30T12:00:00Z'],
+    ['date without a timezone', '2026-09-25T12:00:00'],
+    ['date-only value', '2026-09-25'],
+    ['unknown offset', '2026-09-25T12:00:00-00:00'],
+  ])('keeps a pull request when its creation date is %s and sets createdAt to null', (_case, createdAt) => {
+    const normalized = normalizeGithubWebhook('delivery-date', 'pull_request', {
+      number: 12,
+      repository: { id: 101, full_name: 'acme/widgets' },
+      pull_request: {
+        ...(createdAt === undefined ? {} : { created_at: createdAt }),
+        title: 'Add feature', draft: false, merged: false,
+        base: { ref: 'main', sha: 'a'.repeat(40) },
+        head: { ref: 'feature', sha: 'b'.repeat(40) },
+      },
+    }, new Date('2026-09-25T12:00:00.000Z'));
+
+    expect(normalized.data).toMatchObject({ kind: 'PULL_REQUEST', pullRequest: { createdAt: null } });
+    expect(normalized.receivedAt).toBe('2026-09-25T12:00:00.000Z');
   });
 
   it('normalizes absent optional fields and lists to null and empty arrays', () => {

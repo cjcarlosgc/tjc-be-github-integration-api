@@ -30,3 +30,9 @@ La revisión técnica delegada halló un vacío P2 en las pruebas HTTP de estas 
 Core y Console verificaron el espejo GH-INTEROP-1.1 y resolvieron localmente CS-GH-20260926-001 en sus WIs aún W-IN_PROGRESS. Sus reportes documentan la evidencia y el checkpoint before-review sin pendientes. Los tres WIs permanecen abiertos para tu visto bueno personal; este addendum no autoriza deploy ni cutover.
 
 En GH, implementationCompleted, technicalChecksPassed y contractSyncPublished ya están G-PASSED con evidencia local. La revisión independiente y contractual para cierre del WI siguen pendientes.
+
+## Addendum — cobertura HTTP CORS y parsers (2026-09-26)
+
+La configuración CORS de producción se extrajo a `app/src/console-cors.ts` y `main.ts` invoca esa misma función. La prueba HTTP de `GithubUserApiController` verifica que un origen Console permitido recibe `Access-Control-Allow-Origin`, un origen ajeno no lo recibe, y el preflight permitido admite `Authorization` y `X-GitHub-Provider-Token`; también comprueba el preflight de origen ajeno.
+
+La cobertura HTTP de parsers ya estaba en `github-integration.controller.spec.ts`: body >100 KB aceptado solo en proposal-blobs con bearer, rechazo 401 del mismo body sin bearer y rechazo 413 del body >100 KB en finalización. Tras este cambio pasan 16 archivos/121 pruebas, lint, build, `sdd-check`, validadores de Work Items/Harness/completions y `git diff --check`. El WI permanece `W-IN_PROGRESS`; no se cambió ningún gate ni se declara aprobación/cutover.

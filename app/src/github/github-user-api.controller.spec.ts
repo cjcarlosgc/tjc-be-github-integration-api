@@ -5,6 +5,7 @@ import { APP_FILTER, NestFactory } from '@nestjs/core';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { correlationIdMiddleware } from '../correlation-id.middleware.js';
+import { configureConsoleCors } from '../console-cors.js';
 import { GithubUserApiController } from './github-user-api.controller.js';
 import { GithubUserApiService } from './github-user-api.service.js';
 import { InternalErrorFilter } from './internal-error.filter.js';
@@ -36,6 +37,7 @@ describe('authenticated GitHub user API routes', () => {
   beforeAll(async () => {
     app = await NestFactory.create(GithubUserApiControllerTestModule, { logger: false });
     app.use(correlationIdMiddleware);
+    configureConsoleCors(app, 'https://console.example.test', false);
     app.useGlobalPipes(new ValidationPipe({
       transform: true,
       whitelist: true,
@@ -110,5 +112,43 @@ describe('authenticated GitHub user API routes', () => {
     expect(await extraQuery.json()).toMatchObject({ code: 'INVALID_REQUEST', retryable: false });
     expect(userApi.verifyRepositoryAccess).not.toHaveBeenCalled();
     expect(userApi.listRepositories).toHaveBeenCalledTimes(1);
+  });
+
+  it('grants CORS only to the configured Console origin for actual requests and preflight', async () => {
+    const allowedOrigin = 'https://console.example.test';
+    const appResponse = await fetch(`${baseUrl}/app`, {
+      headers: { Origin: allowedOrigin, Authorization: `Bearer ${sessionToken}` },
+    });
+    expect(appResponse.status).toBe(200);
+    expect(appResponse.headers.get('access-control-allow-origin')).toBe(allowedOrigin);
+
+    const deniedOriginResponse = await fetch(`${baseUrl}/app`, {
+      headers: { Origin: 'https://untrusted.example.test', Authorization: `Bearer ${sessionToken}` },
+    });
+    expect(deniedOriginResponse.status).toBe(200);
+    expect(deniedOriginResponse.headers.get('access-control-allow-origin')).toBeNull();
+
+    const allowedPreflight = await fetch(`${baseUrl}/repositories?projectId=${projectId}`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: allowedOrigin,
+        'Access-Control-Request-Method': 'GET',
+        'Access-Control-Request-Headers': 'authorization,x-github-provider-token',
+      },
+    });
+    expect(allowedPreflight.status).toBe(204);
+    expect(allowedPreflight.headers.get('access-control-allow-origin')).toBe(allowedOrigin);
+    expect(allowedPreflight.headers.get('access-control-allow-methods')).toContain('GET');
+    expect(allowedPreflight.headers.get('access-control-allow-headers')).toContain('X-GitHub-Provider-Token');
+
+    const deniedPreflight = await fetch(`${baseUrl}/repositories?projectId=${projectId}`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://untrusted.example.test',
+        'Access-Control-Request-Method': 'GET',
+        'Access-Control-Request-Headers': 'authorization',
+      },
+    });
+    expect(deniedPreflight.headers.get('access-control-allow-origin')).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 # Misión
 
-**Estado:** frontera y contrato `GH-INTEROP-1.1` aprobados; WI-GH-006 en implementación fuente, revisión personal y despliegue pendientes
+**Estado:** frontera y contrato `GH-INTEROP-1.1` implementados y revisados localmente en `WI-GH-006`; despliegue y cutover permanecen pendientes
 
 Implementar el servicio backend que concentra toda interacción GitHub de RAG Test Studio y ofrece a Core operaciones internas autenticadas, normalizadas, trazables y seguras.
 

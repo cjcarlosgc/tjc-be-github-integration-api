@@ -22,4 +22,4 @@ El alcance original de esta feature fue extraer las lecturas GitHub que Core del
 
 ## Criterio de preparación
 
-`WI-GH-001` ya está `W-DONE`; `WI-GH-002` conserva su evidencia de extracción, y la migración del consumidor se completó en WIs posteriores: `WI-CORE-003`, `WI-CONSOLE-003` y `WI-GH-006`. El mapeo público de errores está resuelto en el contrato vigente. La configuración, aprobación personal y cutover externo siguen pendientes.
+`WI-GH-001` ya está `W-DONE`; `WI-GH-002` conserva su evidencia de extracción, y la migración del consumidor se completó en WIs posteriores: `WI-CORE-003`, `WI-CONSOLE-003` y `WI-GH-006`. El mapeo público de errores está resuelto en el contrato vigente. La configuración externa y el cutover siguen pendientes.

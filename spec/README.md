@@ -11,14 +11,14 @@
 ## Contratos y sincronización
 
 - `SYSTEM-2.5` y `INTEROP-2.5` son copias espejo de las fuentes canónicas de Core, también mantenidas por Console; Sandbox conserva una línea base local anterior hasta su homologación.
-- Core es dueño canónico de `GH-INTEROP-1.1`. Los WIs GH-002–005 conservan su historial; WI-GH-006 añade las rutas directas de Console y su autorización síncrona con Core. El cambio no está desplegado ni cortado.
+- Core es dueño canónico de `GH-INTEROP-1.1`. WI-GH-006 y los consumidores Core/Console están cerrados localmente con evidencia; el cambio no está desplegado ni cortado.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 
 ## Planificación
 
 El catálogo de seis épicas, 18 HU y 15 OC se mantiene idéntico al backlog global; no se abre una HU por cada componente. El trabajo técnico se define como subtareas en `tasks.md` y WIs locales en `harness/work-items.json`. Las 18 HU y 15 OC son referencias de alcance, no evidencia de que GH las implemente o cubra.
 
-`WI-GH-001` prepara la base del servicio, health y configuración local. `WI-GH-002` discovery interno/autorización/repositorios/organizaciones/ramas, `WI-GH-003` compare/tree/files/PR, `WI-GH-004` Checks/publicación, `WI-GH-005` webhooks y `WI-GH-006` rutas de usuario Console/autorización síncrona. Los WIs 002–005 conservan sus snapshots de cierre; el nuevo corte requiere Contract Sync con Core y Console antes de la revisión final.
+`WI-GH-001` prepara la base del servicio, health y configuración local. `WI-GH-002` cubre discovery/autorización/repositorios/ramas, `WI-GH-003` compare/tree/files/PR, `WI-GH-004` Checks/publicación, `WI-GH-005` webhooks y `WI-GH-006` rutas de usuario Console/autorización síncrona; sus snapshots de cierre se conservan. `WI-GH-007` está planificado para entregar `pullRequest.createdAt` en webhook y lectura histórica; su Contract Sync deberá coordinar Core y Console.
 
 ## Decisiones
 

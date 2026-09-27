@@ -1,6 +1,6 @@
 # Arquitectura del servicio
 
-**Estado:** topología aprobada en `GH-INTEROP-1.1`; WI-GH-006 en implementación fuente, revisión personal y cutover pendientes.
+**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; despliegue y cutover externos pendientes. `WI-GH-007` planifica por separado entregar `pullRequest.createdAt`.
 
 ## Fronteras
 

@@ -1,6 +1,6 @@
 # Contexto operativo del proyecto
 
-**Estado:** topología y contrato `GH-INTEROP-1.1` aprobados; WI-GH-006 en implementación fuente, revisión personal y cutover pendientes
+**Estado:** topología y contrato `GH-INTEROP-1.1` implementados y revisados localmente en `WI-GH-006`; el servicio no está desplegado ni cortado
 **Alcance:** especificación, implementación y revisión del cuarto componente de RAG Test Studio.
 
 ## Identidad

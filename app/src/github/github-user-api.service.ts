@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   GithubAccessService,
   GithubRepositoryDiscoveryService,
@@ -22,6 +22,8 @@ const DEFAULT_PAGE_SIZE = 20;
 
 @Injectable()
 export class GithubUserApiService {
+  private readonly logger = new Logger(GithubUserApiService.name);
+
   constructor(
     private readonly github: GithubAccessService,
     private readonly discovery: GithubRepositoryDiscoveryService,
@@ -43,16 +45,41 @@ export class GithubUserApiService {
     correlationId: string,
   ) {
     if (!providerToken?.trim() || /\s/.test(providerToken)) throw githubAccountRequired();
-    const { githubUserId } = await this.discovery.getAuthenticatedUser(providerToken);
-    const decision = await this.core.decide(sessionToken, {
-      action: 'DISCOVER_REPOSITORIES', projectId, githubUserId,
-    }, correlationId);
-    if (decision.decision !== 'ALLOW' || !decision.repositoryOwnerId || !decision.repositoryOwnerType) throw githubAccessDenied();
+    const identityStartedAt = performance.now();
+    let githubUserId: string;
+    try {
+      ({ githubUserId } = await this.discovery.getAuthenticatedUser(providerToken));
+    } catch (error) {
+      this.logDiscoveryFailure(correlationId, 'github_identity', identityStartedAt, error);
+      throw error;
+    }
+
+    const authorizationStartedAt = performance.now();
+    let decision: Awaited<ReturnType<GithubUiCoreClient['decide']>>;
+    try {
+      decision = await this.core.decide(sessionToken, {
+        action: 'DISCOVER_REPOSITORIES', projectId, githubUserId,
+      }, correlationId);
+    } catch (error) {
+      this.logDiscoveryFailure(correlationId, 'core_authorization', authorizationStartedAt, error);
+      throw error;
+    }
+    if (decision.decision !== 'ALLOW' || !decision.repositoryOwnerId || !decision.repositoryOwnerType) {
+      this.logDiscoveryFailure(correlationId, 'core_authorization', authorizationStartedAt, undefined, 'denied');
+      throw githubAccessDenied();
+    }
     const page = parseCursor(cursor);
     const perPage = limit ?? DEFAULT_PAGE_SIZE;
-    const result = await this.discovery.list(providerToken, page, perPage, decision.repositoryOwnerType === 'Organization'
-      ? { organizationOwnerId: decision.repositoryOwnerId }
-      : { personalOwnerId: decision.repositoryOwnerId });
+    const listingStartedAt = performance.now();
+    let result: Awaited<ReturnType<GithubRepositoryDiscoveryService['list']>>;
+    try {
+      result = await this.discovery.list(providerToken, page, perPage, decision.repositoryOwnerType === 'Organization'
+        ? { organizationOwnerId: decision.repositoryOwnerId }
+        : { personalOwnerId: decision.repositoryOwnerId });
+    } catch (error) {
+      this.logDiscoveryFailure(correlationId, 'github_repository_list', listingStartedAt, error);
+      throw error;
+    }
     return {
       items: result.items.map(({ owner, permission: _permission, ...repo }) => ({
         ...repo,
@@ -60,6 +87,25 @@ export class GithubUserApiService {
       })),
       nextCursor: result.hasNextPage ? String(page + 1) : null,
     };
+  }
+
+  private logDiscoveryFailure(
+    correlationId: string,
+    stage: 'github_identity' | 'core_authorization' | 'github_repository_list',
+    startedAt: number,
+    error?: unknown,
+    outcome?: string,
+  ): void {
+    const integrationError = error instanceof GithubIntegrationError ? error : null;
+    this.logger.warn(JSON.stringify({
+      event: 'github_repository_discovery_failed',
+      correlationId,
+      stage,
+      outcome: outcome ?? 'failed',
+      ...(integrationError ? { errorCode: integrationError.code, httpStatus: integrationError.status } : {}),
+      ...(!integrationError && error !== undefined ? { errorCode: 'UNEXPECTED' } : {}),
+      durationMs: Math.round(performance.now() - startedAt),
+    }));
   }
 
   async verifyRepositoryAccess(

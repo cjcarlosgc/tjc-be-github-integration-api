@@ -194,17 +194,28 @@
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Añadir API autenticada de GitHub para Console",
-      "storyIds": ["HU01", "HU02", "HU14", "HU16"],
-      "taskIds": ["ST-GH-006", "ST-GH-007"],
+      "storyIds": [
+        "HU01",
+        "HU02",
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-006",
+        "ST-GH-007"
+      ],
       "caseIds": [],
-      "dependsOn": ["WI-GH-001", "WI-GH-005"],
+      "dependsOn": [
+        "WI-GH-001",
+        "WI-GH-005"
+      ],
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
         "App info, discovery, verify-access y branches se exponen bajo /v1/github/*; ninguna ruta /internal/v1/github/* se reutiliza desde Console.",
         "Cada ruta valida sesión Supabase a través del callback síncrono Core con JWT de usuario y hechos GitHub allowlisted; denegación, timeout o fallo Core cierran el acceso.",
         "Core conserva las decisiones Project/workspace, emite evidencia de binding firmada y breve; el navegador nunca impone installationId ni rol.",
-      "CORS usa allowlist de Console. Provider token es efímero, solo se usa en discovery y verificación de repositorio nuevo; no se envía a Core, persiste, registra ni retorna. Branches y verificación informativa de binding existente no aceptan provider token.",
+        "CORS usa allowlist de Console. Provider token es efímero, solo se usa en discovery y verificación de repositorio nuevo; no se envía a Core, persiste, registra ni retorna. Branches y verificación informativa de binding existente no aceptan provider token.",
         "El parser ampliado de 136 MB solo cubre proposal-blobs; finalización conserva el parser general de 100 KB.",
         "Pruebas locales cubren auth, CORS, callback, errores, evidence scope, provider-token redaction y parsers; lint, build y validadores SDD/Harness pasan.",
         "Contract Sync GH-INTEROP-1.1 se sincroniza a Core/Console; no se cambia Sandbox ni se realiza deploy/cutover.",
@@ -304,6 +315,40 @@
       ],
       "syncScopePaths": [
         "spec/contracts/interoperability-contract.md"
+      ]
+    },
+    {
+      "id": "WI-GH-009",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "Post-transition",
+      "title": "Diagnosticar fallos en discovery de repositorios",
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-011"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-008"
+      ],
+      "contractImpact": false,
+      "publishesContract": false,
+      "acceptanceCriteria": [
+        "Los fallos en identidad OAuth, autorización Core y listado GitHub quedan diferenciados por etapa en logs de Integration, correlacionados con el X-Correlation-ID de la solicitud.",
+        "Cada log de fallo incluye resultado/categoría segura y duración de etapa; no incluye token, headers, body, nombre/ID de repositorio ni texto/stack de excepciones.",
+        "La respuesta HTTP y las decisiones de autorización no cambian; Core conserva la decisión de dominio y no se modifica ningún contrato.",
+        "Pruebas cubren fallos en cada etapa y verifican que las credenciales y los detalles crudos no aparecen en logs.",
+        "Validadores SDD/Harness, lint, tests y build aplicables pasan antes de presentar el corte a revisión humana."
+      ],
+      "specPaths": [
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "spec/constitution/conventions.md"
       ]
     }
   ]

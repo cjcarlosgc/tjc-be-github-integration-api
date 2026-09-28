@@ -1,4 +1,5 @@
 import { invalidRequest } from '../github/errors.js';
+import { normalizeGithubTimestamp } from '../github/github-date-time.js';
 import type { NormalizedWebhookData, NormalizedWebhookEvent } from './github-webhook.types.js';
 
 type JsonObject = Record<string, unknown>;
@@ -95,6 +96,7 @@ function normalizePullRequest(root: JsonObject): NormalizedWebhookData {
       title: requiredString(pullRequest.title),
       draft: boolean(pullRequest.draft),
       merged: boolean(pullRequest.merged),
+      createdAt: normalizeGithubTimestamp(pullRequest.created_at),
       base: { ref: requiredString(base.ref), sha: requiredString(base.sha) },
       head: { ref: requiredString(head.ref), sha: requiredString(head.sha) },
       userLogin: user ? optionalString(user.login) : null,

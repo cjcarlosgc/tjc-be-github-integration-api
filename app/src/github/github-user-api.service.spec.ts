@@ -67,9 +67,29 @@ describe('GithubUserApiService', () => {
     const { service, github, core } = setup();
     core.decide.mockResolvedValueOnce({ decision: 'DENY' });
 
-    await expect(service.listBranches('session', 'provider-token', projectId, 'octocat/repo', 'correlation'))
+    await expect(service.listBranches('session', projectId, 'octocat/repo', 'correlation'))
       .rejects.toMatchObject({ code: 'GITHUB_ACCESS_DENIED' });
     expect(github.listBranches).not.toHaveBeenCalled();
+  });
+
+  it('lists branches using Core identity and App-verified facts without an OAuth provider token', async () => {
+    const { service, github, discovery, core } = setup();
+    core.decide
+      .mockResolvedValueOnce({ decision: 'ALLOW', githubUserId: '100', repositoryOwnerId: '7', repositoryOwnerType: 'User' })
+      .mockResolvedValueOnce({ decision: 'ALLOW' });
+
+    await expect(service.listBranches('session', projectId, 'octocat/repo', 'correlation'))
+      .resolves.toEqual({ items: [{ name: 'main', protected: true }] });
+
+    expect(discovery.getAuthenticatedUser).not.toHaveBeenCalled();
+    expect(discovery.getRepositoryFacts).not.toHaveBeenCalled();
+    expect(core.decide).toHaveBeenNthCalledWith(1, 'session', { action: 'LIST_REPOSITORY_BRANCHES', projectId }, 'correlation');
+    expect(core.decide).toHaveBeenNthCalledWith(2, 'session', expect.objectContaining({
+      action: 'LIST_REPOSITORY_BRANCHES', projectId, githubUserId: '100',
+      repositories: [expect.objectContaining({ repositoryId: '42', ownerId: '7', permission: 'write' })],
+    }), 'correlation');
+    expect(core.decide.mock.calls[1][1].repositories[0]).not.toHaveProperty('githubUserId');
+    expect(github.listBranches).toHaveBeenCalledWith('33', 'octocat/repo');
   });
 
   it('does not expose installation IDs when returning verified user-facing access', async () => {
@@ -88,5 +108,23 @@ describe('GithubUserApiService', () => {
     });
     expect(result).not.toHaveProperty('installationId');
     expect(core.decide).toHaveBeenCalledTimes(2);
+    expect(core.decide.mock.calls[1][1].repositories[0]).not.toHaveProperty('githubUserId');
+  });
+
+  it('sends only DTO-allowlisted facts when the GitHub App is not installed', async () => {
+    const { service, github, core } = setup();
+    github.resolveInstallation.mockResolvedValueOnce(null);
+    core.decide
+      .mockResolvedValueOnce({ decision: 'ALLOW', repositoryOwnerId: '7', repositoryOwnerType: 'User' })
+      .mockResolvedValueOnce({ decision: 'ALLOW' });
+
+    await expect(service.verifyRepositoryAccess('session', 'provider-token', {
+      projectId, repositoryId: '42', repositoryName: 'octocat/repo',
+    }, 'correlation')).resolves.toMatchObject({ status: 'NOT_AUTHORIZED' });
+
+    const fact = core.decide.mock.calls[1][1].repositories[0];
+    expect(fact).toMatchObject({ repositoryId: '42', repositoryName: 'octocat/repo', installationActive: false });
+    expect(fact).not.toHaveProperty('githubUserId');
+    expect(fact).not.toHaveProperty('ownerLogin');
   });
 });

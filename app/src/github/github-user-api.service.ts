@@ -103,7 +103,7 @@ export class GithubUserApiService {
     const decision = await this.core.decide(sessionToken, {
       action: 'VERIFY_REPOSITORY_ACCESS',
       projectId: input.projectId,
-      githubUserId: facts.githubUserId,
+      githubUserId,
       repositories: [facts],
       ...(input.integrationBranch ? { integrationBranch: input.integrationBranch } : {}),
     }, correlationId);
@@ -120,22 +120,20 @@ export class GithubUserApiService {
 
   async listBranches(
     sessionToken: string,
-    providerToken: string,
     projectId: string,
     repositoryName: string,
     correlationId: string,
   ) {
-    const identity = await this.discovery.getAuthenticatedUser(providerToken);
     const scope = await this.core.decide(sessionToken, {
-      action: 'LIST_REPOSITORY_BRANCHES', projectId, githubUserId: identity.githubUserId,
+      action: 'LIST_REPOSITORY_BRANCHES', projectId,
     }, correlationId);
-    if (scope.decision !== 'ALLOW' || !scope.repositoryOwnerId || !scope.repositoryOwnerType) throw githubAccessDenied();
-    const verifiedFacts = await this.repositoryFacts(providerToken, repositoryName, identity.githubUserId, scope);
+    if (scope.decision !== 'ALLOW' || !scope.githubUserId || !scope.repositoryOwnerId || !scope.repositoryOwnerType) throw githubAccessDenied();
+    const verifiedFacts = await this.installedRepositoryFacts(repositoryName, scope.githubUserId, scope);
     if (!verifiedFacts.installationActive) throw githubAppAccessRequired();
     if (!hasBindingPermission(verifiedFacts.permission)) throw repositoryPermissionInsufficient();
     const decision = await this.core.decide(sessionToken, {
       action: 'LIST_REPOSITORY_BRANCHES', projectId,
-      githubUserId: identity.githubUserId, repositories: [verifiedFacts],
+      githubUserId: scope.githubUserId, repositories: [verifiedFacts],
     }, correlationId);
     if (decision.decision !== 'ALLOW') throw githubAccessDenied();
     const branches = await this.github.listBranches(verifiedFacts.installationId as string, repositoryName);
@@ -148,7 +146,7 @@ export class GithubUserApiService {
     repositoryName: string,
     verifiedGithubUserId?: string,
     expectedScope?: Pick<NonNullable<Awaited<ReturnType<GithubUiCoreClient['decide']>>>, 'repositoryOwnerId' | 'repositoryOwnerType'>,
-  ): Promise<GithubRepositoryFact & { githubUserId: string }> {
+  ): Promise<GithubRepositoryFact> {
     if (!providerToken?.trim() || /\s/.test(providerToken)) throw githubAccountRequired();
     const githubUserId = verifiedGithubUserId ?? (await this.discovery.getAuthenticatedUser(providerToken)).githubUserId;
     const oauthFacts = await this.discovery.getRepositoryFacts(providerToken, repositoryName);
@@ -157,7 +155,10 @@ export class GithubUserApiService {
       throw this.repositoryNotFound();
     }
     const installationId = await this.github.resolveInstallation(repositoryName);
-    if (!installationId) return { ...oauthFacts, githubUserId, installationActive: false };
+    if (!installationId) {
+      const { ownerLogin: _ownerLogin, ...allowedOauthFacts } = oauthFacts;
+      return { ...allowedOauthFacts, installationActive: false };
+    }
 
     const owner = await this.github.getRepositoryOwner(installationId, repositoryName);
     if (owner.status !== 'OK') throw lookupError(owner, 'GITHUB_APP_ACCESS_REQUIRED');
@@ -186,7 +187,49 @@ export class GithubUserApiService {
       installationId,
       installationActive: true,
       ...(organizationMembership ? { organizationMembership } : {}),
-      githubUserId,
+    };
+  }
+
+  private async installedRepositoryFacts(
+    repositoryName: string,
+    githubUserId: string,
+    expectedScope: Pick<NonNullable<Awaited<ReturnType<GithubUiCoreClient['decide']>>>, 'repositoryOwnerId' | 'repositoryOwnerType'>,
+  ): Promise<GithubRepositoryFact> {
+    const installationId = await this.github.resolveInstallation(repositoryName);
+    if (!installationId) throw githubAppAccessRequired();
+
+    const owner = await this.github.getRepositoryOwner(installationId, repositoryName);
+    if (owner.status !== 'OK') throw lookupError(owner, 'GITHUB_APP_ACCESS_REQUIRED');
+    const facts: GithubRepositoryFact = {
+      repositoryId: owner.value.repositoryId,
+      repositoryName,
+      ownerId: owner.value.ownerId,
+      ownerType: owner.value.ownerType,
+      permission: 'none',
+      installationId,
+      installationActive: true,
+    };
+    if (expectedScope.repositoryOwnerId && expectedScope.repositoryOwnerType &&
+      !isWithinOwnerScope(facts, expectedScope.repositoryOwnerId, expectedScope.repositoryOwnerType)) {
+      throw this.repositoryNotFound();
+    }
+
+    const permission = await this.github.getRepositoryPermission(installationId, repositoryName, githubUserId);
+    const effectivePermission = permission.status === 'OK' ? permission.value : permission.status === 'NOT_FOUND' ? 'none' : null;
+    if (effectivePermission === null) throw lookupError(permission, 'REPOSITORY_PERMISSION_INSUFFICIENT');
+
+    let organizationMembership: GithubRepositoryFact['organizationMembership'];
+    if (owner.value.ownerType === 'Organization') {
+      const membership = await this.github.getOrganizationMembership(installationId, owner.value.ownerLogin, githubUserId);
+      if (membership.status === 'OK') organizationMembership = membership.value;
+      else if (membership.status === 'NOT_FOUND') organizationMembership = { state: 'pending', role: 'member' };
+      else throw lookupError(membership, 'GITHUB_APP_ACCESS_REQUIRED');
+    }
+
+    return {
+      ...facts,
+      permission: effectivePermission,
+      ...(organizationMembership ? { organizationMembership } : {}),
     };
   }
 

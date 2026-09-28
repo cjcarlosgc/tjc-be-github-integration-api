@@ -190,7 +190,7 @@
       "id": "WI-GH-006",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-IN_PROGRESS",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Añadir API autenticada de GitHub para Console",
@@ -204,7 +204,7 @@
         "App info, discovery, verify-access y branches se exponen bajo /v1/github/*; ninguna ruta /internal/v1/github/* se reutiliza desde Console.",
         "Cada ruta valida sesión Supabase a través del callback síncrono Core con JWT de usuario y hechos GitHub allowlisted; denegación, timeout o fallo Core cierran el acceso.",
         "Core conserva las decisiones Project/workspace, emite evidencia de binding firmada y breve; el navegador nunca impone installationId ni rol.",
-        "CORS usa allowlist de Console. Provider token es efímero, no se envía a Core, persiste, registra ni retorna.",
+      "CORS usa allowlist de Console. Provider token es efímero, solo se usa en discovery y verificación de repositorio nuevo; no se envía a Core, persiste, registra ni retorna. Branches y verificación informativa de binding existente no aceptan provider token.",
         "El parser ampliado de 136 MB solo cubre proposal-blobs; finalización conserva el parser general de 100 KB.",
         "Pruebas locales cubren auth, CORS, callback, errores, evidence scope, provider-token redaction y parsers; lint, build y validadores SDD/Harness pasan.",
         "Contract Sync GH-INTEROP-1.1 se sincroniza a Core/Console; no se cambia Sandbox ni se realiza deploy/cutover.",
@@ -214,6 +214,50 @@
         "spec/features/006-console-github-api/spec.md",
         "spec/features/006-console-github-api/plan.md",
         "spec/features/006-console-github-api/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ]
+    },
+    {
+      "id": "WI-GH-007",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "Post-transition",
+      "title": "Entregar fecha original del PR para elegibilidad temporal",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-008",
+        "ST-GH-009"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-006"
+      ],
+      "contractImpact": true,
+      "publishesContract": true,
+      "acceptanceCriteria": [
+        "El webhook pull_request siempre incluye pullRequest.createdAt: una fecha inequívoca de pull_request.created_at validada y serializada en ISO-8601 UTC, o null si falta o es inválida; nunca usa receivedAt como sustituto.",
+        "La falta o invalidez aislada de created_at no rechaza un webhook que cumple los demás requisitos.",
+        "pull-request-head devuelve OK con headSha, state y createdAt verificable; ante created_at ausente, inválido o ambiguo devuelve UNVERIFIABLE sin value y conserva la clasificación de los demás errores.",
+        "Las pruebas cubren UTC, offset convertido a UTC, fecha ausente, fecha inválida, fecha sin zona y fecha ambigua, sin filtrar payload raw.",
+        "WI-CORE-014 está cerrado y CS-CORE-20260927-002 fue importado; el espejo canónico GH-INTEROP-1.2 coincide byte por byte y su recepción queda registrada por WI-GH-007 antes de implementar.",
+        "La spec cubre la extensión; publicar Contract Sync namespaced a Core y Console. Lint, test, build y validadores Harness pasan."
+      ],
+      "specPaths": [
+        "spec/README.md",
+        "harness/roles/contract-reviewer.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/constitution/roadmap.md",
+        "spec/features/003-pr-snapshot-reads/spec.md",
+        "spec/features/003-pr-snapshot-reads/plan.md",
+        "spec/features/003-pr-snapshot-reads/tasks.md",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/tasks.md",
         "spec/contracts/github-integration-contract.md"
       ]
     }

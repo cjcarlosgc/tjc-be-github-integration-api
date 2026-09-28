@@ -1345,6 +1345,282 @@
         ]
       },
       "closedAt": "2026-09-27T22:16:18.110Z"
+    },
+    {
+      "id": "WI-GH-008",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-010"
+      ],
+      "caseIds": [],
+      "sprint": "Post-transition",
+      "status": "W-DONE",
+      "specPaths": [
+        "AGENTS.md",
+        "spec/README.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/constitution/roadmap.md",
+        "spec/features/003-pr-snapshot-reads/spec.md",
+        "spec/features/003-pr-snapshot-reads/tasks.md",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/plan.md",
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [
+          "DEC-INF-001",
+          "DEC-VAL-001",
+          "DEC-EXP-FK-001"
+        ],
+        "checkedAt": "2026-09-28T02:02:08.055Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": null,
+        "implementationAgent": "implementer",
+        "contractReviewAgent": "contract-reviewer",
+        "reviewAgent": "human-reviewer",
+        "handoffs": [
+          {
+            "agent": "contract-reviewer",
+            "status": "CHANGES_REQUESTED",
+            "findings": [
+              "El reporte de implementación todavía describía el espejo local INTEROP como 2.5; el plan de webhooks seguía afirmando que WI-CORE-011 estaba abierto para revisión."
+            ],
+            "blockers": [
+              "Corregir ambas referencias factuales antes de aprobar la revisión contractual."
+            ],
+            "filesAffected": [
+              "harness/reports/wi-gh-008-implementation.md",
+              "spec/features/005-webhook-delivery/plan.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-008-contract-review.md"
+            ],
+            "recommendedNextStep": "Actualizar las referencias de estado y repetir la revisión contractual."
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-008-implementation.md",
+              "harness/reports/wi-gh-008-contract-sync-review.md",
+              "spec/features/005-webhook-delivery/plan.md",
+              "spec/contracts/system-contract.md",
+              "spec/contracts/interoperability-contract.md",
+              "spec/contracts/github-integration-contract.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-008-contract-review.md",
+              "harness/reports/wi-gh-008-contract-sync-review.md"
+            ],
+            "recommendedNextStep": "Presentar WI-GH-008 al reviewer humano independiente; mantenerlo en W-IN_REVIEW hasta el veredicto."
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "CHANGES_REQUESTED",
+            "findings": [
+              "La revisión posterior a CS-CORE-20260927-005 encontró una segunda frase temporal vigente en SYSTEM §Regla de compatibilidad."
+            ],
+            "blockers": [
+              "Importar y resolver CS-CORE-20260927-006, sincronizar SYSTEM desde c96e9ad3 y repetir la revisión contractual."
+            ],
+            "filesAffected": [
+              "spec/contracts/system-contract.md",
+              "harness/reports/wi-gh-008-contract-sync-review.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-008-contract-review.md"
+            ],
+            "recommendedNextStep": "Repetir la revisión contractual tras resolver CS-CORE-20260927-006."
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": [
+              "spec/contracts/system-contract.md",
+              "harness/reports/wi-gh-008-contract-sync-review.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-008-contract-review.md",
+              "harness/reports/wi-gh-008-contract-sync-review.md"
+            ],
+            "recommendedNextStep": "Presentar WI-GH-008 para revisión independiente del usuario; mantener W-IN_REVIEW hasta su veredicto."
+          },
+          {
+            "agent": "human-reviewer",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": [
+              "AGENTS.md",
+              "harness/state.json",
+              "harness/work-items.json",
+              "spec/README.md",
+              "spec/constitution/architecture.md",
+              "spec/constitution/project-context.md",
+              "spec/constitution/roadmap.md",
+              "spec/contracts/system-contract.md",
+              "spec/contracts/interoperability-contract.md",
+              "spec/contracts/github-integration-contract.md",
+              "spec/features/003-pr-snapshot-reads/spec.md",
+              "spec/features/003-pr-snapshot-reads/tasks.md",
+              "spec/features/005-webhook-delivery/spec.md",
+              "spec/features/005-webhook-delivery/plan.md",
+              "harness/contract-sync/inbox/CS-CORE-20260927-004.yaml",
+              "harness/contract-sync/inbox/CS-CORE-20260927-005.yaml",
+              "harness/contract-sync/inbox/CS-CORE-20260927-006.yaml"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-008-user-review.md"
+            ],
+            "recommendedNextStep": "WI-GH-008 cerrado localmente en W-DONE; conservar despliegue y cutover fuera de alcance."
+          }
+        ],
+        "reviewCycles": 2,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-PASSED",
+        "canonicalContractSynced": "G-PASSED",
+        "contractSyncPublished": "G-NOT_APPLICABLE",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": true,
+        "publishesContract": false,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-008",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [
+              "CS-CORE-20260927-006"
+            ],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-28T02:23:12.691Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-008",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-28T02:23:57.791Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-008",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-28T02:25:48.237Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-008",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-09-28T04:54:32.919Z"
+          }
+        ],
+        "publishedSyncIds": [],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-008-scope-approval.md",
+        "harness/reports/wi-gh-008-spec-verification.md",
+        "harness/reports/wi-gh-008-implementation.md",
+        "harness/reports/wi-gh-008-contract-sync-review.md",
+        "harness/reports/wi-gh-008-contract-review.md",
+        "harness/reports/wi-gh-008-user-review.md",
+        "harness/reports/wi-gh-008-closure.md"
+      ],
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-008-spec-verification.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-008-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-008-implementation.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-008-implementation.md"
+        ],
+        "contractReviewed": [
+          "harness/reports/wi-gh-008-contract-review.md",
+          "harness/reports/wi-gh-008-contract-sync-review.md"
+        ],
+        "canonicalContractSynced": [
+          "harness/reports/wi-gh-008-contract-sync-review.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-008-contract-sync-review.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-008-user-review.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-008-closure.md"
+        ]
+      },
+      "blockedReason": null,
+      "syncScopePaths": [
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "closedAt": "2026-09-28T04:55:07Z"
     }
   ],
   "activeWorkItem": null

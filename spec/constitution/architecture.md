@@ -1,6 +1,6 @@
 # Arquitectura del servicio
 
-**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; `WI-GH-007` implementa la fecha original verificable del PR según `GH-INTEROP-1.2`. Despliegue y cutover externos siguen pendientes.
+**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; la extensión `GH-INTEROP-1.2` para la fecha original verificable del PR se implementó y cerró en `WI-GH-007` (`W-DONE`). Despliegue y cutover externos siguen pendientes.
 
 ## Fronteras
 

@@ -1,6 +1,6 @@
 # Contexto operativo del proyecto
 
-**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; `GH-INTEROP-1.2` extiende la fecha original verificable del PR y se implementa en `WI-GH-007`; el servicio no está desplegado ni cortado
+**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; la extensión `GH-INTEROP-1.2` para la fecha original verificable del PR se implementó y cerró en `WI-GH-007` (`W-DONE`); el servicio no está desplegado ni cortado
 **Alcance:** especificación, implementación y revisión del cuarto componente de RAG Test Studio.
 
 ## Identidad

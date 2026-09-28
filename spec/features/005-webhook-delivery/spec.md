@@ -1,6 +1,6 @@
 # Feature 005 — Webhooks verificados y entrega normalizada
 
-**Estado:** `WI-GH-005` cerrado localmente; el receptor Core está implementado y sus checkpoints de integración pasaron. La exclusión temporal de PRs anteriores al binding está planificada por separado en `WI-GH-007`/`WI-CORE-011`; cualquier cutover externo sigue fuera de alcance.
+**Estado:** `WI-GH-005`, `WI-GH-007` y `WI-CORE-011` están cerrados localmente; el receptor Core está implementado, sus checkpoints de integración pasaron y la clasificación temporal de PRs anteriores al binding quedó implementada con `pullRequest.createdAt`. Cualquier cutover externo sigue fuera de alcance.
 
 ## Valor relacionado
 

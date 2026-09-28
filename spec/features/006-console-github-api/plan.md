@@ -7,3 +7,4 @@
 5. Limitar el JSON parser de 136 MB a `proposal-blobs`; la ruta de finalización usa 100 KB.
 6. Sincronizar el contrato GH-INTEROP-1.1 con Core y Console; correr SDD/Harness, unit tests, lint y build. Sin deploy, secretos externos, cambios de Sandbox ni retiro/cutover de rutas Core.
 7. Mantener el ciclo Contract Sync local reproducible y sus snapshots históricos inmutables en los tres Harnesses activos de la migración.
+8. Para fallos de discovery, registrar solo la etapa (`github_identity`, `core_authorization` o `github_repository_list`), resultado/código seguro, `correlationId` y `durationMs`; nunca registrar credenciales, datos de repositorio ni detalles crudos. La telemetría queda en el servicio de Integration y no amplía el contrato HTTP.

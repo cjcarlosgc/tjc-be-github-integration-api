@@ -18,6 +18,7 @@ La persona autenticada puede conectar un repositorio desde Console usando capaci
 7. Las rutas Core existentes de discovery/verificación/ramas se mantienen hasta validar el consumidor directo; este feature no las retira ni hace cutover.
 8. El límite JSON grande de 136 MB aplica solo a carga de blobs privados; finalización de publicación vuelve al body parser general de 100 KB.
 9. El Harness admite importaciones Contract Sync idempotentes con marca local de tiempo, transiciones `acknowledge`/`resolve` con evidencia y preserva snapshots cerrados frente a eventos importados después.
+10. Cuando falla la ruta de discovery de repositorios, GitHub Integration registra la etapa fallida entre identidad OAuth, autorización síncrona Core y consulta/listado GitHub, con `correlationId`, resultado/código público seguro y duración. No registra tokens, headers, bodies, nombres de repositorio ni texto crudo de excepciones. La respuesta pública y las reglas de autorización no cambian.
 
 ## Rutas públicas
 

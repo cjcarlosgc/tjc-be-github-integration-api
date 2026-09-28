@@ -4,6 +4,7 @@ Los cambios relevantes de comportamiento, contratos y línea base se registran a
 
 ## Unreleased
 
+- **Diagnóstico de discovery para Console:** `WI-GH-009` añade logs seguros por etapa para distinguir fallos de identidad OAuth, autorización Core y listado en GitHub; no cambia las respuestas ni el contrato.
 - **Fecha original del PR (2026-09-27):** `WI-GH-007` normaliza `created_at` de GitHub como `createdAt` UTC o `null` en el webhook y exige una fecha verificable para devolver `OK` en `pull-request-head`. Lint, 136 pruebas y build pasan; el WI espera revisión humana antes del cierre. No hay deploy, cutover ni push.
 - **Cierre local de la migración GitHub (2026-09-26):** `WI-GH-006` quedó revisado y `W-DONE`; Core y Console también cerraron sus WIs consumidores. La fecha original de PR quedó planificada en `WI-GH-007`.
 - **Evidencia del perímetro HTTP de usuario (2026-09-26):** se añadieron pruebas de sesión obligatoria, validación estricta de DTOs, `no-store`, separación de bearer servicio/JWT y fail-closed ante timeout, redirect, respuesta malformada o denegación. El cliente GH→Core rechaza campos ajenos al contrato. INTEROP-2.5 aclara que Core autoriza el owner scope y este componente filtra los resultados GitHub. `WI-GH-006` sigue abierto para revisión y visto bueno personal.

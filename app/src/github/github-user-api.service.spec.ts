@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Logger } from '@nestjs/common';
+import { GithubIntegrationError } from './errors.js';
 import { GithubUserApiService } from './github-user-api.service.js';
 
 const appInfo = { displayName: 'TJC', slug: 'tjc', configureUrl: 'https://github.com/apps/tjc/installations/new' };
@@ -29,6 +31,51 @@ function setup() {
 }
 
 describe('GithubUserApiService', () => {
+  it('logs OAuth identity failures by safe stage without logging credentials or exception text', async () => {
+    const { service, discovery } = setup();
+    const providerToken = 'provider-secret-do-not-log';
+    discovery.getAuthenticatedUser.mockRejectedValueOnce(new Error(`upstream response contains ${providerToken}`));
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+    try {
+      await expect(service.listRepositories('session-secret', providerToken, projectId, undefined, undefined, 'trace-oauth'))
+        .rejects.toThrow();
+      const entry = String(warn.mock.calls[0]?.[0]);
+      expect(entry).toContain('"stage":"github_identity"');
+      expect(entry).toContain('"correlationId":"trace-oauth"');
+      expect(entry).not.toContain(providerToken);
+      expect(entry).not.toContain('session-secret');
+      expect(entry).not.toContain('upstream response');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('logs Core denials and GitHub listing failures as distinct safe stages', async () => {
+    const { service, discovery, core } = setup();
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+    try {
+      core.decide.mockResolvedValueOnce({ decision: 'DENY' });
+      await expect(service.listRepositories('session', 'provider', projectId, undefined, undefined, 'trace-denied'))
+        .rejects.toMatchObject({ code: 'GITHUB_ACCESS_DENIED' });
+      expect(String(warn.mock.calls[0]?.[0])).toContain('"stage":"core_authorization"');
+
+      discovery.list.mockRejectedValueOnce(new GithubIntegrationError(
+        'GITHUB_UPSTREAM_UNAVAILABLE', 'private upstream details', 503, true,
+      ));
+      await expect(service.listRepositories('session', 'provider', projectId, undefined, undefined, 'trace-list'))
+        .rejects.toMatchObject({ code: 'GITHUB_UPSTREAM_UNAVAILABLE' });
+      const entry = String(warn.mock.calls[1]?.[0]);
+      expect(entry).toContain('"stage":"github_repository_list"');
+      expect(entry).toContain('"errorCode":"GITHUB_UPSTREAM_UNAVAILABLE"');
+      expect(entry).not.toContain('private upstream details');
+      expect(entry).not.toContain(projectId);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('filters discovery to the Core-authorized owner and uses the interoperable default page size', async () => {
     const { service, discovery, core } = setup();
     discovery.list.mockResolvedValueOnce({

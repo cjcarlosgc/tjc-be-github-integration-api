@@ -321,7 +321,7 @@
       "id": "WI-GH-009",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-IN_REVIEW",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Diagnosticar fallos en discovery de repositorios",

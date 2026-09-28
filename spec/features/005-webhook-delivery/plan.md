@@ -11,4 +11,4 @@
 
 ## Dependencias y operación
 
-`WI-GH-004` debe estar `W-DONE` (precondición satisfecha). El receptor normalizado GH→Core está implementado; Contract Sync y `before-review` del consumidor Core pasaron. El WI Core sigue abierto para revisión humana. El webhook actual continúa registrado y activo mientras no exista autorización separada para cutover; no cambiar config externa en este WI.
+`WI-GH-004` debe estar `W-DONE` (precondición satisfecha). El receptor normalizado GH→Core está implementado; `WI-CORE-011`, Contract Sync y `before-review` del consumidor Core están cerrados/pasaron. El webhook actual continúa registrado y activo mientras no exista autorización separada para cutover; no cambiar config externa en este WI.

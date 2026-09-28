@@ -260,6 +260,51 @@
         "spec/features/005-webhook-delivery/tasks.md",
         "spec/contracts/github-integration-contract.md"
       ]
+    },
+    {
+      "id": "WI-GH-008",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "Post-transition",
+      "title": "Homologar estado documental y espejos contractuales de GH",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-010"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-007"
+      ],
+      "contractImpact": true,
+      "publishesContract": false,
+      "acceptanceCriteria": [
+        "La documentación vigente propia de GH refleja WI-GH-007 como W-DONE y mantiene explícito que no hay deploy/cutover.",
+        "AGENTS.md identifica GH-INTEROP-1.2 como la superficie operativa y copia local vigente del contrato de GitHub Integration.",
+        "SYSTEM-2.5 y GH-INTEROP-1.2 permanecen idénticos a sus fuentes canónicas; INTEROP se actualiza byte por byte a la versión canónica de Core una vez importado y resuelto un Contract Sync dirigido a GitHub Integration.",
+        "No se altera semántica contractual, código de producto ni documentación histórica; el usuario revisa independientemente el diff antes de W-DONE."
+      ],
+      "specPaths": [
+        "AGENTS.md",
+        "spec/README.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/constitution/roadmap.md",
+        "spec/features/003-pr-snapshot-reads/spec.md",
+        "spec/features/003-pr-snapshot-reads/tasks.md",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/plan.md",
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "syncScopePaths": [
+        "spec/contracts/interoperability-contract.md"
+      ]
     }
   ]
 }

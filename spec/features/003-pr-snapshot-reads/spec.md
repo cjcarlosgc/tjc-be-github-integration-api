@@ -1,6 +1,6 @@
 # Feature 003 — Lecturas de snapshots y cambios del PR
 
-**Estado:** `WI-GH-003` cerrado localmente; `WI-GH-007` implementa la fecha original de creación del PR conforme a `GH-INTEROP-1.2`.
+**Estado:** `WI-GH-003` cerrado localmente; `WI-GH-007` entregó la fecha original de creación del PR conforme a `GH-INTEROP-1.2` y está cerrado (`W-DONE`).
 
 ## Valor relacionado
 

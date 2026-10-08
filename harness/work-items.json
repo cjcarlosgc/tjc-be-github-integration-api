@@ -418,7 +418,7 @@
       "id": "WI-GH-011",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-READY",
+      "status": "W-IN_REVIEW",
       "priority": "P2",
       "sprint": "SMART V3",
       "title": "Confirmar la derivación del nivel de permiso de repositorio",

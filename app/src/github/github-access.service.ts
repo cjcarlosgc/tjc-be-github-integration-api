@@ -25,7 +25,7 @@ interface ApiRepository {
   name?: unknown;
   default_branch?: unknown;
   private?: unknown;
-  permissions?: { admin?: unknown; maintain?: unknown; push?: unknown; pull?: unknown };
+  permissions?: { admin?: unknown; maintain?: unknown; push?: unknown; pull?: unknown; triage?: unknown };
   owner?: { id?: unknown; login?: unknown; type?: unknown; avatar_url?: unknown };
 }
 
@@ -82,13 +82,23 @@ export class GithubAccessService {
     const user = await this.getLookup<{ login?: unknown }>(`/user/${encodeURIComponent(githubUserId)}`, token.value);
     if (user.status !== 'OK') return user;
     if (typeof user.value.login !== 'string' || !user.value.login) return { status: 'UNVERIFIABLE' };
-    const permission = await this.getLookup<{ role_name?: unknown; permission?: unknown }>(
+    const permission = await this.getLookup<{ role_name?: unknown; permission?: unknown; user?: unknown }>(
       `/repos/${repositoryPath(repositoryName)}/collaborators/${encodeURIComponent(user.value.login)}/permission`,
       token.value,
     );
     if (permission.status !== 'OK') return permission;
     if (permission.value.role_name === 'none' || permission.value.permission === 'none') return { status: 'NOT_FOUND' };
-    const level = toPermissionLevel(permission.value);
+    const nested = permission.value.user;
+    const nestedPermissions = isRecord(nested) && isRecord(nested.permissions) ? nested.permissions : {};
+    const level = toPermissionLevel({
+      role_name: permission.value.role_name,
+      permission: permission.value.permission,
+      admin: nestedPermissions.admin,
+      maintain: nestedPermissions.maintain,
+      push: nestedPermissions.push,
+      triage: nestedPermissions.triage,
+      pull: nestedPermissions.pull,
+    });
     return level ? { status: 'OK', value: level } : { status: 'UNVERIFIABLE' };
   }
 
@@ -337,20 +347,28 @@ function toOwnerType(value: unknown): 'User' | 'Organization' | null {
   return null;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+// Derivation order never reports more privilege than GitHub observed:
+// 1) known role_name, 2) booleans from highest to lowest, 3) legacy permission, 4) unverifiable.
 function toPermissionLevel(body: {
   role_name?: unknown;
   permission?: unknown;
   admin?: unknown;
   maintain?: unknown;
   push?: unknown;
+  triage?: unknown;
   pull?: unknown;
 }): RepositoryPermissionLevel | null {
   const known = ['admin', 'maintain', 'write', 'triage', 'read'];
   if (typeof body.role_name === 'string' && known.includes(body.role_name)) return body.role_name as RepositoryPermissionLevel;
-  if (body.permission === 'admin' || body.permission === 'write' || body.permission === 'read') return body.permission;
   if (body.admin === true) return 'admin';
   if (body.maintain === true) return 'maintain';
   if (body.push === true) return 'write';
+  if (body.triage === true) return 'triage';
   if (body.pull === true) return 'read';
+  if (body.permission === 'admin' || body.permission === 'write' || body.permission === 'read') return body.permission;
   return null;
 }

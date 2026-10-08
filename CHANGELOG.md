@@ -4,6 +4,7 @@ Los cambios relevantes de comportamiento, contratos y línea base se registran a
 
 ## Unreleased
 
+- **WI-GH-010 (2026-10-08, cerrado):** espejos SYSTEM-2.6 e INTEROP-2.7 sincronizados byte a byte con Core `ab5142b`, `CS-CORE-20261008-001` resuelto y matriz `harness/reports/smart-v3-audit-matrix.md` (15 YA CUMPLE, 3 PARCIAL, 0 FALTA). La brecha real es la derivación de permiso, diferida a `WI-GH-011`. Sin cambios en `app/`.
 - **SDD SMART V3 de GitHub Integration (2026-10-08, preparado):** auditoría sin cambio funcional previsto. `WI-GH-010` sincroniza los espejos SYSTEM-2.6 e INTEROP-2.7 tras `WI-CORE-017` y entrega la matriz `YA CUMPLE / PARCIAL / FALTA`; `WI-GH-011` confirma, y corrige solo si reproduce, que la derivación del nivel de permiso no colapse `maintain`, `write` ni `triage`. `GH-INTEROP-1.2` no cambia. Sin cambios en `app/`.
 - **Diagnóstico de discovery para Console:** `WI-GH-009` añade logs seguros por etapa para distinguir fallos de identidad OAuth, autorización Core y listado en GitHub; no cambia las respuestas ni el contrato.
 - **Fecha original del PR (2026-09-27):** `WI-GH-007` normaliza `created_at` de GitHub como `createdAt` UTC o `null` en el webhook y exige una fecha verificable para devolver `OK` en `pull-request-head`. Lint, 136 pruebas y build pasan; el WI espera revisión humana antes del cierre. No hay deploy, cutover ni push.

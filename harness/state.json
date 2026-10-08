@@ -1780,6 +1780,227 @@
           "harness/reports/wi-gh-009-closure.md"
         ]
       }
+    },
+    {
+      "id": "WI-GH-010",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-012"
+      ],
+      "caseIds": [],
+      "sprint": "SMART V3",
+      "status": "W-DONE",
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "CHANGELOG.md",
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [
+          "DEC-INF-001",
+          "DEC-VAL-001",
+          "DEC-EXP-FK-001"
+        ],
+        "checkedAt": "2026-10-08T18:23:25.000Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "leader",
+        "contractReviewAgent": "contract-reviewer",
+        "reviewAgent": "human-reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [
+              "Las correcciones de codigo se difieren a WI-GH-011."
+            ],
+            "blockers": [],
+            "filesAffected": [],
+            "evidence": [
+              "harness/reports/wi-gh-010-spec-verification.md"
+            ],
+            "recommendedNextStep": "Invocar contract-reviewer sobre espejos y matriz."
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "Cita de webhook.service.ts corregida a :39-44; conteo verificado en 18 filas."
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/smart-v3-audit-matrix.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-010-contract-review.md"
+            ],
+            "recommendedNextStep": "Resolver el Contract Sync y presentar al usuario."
+          },
+          {
+            "agent": "human-reviewer",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/smart-v3-audit-matrix.md",
+              "spec/contracts/system-contract.md",
+              "spec/contracts/interoperability-contract.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-010-user-review.md"
+            ],
+            "recommendedNextStep": "Continuar con WI-GH-011."
+          }
+        ],
+        "reviewCycles": 0,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-PASSED",
+        "canonicalContractSynced": "G-PASSED",
+        "contractSyncPublished": "G-NOT_APPLICABLE",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": true,
+        "publishesContract": false,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-010",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [
+              "CS-CORE-20261008-001"
+            ],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:19:12.843Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-010",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:24:07.328Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-010",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:24:17.356Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-010",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:27:09.229Z"
+          }
+        ],
+        "publishedSyncIds": [],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-010-spec-verification.md",
+        "harness/reports/wi-gh-010-implementation.md",
+        "harness/reports/wi-gh-010-contract-review.md",
+        "harness/reports/smart-v3-audit-matrix.md",
+        "harness/reports/wi-gh-010-user-review.md",
+        "harness/reports/wi-gh-010-closure.md"
+      ],
+      "blockedReason": null,
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-010-spec-verification.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-010-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-010-implementation.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-010-implementation.md"
+        ],
+        "contractReviewed": [
+          "harness/reports/wi-gh-010-contract-review.md"
+        ],
+        "canonicalContractSynced": [
+          "harness/reports/wi-gh-010-contract-review.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-010-contract-review.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-010-implementation.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-010-user-review.md"
+        ],
+        "contractSyncPublished": []
+      },
+      "closedAt": "2026-10-08T18:27:09.229Z"
     }
   ],
   "activeWorkItem": null

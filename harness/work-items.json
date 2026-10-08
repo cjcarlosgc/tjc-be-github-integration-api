@@ -355,7 +355,7 @@
       "id": "WI-GH-010",
       "component": "GH",
       "workItemType": "HARNESS",
-      "status": "W-READY",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "SMART V3",
       "title": "Auditar requisitos SMART V3 y sincronizar espejos SYSTEM-2.6/INTEROP-2.7",

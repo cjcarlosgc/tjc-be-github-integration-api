@@ -355,7 +355,7 @@
       "id": "WI-GH-010",
       "component": "GH",
       "workItemType": "HARNESS",
-      "status": "W-PLANNED",
+      "status": "W-READY",
       "priority": "P1",
       "sprint": "SMART V3",
       "title": "Auditar requisitos SMART V3 y sincronizar espejos SYSTEM-2.6/INTEROP-2.7",
@@ -405,11 +405,13 @@
         }
       ],
       "externalDependencyGate": {
-        "status": "G-NOT_RUN",
-        "evidenceReport": null,
-        "verifiedAt": null,
-        "verifiedBy": null,
-        "sourceRevisions": {}
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-010-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "ab5142b46addc0bff2c126cf3e8531f5ed111d5c"
+        },
+        "verifiedAt": "2026-10-08T16:55:00.000Z",
+        "verifiedBy": "leader"
       }
     },
     {

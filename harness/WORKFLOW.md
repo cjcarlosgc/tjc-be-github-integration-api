@@ -31,3 +31,5 @@ node harness/validate-harness.mjs
 ```
 
 Al seleccionar trabajo de servicio, añadir comandos de lint, test y build del paquete real. No hacer push, PR, merge ni cambios de infraestructura externa sin solicitud explícita del usuario.
+
+**Perfiles y escalamiento:** los perfiles de agentes viven en `harness/agent-profiles.yaml` y se materializan en `.claude/agents/`. El leader puede escalar `implementer` a `implementer-high` (Haiku Low → High) sin permiso, con motivo trazado; nunca Haiku → Sonnet automáticamente (`BLOCKED`/`DECISION_REQUIRED`). El reviewer independiente por defecto es el `human-reviewer` (usuario).

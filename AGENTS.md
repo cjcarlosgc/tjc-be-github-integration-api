@@ -25,6 +25,12 @@ Este repositorio aplica Specification-Driven Development (SDD) 3.0 y Harness V3.
 - No hacer push, PR, merge ni cambios de infraestructura externa sin solicitud explícita del usuario en cada ocasión.
 - No almacenar secretos en el repositorio. Código fuente productivo vive exclusivamente en `app/`.
 
+## Política de agentes y modelos
+
+- Leader → Sonnet 5.5 / Medium; SDD Analyst → Sonnet 5.5 / Low; Implementer → Haiku 5.5 / Low; Implementer High → Haiku 5.5 / High; Contract Reviewer → Sonnet 5.5 / Low; Human Reviewer → usuario. Fuente: `harness/agent-profiles.yaml`; adaptador Claude en `.claude/agents/`.
+- Sonnet 5.5 Medium es el techo automático. El Leader puede escalar `Implementer Low → Implementer High` sin permiso del usuario, dejando un motivo breve en el handoff. No hay escalamiento automático Haiku → Sonnet: si Haiku High no basta, `BLOCKED` o `DECISION_REQUIRED`.
+- El reviewer independiente por defecto es el `Human Reviewer` (usuario). Un reviewer IA solo se usa si el usuario delega explícitamente la revisión.
+
 ## Frontera del componente
 
 - Este servicio es el único componente autorizado a interactuar directamente con GitHub.

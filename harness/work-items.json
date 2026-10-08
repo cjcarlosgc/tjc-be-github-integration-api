@@ -350,6 +350,99 @@
         "spec/features/006-console-github-api/tasks.md",
         "spec/constitution/conventions.md"
       ]
+    },
+    {
+      "id": "WI-GH-010",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "status": "W-PLANNED",
+      "priority": "P1",
+      "sprint": "SMART V3",
+      "title": "Auditar requisitos SMART V3 y sincronizar espejos SYSTEM-2.6/INTEROP-2.7",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-012"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/smart-v3-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "Se importan los eventos Contract Sync de WI-CORE-017 dirigidos a GitHub Integration, el líder confirma la revisión canónica y su SHA-256 y los eventos pasan a C-ACKNOWLEDGED y luego C-RESOLVED con evidencia.",
+        "SYSTEM-2.6 e INTEROP-2.7 quedan byte por byte iguales a la fuente canónica de Core; GH-INTEROP-1.2 se verifica sin cambios y su espejo permanece idéntico a Core.",
+        "Se entrega una matriz YA CUMPLE / PARCIAL / FALTA con evidencia de código o prueba para cada requisito del handoff V3 (hechos de permiso, trace de PR/HEAD, webhooks, publicación y freshness, seguridad y evidencia técnica); solo un gap real genera un WI de producto y no se crea trabajo artificial.",
+        "No se cambia código de app/ ni se introducen retrieval, RAG, FK, experimentos u otra lógica de dominio; la validación SDD/Harness y el diff check pasan."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "CHANGELOG.md",
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-017"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-NOT_RUN",
+        "evidenceReport": null,
+        "verifiedAt": null,
+        "verifiedBy": null,
+        "sourceRevisions": {}
+      }
+    },
+    {
+      "id": "WI-GH-011",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-READY",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Confirmar la derivación del nivel de permiso de repositorio",
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-013"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": false,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/smart-v3-scope-approval.md",
+      "acceptanceCriteria": [
+        "Con fixtures de GET /repos/{owner}/{repo}/collaborators/{username}/permission se comprueba que role_name admin, maintain, write, triage y read se conservan sin colapsar, y se cubren un rol personalizado con permiso base y la ausencia de role_name.",
+        "Si todos los casos ya cumplen, el WI se cierra como YA CUMPLE con la evidencia de las pruebas añadidas y sin cambios en el código de producción.",
+        "Si algún caso reporta menos privilegio del real (por ejemplo maintain o triage devueltos como write o read), se corrige toPermissionLevel priorizando la señal más específica antes del campo legacy, con pruebas de regresión y sin cambiar el DTO RepositoryPermissionLevel ni el contrato.",
+        "Lint, pruebas, build y validadores SDD/Harness pasan antes de la revisión humana."
+      ],
+      "specPaths": [
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ]
     }
   ]
 }

@@ -18,3 +18,7 @@ La regla de errores del corte se consolidó después en `GH-INTEROP-1.1`: solo u
 - Contrato Sync y decisión gate de este WI se ejecutan al seleccionarlo.
 
 Las puertas previas de `WI-GH-002` están satisfechas. Este plan no autoriza cambios fuera de este corte ni el cutover del consumidor Core.
+
+## Corte SMART V3
+
+`WI-GH-010` (sin código de producto) importa los eventos de `WI-CORE-017`, sincroniza los espejos SYSTEM-2.6 e INTEROP-2.7 y entrega la matriz de auditoría. `WI-GH-011` confirma, con fixtures de la API de GitHub, que la derivación del nivel de permiso no colapsa `maintain`, `write` ni `triage`; si ya cumple se cierra como `YA CUMPLE`.

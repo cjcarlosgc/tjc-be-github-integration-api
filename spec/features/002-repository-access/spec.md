@@ -23,3 +23,15 @@ El alcance original de esta feature fue extraer las lecturas GitHub que Core del
 ## Criterio de preparación
 
 `WI-GH-001` ya está `W-DONE`; `WI-GH-002` conserva su evidencia de extracción, y la migración del consumidor se completó en WIs posteriores: `WI-CORE-003`, `WI-CONSOLE-003` y `WI-GH-006`. El mapeo público de errores está resuelto en el contrato vigente. La configuración externa y el cutover siguen pendientes.
+
+## Auditoría SMART V3 (SDD 2026-10-08; sin cambio funcional previsto)
+
+GitHub Integration es un adaptador técnico: conoce solo hechos GitHub, permisos, PR/HEAD, freshness, webhooks, Checks, companion PR, trazabilidad, seguridad y Contract Sync. No incorpora retrieval, SE/SEM, RAG, GENERALIST_AGENT, oráculos, CF/CO, Functional Knowledge, `ACTION_REQUIRED`, bootstrap ni selección de casos, y no decide el rol de dominio ni la política de FK. El handoff V3 anticipa que «mucho ya cumple»: no se crea trabajo artificial.
+
+Requisitos con evidencia revisada en `WI-GH-010` (la verificación campo a campo y de pruebas queda en su matriz):
+
+- **Hechos de permiso.** El contrato (`RepositoryPermissionLevel`) y el código conservan `admin`, `maintain`, `write`, `triage` y `read` sin colapsar `write` en `maintain`; Core deriva Admin, Maintainer, Writer o Reader (`DEC-ORG-003`, `INTEROP-2.7` §6.13). **Posible brecha menor:** si GitHub no devuelve `role_name` (o devuelve un rol personalizado), la ruta de respaldo de `toPermissionLevel` devuelve `write` antes de considerar `maintain`, lo que reporta menos privilegio del real, nunca más. `WI-GH-011` lo confirma con fixtures y lo corrige solo si reproduce.
+- **Hechos de PR/HEAD.** `deliveryId`, `pullRequest.createdAt` verificable, `headSha` y `baseSha` ya existen; `WI-GH-010` verifica el resto de la lista del handoff (repositorio, número, estado, refs, `correlationId`).
+- **Webhooks, Checks y companion PR.** HMAC sobre el cuerpo crudo, allowlist, deduplicación por entrega, entrega normalizada sin payload crudo ni headers de firma, `headSha` exacto en Checks, conclusión provista por Core y verificación de freshness con resultado `STALE` ya están implementados (`WI-GH-004`, `WI-GH-005`); no hay auto-merge, escritura directa a la feature branch ni merge blocking.
+- **Seguridad.** Provider token OAuth efímero, installation token interno, bearer de servicio y CORS allowlist se conservan; Sandbox nunca recibe secretos GitHub.
+- **Contract Sync.** `GH-INTEROP-1.2` no cambia con SMART V3. Core publica `SYSTEM-2.6` e `INTEROP-2.7` (rol Writer, `UNKNOWN`, OE2, OE5, trace y evidencia); GitHub Integration solo sincroniza sus espejos en `WI-GH-010`. Un evento Contract Sync no autoriza implementación.

@@ -2001,164 +2001,199 @@
         "contractSyncPublished": []
       },
       "closedAt": "2026-10-08T18:27:09.229Z"
+    },
+    {
+      "id": "WI-GH-011",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-013"
+      ],
+      "caseIds": [],
+      "sprint": "SMART V3",
+      "status": "W-DONE",
+      "specPaths": [
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [],
+        "checkedAt": "2026-10-08T18:31:29.000Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "implementer",
+        "contractReviewAgent": null,
+        "reviewAgent": "human-reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [
+              "Brecha reproducible por lectura de codigo; leer user.permissions; no ampliar el DTO de lista."
+            ],
+            "blockers": [],
+            "filesAffected": [],
+            "evidence": [
+              "harness/reports/wi-gh-011-spec-verification.md"
+            ],
+            "recommendedNextStep": "Implementar con implementer."
+          },
+          {
+            "agent": "implementer",
+            "status": "IMPLEMENTED",
+            "findings": [
+              "Brecha reproducida y corregida; 6 fixtures fallaban antes del arreglo."
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "app/src/github/github-access.service.ts",
+              "app/src/github/github-access.service.spec.ts"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-011-implementation.md"
+            ],
+            "recommendedNextStep": "Revision del usuario."
+          },
+          {
+            "agent": "human-reviewer",
+            "status": "APPROVED",
+            "findings": [],
+            "blockers": [],
+            "filesAffected": [
+              "app/src/github/github-access.service.ts",
+              "app/src/github/github-access.service.spec.ts"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-011-user-review.md"
+            ],
+            "recommendedNextStep": "Sin WI pendientes en la cola local."
+          }
+        ],
+        "reviewCycles": 0,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-NOT_APPLICABLE",
+        "canonicalContractSynced": "G-NOT_APPLICABLE",
+        "contractSyncPublished": "G-NOT_APPLICABLE",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": false,
+        "publishesContract": false,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-011",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:30:32.106Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-011",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:33:39.279Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-011",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T18:33:39.545Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-011",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-08T19:08:32.035Z"
+          }
+        ],
+        "publishedSyncIds": [],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-011-spec-verification.md",
+        "harness/reports/wi-gh-011-implementation.md",
+        "harness/reports/wi-gh-011-user-review.md",
+        "harness/reports/wi-gh-011-closure.md"
+      ],
+      "blockedReason": null,
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-011-spec-verification.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-011-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-011-implementation.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-011-implementation.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-011-implementation.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-011-implementation.md"
+        ],
+        "contractReviewed": [],
+        "canonicalContractSynced": [],
+        "contractSyncPublished": [],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-011-user-review.md"
+        ]
+      },
+      "closedAt": "2026-10-08T19:08:32.035Z"
     }
   ],
-  "activeWorkItem": {
-    "id": "WI-GH-011",
-    "component": "GH",
-    "workItemType": "PRODUCT",
-    "storyIds": [
-      "HU02"
-    ],
-    "taskIds": [
-      "ST-GH-013"
-    ],
-    "caseIds": [],
-    "sprint": "SMART V3",
-    "status": "W-IN_REVIEW",
-    "specPaths": [
-      "spec/features/002-repository-access/spec.md",
-      "spec/features/002-repository-access/plan.md",
-      "spec/features/002-repository-access/tasks.md",
-      "spec/contracts/github-integration-contract.md"
-    ],
-    "transversalPaths": [],
-    "approved": true,
-    "decisionGate": {
-      "checked": true,
-      "blockingDecisionIds": [],
-      "nonBlockingDecisionIds": [],
-      "checkedAt": "2026-10-08T18:31:29.000Z"
-    },
-    "execution": {
-      "leaderAgent": "leader",
-      "analysisAgent": "sdd-analyst",
-      "implementationAgent": "implementer",
-      "contractReviewAgent": null,
-      "reviewAgent": "human-reviewer",
-      "handoffs": [
-        {
-          "agent": "sdd-analyst",
-          "status": "APPROVED",
-          "findings": [
-            "Brecha reproducible por lectura de codigo; leer user.permissions; no ampliar el DTO de lista."
-          ],
-          "blockers": [],
-          "filesAffected": [],
-          "evidence": [
-            "harness/reports/wi-gh-011-spec-verification.md"
-          ],
-          "recommendedNextStep": "Implementar con implementer."
-        },
-        {
-          "agent": "implementer",
-          "status": "IMPLEMENTED",
-          "findings": [
-            "Brecha reproducida y corregida; 6 fixtures fallaban antes del arreglo."
-          ],
-          "blockers": [],
-          "filesAffected": [
-            "app/src/github/github-access.service.ts",
-            "app/src/github/github-access.service.spec.ts"
-          ],
-          "evidence": [
-            "harness/reports/wi-gh-011-implementation.md"
-          ],
-          "recommendedNextStep": "Revision del usuario."
-        }
-      ],
-      "reviewCycles": 0,
-      "maxReviewCycles": 2
-    },
-    "gates": {
-      "sddVerified": "G-PASSED",
-      "implementationCompleted": "G-PASSED",
-      "independentReviewPassed": "G-NOT_RUN",
-      "technicalChecksPassed": "G-PASSED",
-      "contractReviewed": "G-NOT_APPLICABLE",
-      "canonicalContractSynced": "G-NOT_APPLICABLE",
-      "contractSyncPublished": "G-NOT_APPLICABLE",
-      "interopSyncChecked": "G-PASSED",
-      "noBlockingDecisions": "G-PASSED",
-      "retryLimitRespected": "G-PASSED"
-    },
-    "coordination": {
-      "contractImpact": false,
-      "publishesContract": false,
-      "pullCheckpoints": [
-        {
-          "checkpoint": "start",
-          "workItem": "WI-GH-011",
-          "relevantPendingSyncIds": [],
-          "acknowledgedSyncIds": [],
-          "resolvedSyncIds": [
-            "CS-CORE-20260927-002",
-            "CS-CORE-20260927-004",
-            "CS-CORE-20260927-005"
-          ],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-10-08T18:30:32.106Z"
-        },
-        {
-          "checkpoint": "implementation-delivery",
-          "workItem": "WI-GH-011",
-          "relevantPendingSyncIds": [],
-          "acknowledgedSyncIds": [],
-          "resolvedSyncIds": [
-            "CS-CORE-20260927-002",
-            "CS-CORE-20260927-004",
-            "CS-CORE-20260927-005"
-          ],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-10-08T18:33:39.279Z"
-        },
-        {
-          "checkpoint": "before-review",
-          "workItem": "WI-GH-011",
-          "relevantPendingSyncIds": [],
-          "acknowledgedSyncIds": [],
-          "resolvedSyncIds": [
-            "CS-CORE-20260927-002",
-            "CS-CORE-20260927-004",
-            "CS-CORE-20260927-005"
-          ],
-          "deferredSyncIds": [],
-          "notRelevantSyncIds": [],
-          "checkedAt": "2026-10-08T18:33:39.545Z"
-        }
-      ],
-      "publishedSyncIds": [],
-      "pendingRelevantSyncIds": []
-    },
-    "evidence": [
-      "harness/reports/wi-gh-011-spec-verification.md",
-      "harness/reports/wi-gh-011-implementation.md"
-    ],
-    "blockedReason": null,
-    "gateEvidence": {
-      "sddVerified": [
-        "harness/reports/wi-gh-011-spec-verification.md"
-      ],
-      "noBlockingDecisions": [
-        "harness/reports/wi-gh-011-spec-verification.md"
-      ],
-      "implementationCompleted": [
-        "harness/reports/wi-gh-011-implementation.md"
-      ],
-      "technicalChecksPassed": [
-        "harness/reports/wi-gh-011-implementation.md"
-      ],
-      "interopSyncChecked": [
-        "harness/reports/wi-gh-011-implementation.md"
-      ],
-      "retryLimitRespected": [
-        "harness/reports/wi-gh-011-implementation.md"
-      ],
-      "contractReviewed": [],
-      "canonicalContractSynced": [],
-      "contractSyncPublished": []
-    }
-  }
+  "activeWorkItem": null
 }

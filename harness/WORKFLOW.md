@@ -12,6 +12,8 @@ El Harness ejecuta **work items locales** en `harness/work-items.json`. La plani
 
 Las asignaciones pueden quedar vacías antes de designar responsables. En `W-IN_REVIEW`, `implementationAgent` y `reviewAgent` deben identificar responsables distintos; usa `human-reviewer` por defecto y `reviewer` solo si el usuario delegó. Un handoff aprobado no es por sí mismo un gate aprobado.
 
+**Trazabilidad de modelo.** Todo handoff de agente IA y todo reporte nuevo en `harness/reports/` generado por un agente declara con qué modelo se hizo la tarea: en handoffs, el objeto `executedBy: { agent, configuredModel, servedModel, effort }`; en reportes Markdown, la línea `Modelo: <agent> · configurado <exactModelId> · atendido <exactModelId|unknown> · esfuerzo <low|medium|high>`. `configuredModel` y `effort` se copian de `harness/agent-profiles.yaml`. `servedModel` es el modelo realmente observado; si no se pudo observar, se escribe `unknown`, nunca se asume igual al configurado. Una escalada `implementer → implementer-high` se anota con motivo breve. El handoff del `human-reviewer` no lleva modelo. El campo es informativo, no sustituye gates ni la revisión humana y el validador no lo exige.
+
 ## Gates
 
 Los valores son `G-NOT_RUN`, `G-PASSED`, `G-FAILED`, `G-NOT_APPLICABLE`. Para `W-DONE` pasan `sddVerified`, `implementationCompleted`, `independentReviewPassed`, `technicalChecksPassed`, `interopSyncChecked`, `noBlockingDecisions` y `retryLimitRespected`. Si `contractImpact=true`, pasan además `contractReviewed` y `canonicalContractSynced`. `contractSyncPublished` pasa solo si `publishesContract=true` y hay evento en outbox; de lo contrario es `G-NOT_APPLICABLE`. Cada gate tiene evidencia reproducible.

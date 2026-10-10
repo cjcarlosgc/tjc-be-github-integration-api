@@ -446,6 +446,70 @@
         "spec/features/002-repository-access/tasks.md",
         "spec/contracts/github-integration-contract.md"
       ]
+    },
+    {
+      "id": "WI-GH-012",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-READY",
+      "priority": "P0",
+      "sprint": "SMART V3",
+      "title": "Devolver checkId al publicar un Check y refrescar los espejos de contrato (GH-INTEROP-1.3)",
+      "storyIds": [
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-014"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": true,
+      "scopeApprovalReport": "harness/reports/smart-v3-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "POST /internal/v1/github/checks responde 200 con { checkId: string } (id del check run de GitHub como texto) al crear o actualizar; si el Check ya existe para el mismo headSha y nombre devuelve el mismo id; los errores, los demás campos y el resto del contrato no cambian.",
+        "Hay pruebas de creación, de actualización que devuelve el mismo id y de errores sin cambio; lint, pruebas, build y validadores SDD/Harness pasan antes de la revisión humana.",
+        "Los espejos SYSTEM-2.6, INTEROP-2.7 y GH-INTEROP-1.3 quedan byte por byte iguales a la fuente canónica de Core en la revisión que registra el líder (se anotan los SHA-256); los eventos CS-CORE-20261008-004, -006, -007 y CS-CORE-20261009-012 pasan a C-ACKNOWLEDGED y C-RESOLVED con evidencia.",
+        "Al terminar se emite un CS-GH-… dirigido a Core para que persista el id del Check; no cambia nada más y no se modifican Core, Console ni Sandbox."
+      ],
+      "specPaths": [
+        "spec/features/004-checks-publication/spec.md",
+        "spec/features/004-checks-publication/plan.md",
+        "spec/features/004-checks-publication/tasks.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "CHANGELOG.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-019",
+            "WI-CORE-020",
+            "WI-CORE-026"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-012-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "3f06f44543b5899d98232b757310ce6d481624ea"
+        },
+        "verifiedAt": "2026-10-10T15:00:00.000Z",
+        "verifiedBy": "leader"
+      }
     }
   ]
 }

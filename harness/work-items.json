@@ -451,10 +451,10 @@
       "id": "WI-GH-012",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-READY",
+      "status": "W-DONE",
       "priority": "P0",
       "sprint": "SMART V3",
-      "title": "Devolver checkId al publicar un Check y refrescar los espejos de contrato (GH-INTEROP-1.3)",
+      "title": "Coordinar Checks con mutex efímero de instancia única conforme a GH-INTEROP-1.7",
       "storyIds": [
         "HU14",
         "HU16"
@@ -473,10 +473,13 @@
         "spec/contracts/github-integration-contract.md"
       ],
       "acceptanceCriteria": [
-        "POST /internal/v1/github/checks responde 200 con { checkId: string } (id del check run de GitHub como texto) al crear o actualizar; si el Check ya existe para el mismo headSha y nombre devuelve el mismo id; los errores, los demás campos y el resto del contrato no cambian.",
-        "Hay pruebas de creación, de actualización que devuelve el mismo id y de errores sin cambio; lint, pruebas, build y validadores SDD/Harness pasan antes de la revisión humana.",
-        "Los espejos SYSTEM-2.6, INTEROP-2.7 y GH-INTEROP-1.3 quedan byte por byte iguales a la fuente canónica de Core en la revisión que registra el líder (se anotan los SHA-256); los eventos CS-CORE-20261008-004, -006, -007 y CS-CORE-20261009-012 pasan a C-ACKNOWLEDGED y C-RESOLVED con evidencia.",
-        "Al terminar se emite un CS-GH-… dirigido a Core para que persista el id del Check; no cambia nada más y no se modifican Core, Console ni Sandbox."
+        "POST /internal/v1/github/checks conserva 200 { checkId } y la identidad exacta (repositoryId, appId, headSha, name); repositorio y App forman parte del scope y name compara bytewise, con sensibilidad a mayúsculas/minúsculas.",
+        "Una única instancia activa serializa create y updates con mutex efímero por identidad; no se habilitan réplicas, workers duplicados ni rolling overlap, y no existe base/URL/migración PostgreSQL de coordinación.",
+        "Conservar en memoria CREATE_UNKNOWN/UPDATE_UNKNOWN y hacer búsqueda completa con candidatos exactos; adoptar solo uno, devolver 409 GITHUB_CHECK_IDENTITY_AMBIGUOUS ante varios y no repetir a ciegas una llamada incierta mientras viva el proceso.",
+        "Un 422 remoto solo se conserva como CREATE_REJECTED tras búsqueda completa cero; la misma huella reproduce 422 GITHUB_CHECK_CREATE_REJECTED, retryable false, sin POST ni detalle crudo durante la vida del proceso. Tras reinicio no existe replay durable.",
+        "Una búsqueda incompleta o una creación/actualización incierta devuelve 503 GITHUB_CHECK_COORDINATION_UNAVAILABLE sin escribir a ciegas; después de reiniciar, una búsqueda completa cero puede crear y acepta el riesgo residual contractual.",
+        "Pruebas de concurrencia intra-proceso, fallos antes/después de las llamadas, replay en memoria y reinicio; retirar configuración, health, dependencia, store y migración exclusivos de PostgreSQL sin tocar Core/Supabase ni infraestructura.",
+        "Los tres espejos SYSTEM-2.8, INTEROP-2.8 y GH-INTEROP-1.7 coinciden byte a byte con Core; CS-CORE-20261011-006 se acusa al iniciar y se resuelve solo con evidencia de implementación."
       ],
       "specPaths": [
         "spec/features/004-checks-publication/spec.md",
@@ -485,6 +488,10 @@
         "spec/contracts/github-integration-contract.md",
         "spec/contracts/system-contract.md",
         "spec/contracts/interoperability-contract.md",
+        "spec/constitution/tech-stack.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/README.md",
         "CHANGELOG.md"
       ],
       "externalDependencies": [

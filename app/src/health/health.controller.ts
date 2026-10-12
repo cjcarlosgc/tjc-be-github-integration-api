@@ -18,7 +18,7 @@ export class HealthController {
   constructor(private readonly config: ConfigService) {}
 
   @Get()
-  getHealth(@Res({ passthrough: true }) response: Response): HealthResponse {
+  async getHealth(@Res({ passthrough: true }) response: Response): Promise<HealthResponse> {
     const ready = hasRequiredRuntimeConfiguration({
       CORE_TO_GITHUB_INTEGRATION_TOKEN: this.config.get<string>(
         'CORE_TO_GITHUB_INTEGRATION_TOKEN',

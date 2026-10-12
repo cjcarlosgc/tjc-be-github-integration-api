@@ -32,11 +32,11 @@ function responseStub(): Response {
 }
 
 describe('GET /health', () => {
-  it('returns live but not ready when the service bearer is absent', () => {
+  it('returns live but not ready when the service bearer is absent', async () => {
     const response = responseStub();
     const controller = new HealthController(configWithToken());
 
-    const health = controller.getHealth(response);
+    const health = await controller.getHealth(response);
 
     expect(response.status).toHaveBeenCalledWith(503);
     expect(health).toEqual({
@@ -45,12 +45,12 @@ describe('GET /health', () => {
     });
   });
 
-  it('reports local readiness without exposing credential contents', () => {
+  it('reports readiness when required runtime configuration is available', async () => {
     const response = responseStub();
     const token = 'test-only-service-token';
     const controller = new HealthController(configWithToken(token, true));
 
-    const health = controller.getHealth(response);
+    const health = await controller.getHealth(response);
 
     expect(response.status).toHaveBeenCalledWith(200);
     expect(health).toEqual({
@@ -60,12 +60,12 @@ describe('GET /health', () => {
     expect(JSON.stringify(health)).not.toContain(token);
   });
 
-  it('does not query GitHub or Core', () => {
+  it('does not query GitHub or Core', async () => {
     const response = responseStub();
     const config = configWithToken('test-only-service-token', true);
     const controller = new HealthController(config);
 
-    controller.getHealth(response);
+    await controller.getHealth(response);
 
     expect(config.get).toHaveBeenCalledTimes(8);
     expect(config.get).toHaveBeenCalledWith('CORE_TO_GITHUB_INTEGRATION_TOKEN');

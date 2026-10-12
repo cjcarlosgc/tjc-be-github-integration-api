@@ -50,7 +50,7 @@ for (const agent of ['leader', 'sdd-analyst', 'implementer', 'implementer-high',
   assert(fs.existsSync(path.join(root, '.claude/agents', `${agent}.md`)), `missing Claude agent profile: ${agent}`);
 }
 const agentProfiles = fs.readFileSync(path.join(root, 'harness/agent-profiles.yaml'), 'utf8');
-for (const modelId of ['claude-sonnet-5-5', 'claude-haiku-5-5']) {
+for (const modelId of ['claude-sonnet-5-5', 'claude-haiku-5-5', 'gpt-6-luna']) {
   assert(agentProfiles.includes(modelId), `agent-profiles.yaml missing exactModelId: ${modelId}`);
 }
 
@@ -95,7 +95,17 @@ if (state) {
     assert(item.execution?.leaderAgent === 'leader', 'execution.leaderAgent must be leader');
     assert(Number.isInteger(item.execution?.reviewCycles) && Number.isInteger(item.execution?.maxReviewCycles), 'review-cycle controls are required');
     assert(item.execution?.reviewCycles <= item.execution?.maxReviewCycles, 'review-cycle limit exceeded');
-    assert(item.execution?.maxReviewCycles === 2, 'review-cycle limit must be two');
+    const reviewException = item.execution?.reviewCycleException;
+    const authorizedThirdCycle = item.execution?.maxReviewCycles === 3
+      && reviewException?.authorizedBy === 'user'
+      && reviewException?.quote === 'esta vez que lo revise el reviewer, si todo okle das en DONE';
+    const authorizedFourthCycle = item.execution?.maxReviewCycles === 4
+      && reviewException?.authorizedBy === 'user'
+      && reviewException?.quote === 'por excepcion haz que lo revise un agente a ver si le da el visto bueno';
+    const authorizedFifthCycle = item.execution?.maxReviewCycles === 5
+      && reviewException?.authorizedBy === 'user'
+      && reviewException?.quote === 'El usuario autoriza explícitamente un quinto ciclo de revisión IA, limitado a WI-GH-012.';
+    assert(item.execution?.maxReviewCycles === 2 || authorizedThirdCycle || authorizedFourthCycle || authorizedFifthCycle, 'review-cycle limit must be two unless the user authorized this exact exception');
     for (const issue of agentAssignmentIssues(item)) assert(false, issue);
     for (const gate of requiredGates) assert(gateValues.has(item.gates?.[gate]), `invalid or missing gate: ${gate}`);
     assert(Array.isArray(item.coordination?.pullCheckpoints), 'coordination.pullCheckpoints must be an array');

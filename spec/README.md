@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.5 / INTEROP-2.6 / GH-INTEROP-1.2. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en `c96e9ad3c58a65914e234974f342b83415a50286`. La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
+**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.8 / INTEROP-2.8 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión de `CS-CORE-20261011-006` (`313f560d405a582cd549255e27d5630bd668ad7e`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
 
 ## Orden de lectura
 
@@ -10,8 +10,8 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.5`, `INTEROP-2.6` y `GH-INTEROP-1.2` son copias espejo byte por byte de las fuentes canónicas de Core, sincronizadas mediante `CS-CORE-20260927-004`, `CS-CORE-20260927-005` y `CS-CORE-20260927-006`; Sandbox conserva una línea base local anterior hasta su homologación.
-- Core es dueño canónico de `GH-INTEROP-1.2`. La topología de WI-GH-006 está cerrada localmente; WI-CORE-014 amplió el contrato para transmitir la fecha original del PR y está cerrado. WI-GH-007 implementó y cerró esa extensión (`W-DONE`); no está desplegada ni cortada.
+- `SYSTEM-2.8`, `INTEROP-2.8` y `GH-INTEROP-1.7` son copias espejo byte por byte de las fuentes canónicas de Core, importadas bajo `CS-CORE-20261011-006`; Sandbox conserva SDD 2.1 y una línea base contractual anterior hasta su homologación.
+- Core es dueño canónico de `GH-INTEROP-1.7`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 
 ## Planificación

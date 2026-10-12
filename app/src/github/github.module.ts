@@ -10,10 +10,12 @@ import { GithubUserApiService } from './github-user-api.service.js';
 import { GithubUiCoreClient, GITHUB_UI_CORE_FETCH } from './github-ui-core-client.js';
 import { GithubRepositoryContentService } from './github-repository-content.service.js';
 import { GithubPublicationService } from './github-publication.service.js';
+import { CheckCoordinationStore } from './check-coordination.store.js';
 import { InternalErrorFilter } from './internal-error.filter.js';
+import { HealthController } from '../health/health.controller.js';
 
 @Module({
-  controllers: [GithubIntegrationController, GithubUserApiController],
+  controllers: [GithubIntegrationController, GithubUserApiController, HealthController],
   providers: [
     CoreServiceAuthGuard,
     GithubApiClient,
@@ -22,6 +24,7 @@ import { InternalErrorFilter } from './internal-error.filter.js';
     GithubRepositoryDiscoveryService,
     GithubRepositoryContentService,
     GithubPublicationService,
+    CheckCoordinationStore,
     GithubUserApiService,
     GithubUiCoreClient,
     { provide: GITHUB_FETCH, useValue: fetch },

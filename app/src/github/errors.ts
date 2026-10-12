@@ -4,6 +4,9 @@ export type InternalGithubErrorCode =
   | 'GITHUB_USER_TOKEN_INVALID'
   | 'GITHUB_RESOURCE_NOT_FOUND'
   | 'GITHUB_APP_CONFIGURATION_UNAVAILABLE'
+  | 'GITHUB_CHECK_IDENTITY_AMBIGUOUS'
+  | 'GITHUB_CHECK_CREATE_REJECTED'
+  | 'GITHUB_CHECK_COORDINATION_UNAVAILABLE'
   | 'GITHUB_UPSTREAM_UNAVAILABLE'
   | 'INVALID_WEBHOOK_SIGNATURE'
   | 'GITHUB_WEBHOOK_UNAVAILABLE'
@@ -28,7 +31,7 @@ export class GithubIntegrationError extends Error {
   constructor(
     public readonly code: InternalGithubErrorCode | PublicGithubErrorCode,
     message: string,
-    public readonly status: 400 | 401 | 403 | 404 | 413 | 503,
+    public readonly status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 503,
     public readonly retryable: boolean,
   ) {
     super(message);
@@ -68,6 +71,33 @@ export function invalidRequest(): GithubIntegrationError {
     'The request is invalid.',
     400,
     false,
+  );
+}
+
+export function checkIdentityAmbiguous(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'GITHUB_CHECK_IDENTITY_AMBIGUOUS',
+    'Multiple GitHub Checks match this identity; reconcile them before retrying.',
+    409,
+    false,
+  );
+}
+
+export function checkCreateRejected(): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'GITHUB_CHECK_CREATE_REJECTED',
+    'GitHub rejected the Check request; correct the request before retrying.',
+    422,
+    false,
+  );
+}
+
+export function checkCoordinationUnavailable(retryable = true): GithubIntegrationError {
+  return new GithubIntegrationError(
+    'GITHUB_CHECK_COORDINATION_UNAVAILABLE',
+    'GitHub Check coordination is unavailable.',
+    503,
+    retryable,
   );
 }
 

@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.12 / INTEROP-2.15 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión `17642e0d554bc0cefad8a0d438eb9c5263f00c0d` (WI-GH-013; contratos sin cambios desde `4b0f34a3a73d50df1c2b88934e8a2350732067a9`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
+**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.12 / INTEROP-2.16 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión `bfbaa04ae4f9caafb4f26d55ab12849bb389451f` (WI-GH-014; INTEROP-2.16 introducida en `7f24c169c7d774a2f22a5c74d1869a78d69ab53b`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
 
 ## Orden de lectura
 
@@ -10,7 +10,7 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.12`, `INTEROP-2.15` y `GH-INTEROP-1.7` son copias espejo byte por byte de las fuentes canónicas de Core; SYSTEM e INTEROP se sincronizaron con `WI-GH-013` (eventos `CS-CORE-20261012-006` y `-008`) y GH-INTEROP-1.7 viene de `CS-CORE-20261011-006`; Sandbox conserva SDD 2.1 y una línea base contractual anterior hasta su homologación.
+- `SYSTEM-2.12`, `INTEROP-2.16` y `GH-INTEROP-1.7` son copias espejo byte por byte de las fuentes canónicas de Core; SYSTEM e INTEROP se sincronizaron con `WI-GH-013` (eventos `CS-CORE-20261012-006` y `-008`) e INTEROP-2.16 con `WI-GH-014` (documental, sin evento Contract Sync dirigido a este componente); GH-INTEROP-1.7 viene de `CS-CORE-20261011-006`; Sandbox conserva SDD 2.1 y una línea base contractual anterior hasta su homologación.
 - Core es dueño canónico de `GH-INTEROP-1.7`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 

@@ -1,7 +1,7 @@
 # Contrato canónico del sistema
 
-**Versión del contrato:** SYSTEM-2.8
-**Fecha de corte:** 2026-10-11
+**Versión del contrato:** SYSTEM-2.12
+**Fecha de corte:** 2026-10-12
 **Estado:** APROBADO salvo decisiones `PENDING` explícitas
 **Propietario canónico:** `tjc-be-rag-core-api/spec/contracts/system-contract.md`
 
@@ -65,10 +65,10 @@ Eliminar un `Project` (solo Admin) es un borrado lógico irreversible desde la A
 
 ## Workspaces, roles y acceso
 
-Consolida `DEC-ORG-001` (HU01/HU02); el detalle normativo vigente de rutas, DTOs, errores y eventos vive en `INTEROP-2.8` §6.13 y §6.14.
+Consolida `DEC-ORG-001` (HU01/HU02); el detalle normativo vigente de rutas, DTOs, errores y eventos vive en `INTEROP-2.12` §6.13 y §6.14.
 
 - Un `Project` pertenece a un workspace: la cuenta personal de su creador o una organización de GitHub donde la GitHub App está instalada y el usuario es miembro. Un Project personal solo lo ve su creador, que es siempre su Admin y no tiene registro de acceso; solo se comparte mediante organizaciones. GitHub es la fuente de verdad de la autorización; Core solo persiste el vínculo `userId -> githubUserId`, la organización del Project y, para Projects de organización, un registro de acceso `(projectId, userId, rol, verifiedAt)`.
-- Roles por Project, con jerarquía Admin ⊃ Maintainer ⊃ Writer ⊃ Reader (en una organización, Maintainer, Writer y Reader exigen además ser miembro activo de ella; `DEC-ORG-003`): Reader solo consulta; Writer opera el día a día (dispara Runs, vincula, pausa y reactiva repositorios, publica tests, envía cambios a una rama nueva y los acepta, ejecuta experimentos y comparaciones de retrieval) salvo responder preguntas funcionales y registrar `UNKNOWN`; Maintainer, además, responde preguntas funcionales y confirma conocimiento funcional; Admin, además, crea, renombra y elimina Projects. Core deriva el rol de los hechos de permiso que entrega GitHub Integration y no acepta un rol enviado por el navegador: owner de la organización o creador del workspace personal → Admin; `admin` o `maintain` → Maintainer; `write` → Writer; `triage` o `read` → Reader. La matriz rol -> operación de toda la superficie HTTP es `INTEROP-2.8` §6.13.
+- Roles por Project, con jerarquía Admin ⊃ Maintainer ⊃ Writer ⊃ Reader (en una organización, Maintainer, Writer y Reader exigen además ser miembro activo de ella; `DEC-ORG-003`): Reader solo consulta; Writer opera el día a día (dispara Runs, vincula, pausa y reactiva repositorios, publica tests, envía cambios a una rama nueva y los acepta, ejecuta experimentos y comparaciones de retrieval) salvo responder preguntas funcionales y registrar `UNKNOWN`; Maintainer, además, responde preguntas funcionales y confirma conocimiento funcional; Admin, además, crea, renombra y elimina Projects. Core deriva el rol de los hechos de permiso que entrega GitHub Integration y no acepta un rol enviado por el navegador: owner de la organización o creador del workspace personal → Admin; `admin` o `maintain` → Maintainer; `write` → Writer; `triage` o `read` → Reader. La matriz rol -> operación de toda la superficie HTTP es `INTEROP-2.12` §6.13.
 - El acceso se crea al entrar mediante una verificación en vivo solicitada a GitHub Integration, donde reside el installation token de la App; se revoca por los eventos normalizados de webhook y por una reconciliación horaria, nunca por caché ni por reinicio de sesión. Si GitHub no responde, Core conserva los accesos ya registrados y no concede accesos nuevos.
 - Ninguna identidad implica autorización de la otra: ver un Project no autoriza automatización sobre el repositorio, que sigue autorizada solo por la GitHub App. Un recurso no visible responde el mismo `404` que uno inexistente; uno visible con rol insuficiente responde `403`.
 
@@ -152,6 +152,7 @@ Antes de atribuir una falla a pruebas generadas, se ejecuta el baseline relevant
 - test generado técnicamente válido que evidencia discrepancia -> `BEHAVIORAL_MISMATCH`;
 - namespace/import/API/mock/setup/sintaxis inválidos generados -> `TECHNICAL_GENERATION_FAILURE`;
 - Docker/red/storage/worker/runtime de plataforma -> `INFRASTRUCTURE_FAILURE`;
+  - Para un símbolo elegible cuya ejecución falla por plataforma y para la precedencia del estado del Run con resultados mezclados rige `DEC-VAL-002` (APROBADA; implementada en `WI-CORE-048`).
 - validación correcta -> `SUCCESS`.
 
 No se generan duplicados para demostrar actividad. La autorreparación semántica y la modificación automática de código productivo permanecen prohibidas. El experimento conserva `RAG` vs `GENERALIST_AGENT`; si se incorpora Functional Knowledge, la metodología debe resolver cómo mantener comparabilidad antes de ejecutar evidencia experimental. La unidad experimental (HU17) es un símbolo `METHOD`/`FUNCTION` `DIRECTLY_CHANGED` de un `AnalysisRun` existente, no una selección manual de `TestTarget`.
@@ -255,11 +256,47 @@ Trace operativo (HU15): el recorrido auditable de un cambio tiene nueve enlaces:
 
 ### DEC-INF-001 — Infraestructura remota del Sandbox
 
-**Estado:** PENDING
+**Estado:** APROBADO (2026-10-12, por solicitud del usuario de resolver la decisión y autorización previa para adoptar la recomendación técnica)
 
-**Blocks:** aprovisionamiento remoto; no bloquea desarrollo ni prevalidación local.
+**Blocks:** NONE para seleccionar el destino; antes de ejecutar el despliegue deben cumplirse los controles de red de esta resolución y contar con autorización operativa explícita para los cambios concretos de GCE.
 
-**Pregunta:** seleccionar proveedor y controles de VM remota sin resolver silenciosamente costo, aislamiento, red o retención.
+**Resolución:** reutilizar la VM GCE ya existente `rag-test-execution-sandbox` en `us-central1-a` (e2-standard-4, 4 vCPU, 16 GiB RAM, disco de arranque pd-balanced de 100 GB). No crear otra VM, Cloud NAT, balanceador, base de coordinación ni otro componente de arquitectura. La instancia existente está en ejecución y genera cargos de cómputo mientras permanezca encendida; el disco, la IP externa y los snapshots también pueden generar cargos. No se presume que el crédito de GCP siga disponible ni se presenta esta opción como gratuita. Limitar el uso a ventanas autorizadas de prueba y detener la VM cuando no se esté usando para el piloto.
+
+**Alcance de datos y aislamiento:** exclusivamente repositorios de demostración/piloto controlados por el usuario; no código empresarial, datos de producción, secretos ni evidencia empresarial. `DEC-VAL-001` permanece `PENDING`. Mantener una sola VM de Sandbox y los controles ya aprobados para cada ejecución: contenedor efímero, usuario no-root UID/GID 10001, `CapDrop: ALL`, `no-new-privileges`, workspace aislado y red deshabilitada durante PHPUnit/tests. La salida a Internet de la VM existente se usa solo para obtener dependencias durante la fase de instalación; no se habilita red del contenedor durante las pruebas.
+
+**Red:** el acceso administrativo y al servicio de Sandbox será por IAP TCP forwarding, limitado mediante firewall al rango IAP IPv4 `35.235.240.0/20`, a esta VM y solo a TCP 22 (SSH) y TCP 3000 (puerto HTTP predeterminado de Sandbox; confirmar `PORT` efectivo). OS Login y 2FA permanecen habilitados. No publicar el puerto de Sandbox en `0.0.0.0/0`. Se conserva la IP externa existente únicamente para salida de la VM y descargas; IAP no requiere IP externa. La inspección de solo lectura del 2026-10-12 encontró reglas existentes de SSH, RDP, HTTP, HTTPS e ICMP desde `0.0.0.0/0` (HTTP/HTTPS aplican por los tags actuales `http-server`/`https-server`), y no encontró una regla de ingreso IAP. Por tanto, la política de ingreso no está aún satisfecha: antes de reutilizar la VM para otra prueba se deben limitar o eludir esas exposiciones para esta instancia, habilitar solo el ingreso aprobado por IAP y verificarlo sin interrumpir otras VMs del proyecto. Esta decisión no cambia reglas de firewall por sí sola.
+
+**Retención:** se acepta para este piloto controlado la política ya adjunta al disco: snapshots diarios, retención máxima de 14 días y `KEEP_AUTO_SNAPSHOTS` al borrar el disco de origen. El código clonado puede permanecer en el disco persistente y en sus snapshots; borrar contenedores o workspaces no purga esas copias. No colocar allí datos o código que requieran una retención menor. La decisión no elimina ni modifica la política de snapshots existente.
+
+**Estado de despliegue reportado por el usuario (2026-10-12):** el repositorio ya está clonado en esta VM y hubo un primer despliegue con fallas antes de correcciones recientes. Ese despliegue previo no demuestra que las correcciones estén instaladas ni que el E2E esté validado; antes de la próxima prueba se debe identificar el commit remoto desplegado y actualizar la copia a la revisión corregida aprobada. La clonación y el primer despliegue no cambian la política de ingreso ni autorizan por sí solos una operación nueva.
+
+Esta resolución selecciona una topología y controles, pero no equivale a haber cambiado firewall, desplegado código, iniciado/parado la VM o autorizado un gasto adicional fuera del uso de esta instancia.
+
+### DEC-INF-002 — Exposición del servicio de Sandbox a Core desplegado en Render
+
+**Estado:** APROBADA AS-BUILT (usuario, 2026-10-12, `WI-CORE-049`): «Sí, aprobada as-built»; decisión relayada: «Aprobado tal como quedó, rate limit sí, rotación de 90 días y IAP respaldo». Describe una infraestructura ya desplegada y verificada por Cross el 2026-10-12; Core no la modificó ni la verificó. Este documento no autoriza nuevas operaciones de firewall, proxy, VM, DNS ni certificados. Hasta que el rate limit se implemente en el proxy, el único freno al abuso es el bearer.
+
+**Blocks:** NONE.
+
+**Resolución:** `DEC-INF-002` sustituye de forma explícita solo dos puntos del párrafo «Red» de `DEC-INF-001`: (i) el ingreso al servicio del Sandbox únicamente por IAP al puerto efectivo del servicio (`DEC-INF-001` dice 3000; el puerto efectivo as-built es 3001), que pasa a ser respaldo y vía de reversión; y (ii) la obligación de limitar las exposiciones HTTP/HTTPS `0.0.0.0/0`, solo para TCP 80 y 443 hacia el proxy TLS. Core llega al servicio por HTTPS con TLS y `Authorization: Bearer` (`DEC-AUTH-001`, sin cambios). Siguen vigentes: SSH/administración solo por IAP con OS Login y 2FA, no publicar el puerto del servicio (3001/3000) en `0.0.0.0/0`, limitar las demás reglas públicas existentes (SSH, RDP, ICMP; su estado actual no fue verificado por Cross) y el resto de `DEC-INF-001`. Los 80/443 públicos no habilitan código empresarial: `DEC-VAL-001` permanece `PENDING`.
+
+**As-built (verificado por Cross):**
+- Proxy TLS Caddy v2.11.7 en la VM `rag-test-execution-sandbox`, con el hostname gratuito `136-115-2-208.sslip.io` sobre la IP estática reservada `rag-sandbox-ip` (136.115.2.208), certificado público Let's Encrypt, `reverse_proxy` a `127.0.0.1:3001` y `request_body` máximo de 5 MB.
+- Firewall `rag-sandbox-https-allow` (prioridad 899): tcp:80 y tcp:443 desde `0.0.0.0/0`, sin filtro por IP de Render; 3001 y 22 siguen solo por IAP (`rag-sandbox-iap-allow` y `rag-sandbox-iap-deny`, prioridades 900 y 901).
+- Control de acceso: TLS más bearer `SANDBOX_SERVICE_TOKEN` de 64 hex (401 sin bearer, verificado por Cross).
+- Core en Render usa `SANDBOX_URL=https://136-115-2-208.sslip.io`. E2E de producción verificado por Cross: PR #3 de `tjc-piloto-ventas` → Check `success` con 1 propuesta (Render → VM por HTTPS).
+
+**Superficie de riesgo (sin suavizar):** el firewall abre TCP 80 y 443 a todo Internet y no hay filtro por IP de Render (según Cross, las IP de salida de Render son rangos compartidos de poco valor como control; Core no lo verificó). Cualquier host de Internet alcanza el proxy; solo el bearer y, cuando se implemente, el rate limit frenan el abuso. El Sandbox ejecuta código de terceros. El token viaja por Internet bajo TLS. `/health/live` y `/health/ready` no llevan bearer y no deben quedar expuestos por el proxy; el proxy no debe registrar `Authorization`. El hostname sslip.io y la renovación de Let's Encrypt dependen de terceros. La latencia adicional puede acercar ejecuciones al timeout y producir fallo de plataforma (`DEC-VAL-002`).
+
+**Rate limit:** control aprobado (rate limit sí); los valores NO están aprobados: valor inicial propuesto a ratificar por Sandbox/Cross tras observar un PR real: `POST /executions` 20 por minuto por IP y 30 por minuto global; `GET /executions/*` (sondeo) 240 por minuto por IP; 10 intentos por minuto por IP sin bearer válido, con bloqueo temporal. El ritmo de sondeo lo dicta el `pollAfterMs` del Sandbox (`sandbox-execution.service.ts`); el valor de 240 es una estimación a contrastar, y un 429 del proxy puede producir un fallo de plataforma (`DEC-VAL-002`); Core hoy no documenta ni maneja un 429 del proxy como caso específico, y el valor de 240 debe contrastarse también con ejecuciones concurrentes. Caddy estándar no trae limitador: requiere el módulo `caddy-ratelimit` compilado con xcaddy u otro limitador delante de `127.0.0.1:3001`; si no puede aplicarse en el proxy, se evalúa un límite en el propio Sandbox. Hasta su implementación el único freno es el bearer.
+
+**Rotación del token (aprobada):** cada 90 días o de inmediato ante sospecha; dueño: Jean. Procedimiento: generar un token nuevo, actualizarlo en la VM y en Render, verificar la huella (`sha256`, primeros 8 caracteres) en ambos y revocar el anterior. El valor del token nunca se escribe en el repositorio.
+
+**Reversión y respaldo:** el túnel IAP se mantiene como respaldo y vía de reversión: cerrar `rag-sandbox-https-allow`, detener Caddy y usar `SANDBOX_URL` loopback (`http://127.0.0.1:3101`).
+
+**Impacto en experimentos y métricas:** nulo en validez y resultados; la duración medida por Core ahora incorpora TLS sobre Internet y no es comparable con corridas por túnel sin declararlo; sin cambio de métricas.
+
+**Seguimiento aprobado aparte:** work item de código `isAllowedSandboxUrl` (HTTPS obligatorio en producción; HTTP solo loopback fuera de producción; sin credenciales, ruta ni query; sin romper `http://localhost:3001` ni `http://127.0.0.1:3101`), preparado y sin implementar hasta indicación; implementación del rate limit y de la rotación a cargo de Sandbox/Cross con autorización operativa.
 
 ### DEC-VAL-001 — Validación empresarial
 
@@ -268,6 +305,24 @@ Trace operativo (HU15): el recorrido auditable de un cambio tiene nueve enlaces:
 **Blocks:** ingestión/despliegue con código empresarial y producción de evidencia empresarial; no bloquea trabajo con código de demostración autorizado.
 
 **Pregunta:** aprobar autorización organizacional, retención, proveedores externos, protección de código y exportación de evidencia.
+
+### DEC-VAL-002 — Fallo de plataforma por símbolo y precedencia del estado del Run
+
+**Estado:** APROBADA (usuario, 2026-10-12, `WI-CORE-047`; caso operativo OC08). El usuario aprobó la versión recomendada «sin afectar métricas»; una redacción anterior que ponía la plataforma sobre cualquier otra clasificación fue descartada y no tiene efecto.
+
+**Blocks:** NONE. Desbloquea el work item de código que alinee OC08, que hereda la condición de abajo.
+
+**Regla.** *Fallo de plataforma por símbolo:* el símbolo elegible no obtuvo veredicto porque el Sandbox no estuvo disponible o rechazó la ejecución, la ejecución agotó el tiempo límite del Sandbox o el Sandbox reportó una falla de categoría `INFRASTRUCTURE` (Docker, red, almacenamiento, worker o runtime de plataforma). No lo son compilación, aserción, error de ejecución de la prueba, dependencia ni configuración del framework (siguen siendo fallo técnico), y un fallo `UNKNOWN` no se atribuye a la plataforma sin evidencia. *Precedencia del estado del Run con resultados mezclados por símbolo* (de mayor a menor): `BEHAVIORAL_MISMATCH` > `TECHNICAL_GENERATION_FAILURE` > `INFRASTRUCTURE_FAILURE` > `SUCCESS` > `NO_ADDITIONAL_TESTS_REQUIRED` / `NO_TEST_RELEVANT_CHANGES` (estos dos últimos son excluyentes entre sí). `BASELINE_FAILED` y los `INFRASTRUCTURE_FAILURE` de nivel job (binding, versión, materializado, compare o job completo) terminan el Run antes de la clasificación por símbolo y no entran en esta precedencia.
+
+**Aclaración (no cambia la decisión):** los resultados por símbolo (propuestas, ejecuciones, evidencia de discrepancia y fallo por símbolo) y el `resultSummary`, que cuenta por separado los fallos de plataforma y los técnicos, se conservan y siguen consultables aunque el estado agregado sea `INFRASTRUCTURE_FAILURE`; el estado del Run es solo el más accionable.
+
+**Razón:** una discrepancia demostrada no se oculta por un fallo ajeno de plataforma en otro símbolo; un fallo técnico atribuible no se degrada a `neutral`; un Run con un símbolo sin veredicto no es `SUCCESS` ni permite publicar como si todo estuviera validado. Las alternativas «plataforma sobre técnico» y «la falla de plataforma no altera el Run» no fueron elegidas.
+
+**Consecuencias:** un Run en `INFRASTRUCTURE_FAILURE` con propuestas `AVAILABLE` válidas tiene Check `neutral` y no es publicable (`409 TEST_PUBLICATION_INVALID_RUN_STATUS`) hasta reintentar; `NO_TEST_RELEVANT_CHANGES` mantiene Check `success`.
+
+**Condición del usuario:** el cambio queda confinado al análisis de PR (clasificación por símbolo y del `AnalysisRun`) y no puede alterar el comportamiento de experimentos (008), OE2/OE5 ni la evidencia o métricas existentes. Si se toca `sandbox/map-sandbox-result.ts` (compartido por generación y experimentos), exige prueba de no regresión explícita sobre experimentos o no se toca; si afecta métricas, `DECISION_REQUIRED` y no se aplica.
+
+**Estado de la implementación:** implementada en `WI-CORE-048` (2026-10-12): una excepción, timeout o categoría `INFRASTRUCTURE` del Sandbox por símbolo es fallo de plataforma y el estado del Run aplica la precedencia; la evidencia por ejecución, los experimentos y las métricas no cambian.
 
 ### DEC-ORG-001 — Organizaciones y compartición de Projects
 
@@ -412,5 +467,11 @@ Trace operativo (HU15): el recorrido auditable de un cambio tiene nueve enlaces:
 **Resolución:** `ProjectRole` pasa a `ADMIN | MAINTAINER | WRITER | READER`. `write` en el repositorio vinculado produce Writer; `maintain` o `admin`, Maintainer. Writer puede todo lo que hoy puede un Maintainer salvo responder preguntas funcionales y registrar `UNKNOWN`. Esto restringe a quienes hoy tienen solo `write` y es un cambio observable. Las menciones de roles de `DEC-ORG-001` y `DEC-ORG-002` y de los planes de cortes ya implementados describen la historia; donde difieran, prevalece esta decisión.
 
 ## Regla de compatibilidad
+
+`SYSTEM-2.12` (2026-10-12, `WI-CORE-049`) aprueba `DEC-INF-002` as-built (servicio del Sandbox por HTTPS con TLS y bearer detrás de un proxy en la VM; el túnel IAP queda como respaldo) y sustituye solo los puntos (i) y (ii) del párrafo «Red» de `DEC-INF-001`; reemplaza el estado PROPOSED de `SYSTEM-2.11`. Sandbox conserva SYSTEM-2.2 y debe ratificar el rate limit y la rotación; `INTEROP-2.12` es la versión compatible. `SYSTEM-2.11` (2026-10-12, `WI-CORE-049`) registró `DEC-INF-002` como PROPOSED y corrigió el estado editorial de `DEC-VAL-002` (implementada en `WI-CORE-048`).
+
+`SYSTEM-2.10` (2026-10-12, `WI-CORE-047`) aprueba `DEC-VAL-002` (fallo de plataforma por símbolo y precedencia del estado del Run, sin cambiar `DEC-INF-001` ni la infraestructura). Sandbox conserva SYSTEM-2.2 y no requiere acción local. `INTEROP-2.10` es la versión compatible.
+
+`SYSTEM-2.9` (2026-10-12) resuelve `DEC-INF-001`: reutiliza la VM GCE existente para el Sandbox del piloto controlado, con ingreso administrativo y del servicio vía IAP a TCP 22 y al puerto de Sandbox (predeterminado 3000), sin agregar componentes. La instancia actual aún tiene reglas de ingreso público y no una regla IAP; su clon y despliegue inicial fueron reportados por el usuario como anteriores a correcciones recientes, por lo que no cuentan como prueba del corte corregido. `DEC-VAL-001` sigue pendiente para código y evidencia empresarial.
 
 `SYSTEM-2.5` conserva las reglas operativas PR/HEAD; la topología de cuatro componentes está implementada y cerrada localmente por los WIs de migración bajo `GH-INTEROP-1.1`. `GH-INTEROP-1.2` agrega la fecha original de creación del PR, implementada y cerrada localmente en `WI-GH-007` y consumida por Core en `WI-CORE-011`, tras la publicación canónica de `WI-CORE-014`. Console validó el corte previo del espejo en `WI-CONSOLE-008`. `GH-INTEROP-1.3` (`WI-CORE-026`, `DEC-TRACE-001`) añade `checkId` a la respuesta de `POST /internal/v1/github/checks`; `GH-INTEROP-1.4` (`WI-CORE-034`, `DEC-CHECK-001`) define su identidad lógica; `GH-INTEROP-1.5` (`WI-CORE-038`, `DEC-CHECK-002`) fijó históricamente PostgreSQL compartido; `GH-INTEROP-1.6` (`WI-CORE-039`) precisó el rechazo tras HTTP 422 y reconciliación completa. `GH-INTEROP-1.7` (`WI-CORE-040`, `DEC-CHECK-003`) reemplaza la coordinación durable entre réplicas por una única instancia activa y mutex en proceso; por ello no conserva reservas ni replay terminales a través de reinicios y acepta el riesgo residual documentado. Core tolera `204`, y la implementación de GitHub Integration y los espejos quedan pendientes de sus WIs locales. No hay despliegue ni cutover. La carga manual ZIP y los modos manuales no son rutas de producto; el ZIP interno de snapshot para Docker/Sandbox continúa. El estado de implementación o despliegue de cada capacidad se demuestra con evidencia por componente, no se infiere del número de contrato. `SYSTEM-2.6` (preparado en `WI-CORE-017`; la abstención `UNKNOWN`, la procedencia y los escenarios de Functional Knowledge están implementados en Core por `WI-CORE-018`, `WI-CORE-019` y `WI-CORE-020`; el resto sigue su propio WI) agrega el rol Writer, la abstención auditada de `UNKNOWN`, la procedencia y los escenarios de Functional Knowledge, la jerarquía de métricas, el trace operativo de nueve enlaces y las decisiones `DEC-EXP-003`, `DEC-EXP-004`, `DEC-FK-001`, `DEC-FK-002`, `DEC-FK-003`, `DEC-FK-004` y `DEC-ORG-003`; cierra `DEC-EXP-FK-001`. `SYSTEM-2.7` conserva esa base e incorpora la raíz PHP por subproyecto, la cardinalidad única repositorio↔Project, paths repo-relative y la raíz efectiva congelada; el subcaso con varios manifiestos permanece pendiente en `DEC-PHP-ROOT-001`. `SYSTEM-2.8` conserva SYSTEM-2.7 e incorpora la topología de Checks de una sola instancia descrita por `GH-INTEROP-1.7`. La implementación de SDD y el estado de espejos se demuestran con evidencia por WI y componente, no por el número de contrato.

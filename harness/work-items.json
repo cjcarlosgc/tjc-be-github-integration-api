@@ -522,7 +522,7 @@
       "id": "WI-GH-013",
       "component": "GH",
       "workItemType": "HARNESS",
-      "status": "W-IN_REVIEW",
+      "status": "W-DONE",
       "priority": "P2",
       "sprint": "SMART V3",
       "title": "Sincronizar espejos SYSTEM-2.12/INTEROP-2.15 y resolver CS-CORE-20261012-006/-008 (Fase 2)",

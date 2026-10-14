@@ -11,4 +11,5 @@ requiredAction:
   - Espejar SYSTEM-2.10 e INTEROP-2.10 si mantiene copia; sin cambio de código ni de GH-INTEROP: el Check neutral por INFRASTRUCTURE_FAILURE ya es el mapeo vigente y el límite de 300 archivos sigue siendo suyo
 sourceRevision: f501aef7c0bf36c702e8703abf4f522ab29a54b8
 consumerImportedAt: 2026-10-12T22:22:01.260Z
-status: C-PENDING
+status: C-ACKNOWLEDGED
+acknowledgementEvidence: harness/reports/wi-gh-013-contract-sync-acknowledgement.md

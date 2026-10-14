@@ -2199,106 +2199,282 @@
         ]
       },
       "closedAt": "2026-10-08T19:08:32.035Z"
+    },
+    {
+      "id": "WI-GH-012",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "storyIds": [
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-014"
+      ],
+      "caseIds": [],
+      "sprint": "SMART V3",
+      "specPaths": [
+        "spec/features/004-checks-publication/spec.md",
+        "spec/features/004-checks-publication/plan.md",
+        "spec/features/004-checks-publication/tasks.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/constitution/tech-stack.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/README.md",
+        "CHANGELOG.md"
+      ],
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [
+          "DEC-INF-001",
+          "DEC-VAL-001",
+          "DEC-CHECK-001",
+          "DEC-CHECK-003"
+        ],
+        "checkedAt": "2026-10-11T09:58:23.000Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "implementationAgent": "implementer-high",
+        "contractReviewAgent": "contract-reviewer",
+        "reviewAgent": "human-reviewer",
+        "reviewCycles": 5,
+        "maxReviewCycles": 5,
+        "reviewCycleException": {
+          "authorizedBy": "user",
+          "authorizedAt": "2026-10-11T17:14:00.000Z",
+          "quote": "El usuario autoriza explícitamente un quinto ciclo de revisión IA, limitado a WI-GH-012.",
+          "scope": "Fifth AI cycle consumed; final closure approved by human reviewer."
+        },
+        "handoffs": [
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "evidence": [
+              "harness/reports/wi-gh-012-contract-review-refresh.md"
+            ]
+          },
+          {
+            "agent": "human-reviewer",
+            "status": "APPROVED",
+            "evidence": [
+              "harness/reports/wi-gh-012-user-review.md"
+            ],
+            "recommendedNextStep": "Cierre local autorizado; I-GH-001 conserva la deuda de aseguramiento."
+          }
+        ]
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-PASSED",
+        "canonicalContractSynced": "G-PASSED",
+        "contractSyncPublished": "G-PASSED",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": true,
+        "publishesContract": true,
+        "publishedSyncIds": [
+          "CS-GH-20261010-001",
+          "CS-GH-20261011-002"
+        ],
+        "pendingRelevantSyncIds": [],
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-012",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-11T04:15:08.646Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-012",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-11T14:49:32.113Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-012",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-11T21:08:53.246Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-012",
+            "relevantPendingSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-12T03:31:33.251Z"
+          }
+        ]
+      },
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-012-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-012-review-g-p1-remediation.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-012-user-review.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-012-review-g-p1-remediation.md"
+        ],
+        "contractReviewed": [
+          "harness/reports/wi-gh-012-contract-review-refresh.md"
+        ],
+        "canonicalContractSynced": [
+          "harness/reports/wi-gh-012-gh-interop-1-7-implementation.md"
+        ],
+        "contractSyncPublished": [
+          "harness/reports/wi-gh-012-contract-sync-decision-request.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-012-gh-interop-1-7-implementation.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-012-spec-verification.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-012-user-review.md"
+        ]
+      },
+      "evidence": [
+        "harness/reports/wi-gh-012-gh-interop-1-7-implementation.md",
+        "harness/reports/wi-gh-012-independent-review-g.md",
+        "harness/reports/wi-gh-012-review-g-p1-remediation.md",
+        "harness/reports/wi-gh-012-user-review.md"
+      ],
+      "blockedReason": null,
+      "closedAt": "2026-10-12T03:32:00.000Z"
     }
-  ,{
-    "id": "WI-GH-012",
+  ],
+  "activeWorkItem": {
+    "id": "WI-GH-013",
     "component": "GH",
-    "workItemType": "PRODUCT",
-    "status": "W-DONE",
-    "storyIds": ["HU14", "HU16"],
-    "taskIds": ["ST-GH-014"],
+    "workItemType": "HARNESS",
+    "storyIds": [
+      "HU02",
+      "HU14"
+    ],
+    "taskIds": [
+      "ST-GH-015"
+    ],
     "caseIds": [],
     "sprint": "SMART V3",
+    "status": "W-SELECTED",
     "specPaths": [
-      "spec/features/004-checks-publication/spec.md",
-      "spec/features/004-checks-publication/plan.md",
-      "spec/features/004-checks-publication/tasks.md",
+      "spec/contracts/system-contract.md",
+      "spec/contracts/interoperability-contract.md",
       "spec/contracts/github-integration-contract.md",
-      "spec/contracts/system-contract.md",
-      "spec/contracts/interoperability-contract.md",
-      "spec/constitution/tech-stack.md",
-      "spec/constitution/architecture.md",
-      "spec/constitution/project-context.md",
       "spec/README.md",
-      "CHANGELOG.md"
-    ],
-    "syncScopePaths": [
-      "spec/contracts/system-contract.md",
-      "spec/contracts/interoperability-contract.md",
-      "spec/contracts/github-integration-contract.md"
+      "CHANGELOG.md",
+      "AGENTS.md",
+      "spec/features/006-console-github-api/spec.md",
+      "spec/features/006-console-github-api/plan.md",
+      "spec/features/006-console-github-api/tasks.md"
     ],
     "transversalPaths": [],
     "approved": true,
     "decisionGate": {
-      "checked": true,
+      "checked": false,
       "blockingDecisionIds": [],
-      "nonBlockingDecisionIds": ["DEC-INF-001", "DEC-VAL-001", "DEC-CHECK-001", "DEC-CHECK-003"],
-      "checkedAt": "2026-10-11T09:58:23.000Z"
+      "nonBlockingDecisionIds": [],
+      "checkedAt": null
     },
     "execution": {
       "leaderAgent": "leader",
-      "implementationAgent": "implementer-high",
-      "contractReviewAgent": "contract-reviewer",
-      "reviewAgent": "human-reviewer",
-      "reviewCycles": 5,
-      "maxReviewCycles": 5,
-      "reviewCycleException": {
-        "authorizedBy": "user",
-        "authorizedAt": "2026-10-11T17:14:00.000Z",
-        "quote": "El usuario autoriza explícitamente un quinto ciclo de revisión IA, limitado a WI-GH-012.",
-        "scope": "Fifth AI cycle consumed; final closure approved by human reviewer."
-      },
-      "handoffs": [
-        {"agent": "contract-reviewer", "status": "APPROVED", "evidence": ["harness/reports/wi-gh-012-contract-review-refresh.md"]},
-        {"agent": "human-reviewer", "status": "APPROVED", "evidence": ["harness/reports/wi-gh-012-user-review.md"], "recommendedNextStep": "Cierre local autorizado; I-GH-001 conserva la deuda de aseguramiento."}
-      ]
+      "analysisAgent": null,
+      "implementationAgent": null,
+      "contractReviewAgent": null,
+      "reviewAgent": null,
+      "handoffs": [],
+      "reviewCycles": 0,
+      "maxReviewCycles": 2
     },
     "gates": {
-      "sddVerified": "G-PASSED",
-      "implementationCompleted": "G-PASSED",
-      "independentReviewPassed": "G-PASSED",
-      "technicalChecksPassed": "G-PASSED",
-      "contractReviewed": "G-PASSED",
-      "canonicalContractSynced": "G-PASSED",
-      "contractSyncPublished": "G-PASSED",
-      "interopSyncChecked": "G-PASSED",
-      "noBlockingDecisions": "G-PASSED",
-      "retryLimitRespected": "G-PASSED"
+      "sddVerified": "G-NOT_RUN",
+      "implementationCompleted": "G-NOT_RUN",
+      "independentReviewPassed": "G-NOT_RUN",
+      "technicalChecksPassed": "G-NOT_RUN",
+      "interopSyncChecked": "G-NOT_RUN",
+      "noBlockingDecisions": "G-NOT_RUN",
+      "retryLimitRespected": "G-NOT_RUN",
+      "contractReviewed": "G-NOT_RUN",
+      "canonicalContractSynced": "G-NOT_RUN",
+      "contractSyncPublished": "G-NOT_APPLICABLE"
     },
     "coordination": {
       "contractImpact": true,
-      "publishesContract": true,
-      "publishedSyncIds": ["CS-GH-20261010-001", "CS-GH-20261011-002"],
-      "pendingRelevantSyncIds": [],
+      "publishesContract": false,
       "pullCheckpoints": [
-        {"checkpoint": "start", "workItem": "WI-GH-012", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-10-11T04:15:08.646Z"},
-        {"checkpoint": "implementation-delivery", "workItem": "WI-GH-012", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-10-11T14:49:32.113Z"},
-        {"checkpoint": "before-review", "workItem": "WI-GH-012", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-10-11T21:08:53.246Z"},
-        {"checkpoint": "before-done", "workItem": "WI-GH-012", "relevantPendingSyncIds": [], "deferredSyncIds": [], "notRelevantSyncIds": [], "checkedAt": "2026-10-12T03:31:33.251Z"}
-      ]
-    },
-    "gateEvidence": {
-      "sddVerified": ["harness/reports/wi-gh-012-spec-verification.md"],
-      "implementationCompleted": ["harness/reports/wi-gh-012-review-g-p1-remediation.md"],
-      "independentReviewPassed": ["harness/reports/wi-gh-012-user-review.md"],
-      "technicalChecksPassed": ["harness/reports/wi-gh-012-review-g-p1-remediation.md"],
-      "contractReviewed": ["harness/reports/wi-gh-012-contract-review-refresh.md"],
-      "canonicalContractSynced": ["harness/reports/wi-gh-012-gh-interop-1-7-implementation.md"],
-      "contractSyncPublished": ["harness/reports/wi-gh-012-contract-sync-decision-request.md"],
-      "interopSyncChecked": ["harness/reports/wi-gh-012-gh-interop-1-7-implementation.md"],
-      "noBlockingDecisions": ["harness/reports/wi-gh-012-spec-verification.md"],
-      "retryLimitRespected": ["harness/reports/wi-gh-012-user-review.md"]
+        {
+          "checkpoint": "start",
+          "workItem": "WI-GH-013",
+          "relevantPendingSyncIds": [],
+          "acknowledgedSyncIds": [
+            "CS-CORE-20261012-006",
+            "CS-CORE-20261012-008"
+          ],
+          "resolvedSyncIds": [
+            "CS-CORE-20260927-002",
+            "CS-CORE-20260927-004",
+            "CS-CORE-20260927-005",
+            "CS-CORE-20260927-006",
+            "CS-CORE-20261008-001",
+            "CS-CORE-20261008-004",
+            "CS-CORE-20261008-006",
+            "CS-CORE-20261008-007",
+            "CS-CORE-20261009-012",
+            "CS-CORE-20261010-001",
+            "CS-CORE-20261010-002",
+            "CS-CORE-20261011-003",
+            "CS-CORE-20261011-004",
+            "CS-CORE-20261011-005",
+            "CS-CORE-20261011-006"
+          ],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-10-14T02:08:05.096Z"
+        }
+      ],
+      "publishedSyncIds": [],
+      "pendingRelevantSyncIds": []
     },
     "evidence": [
-      "harness/reports/wi-gh-012-gh-interop-1-7-implementation.md",
-      "harness/reports/wi-gh-012-independent-review-g.md",
-      "harness/reports/wi-gh-012-review-g-p1-remediation.md",
-      "harness/reports/wi-gh-012-user-review.md"
+      "harness/reports/fase2-scope-approval.md",
+      "harness/reports/wi-gh-013-external-dependency-gate.md"
     ],
     "blockedReason": null,
-    "closedAt": "2026-10-12T03:32:00.000Z"
-  }],
-  "activeWorkItem": null,
+    "syncScopePaths": [
+      "spec/contracts/system-contract.md",
+      "spec/contracts/interoperability-contract.md"
+    ]
+  },
   "archivedActiveWorkItem": {
     "id": "WI-GH-012",
     "component": "GH",

@@ -2679,7 +2679,7 @@
     ],
     "caseIds": [],
     "sprint": "SMART V3",
-    "status": "W-IN_PROGRESS",
+    "status": "W-IN_REVIEW",
     "specPaths": [
       "spec/contracts/system-contract.md",
       "spec/contracts/interoperability-contract.md",
@@ -2708,8 +2708,8 @@
       "leaderAgent": "leader",
       "analysisAgent": "sdd-analyst",
       "implementationAgent": "leader",
-      "contractReviewAgent": null,
-      "reviewAgent": null,
+      "contractReviewAgent": "contract-reviewer",
+      "reviewAgent": "reviewer",
       "handoffs": [
         {
           "agent": "sdd-analyst",
@@ -2752,6 +2752,29 @@
             "servedModel": "unknown",
             "effort": "low"
           }
+        },
+        {
+          "agent": "contract-reviewer",
+          "status": "APPROVED",
+          "findings": [
+            "cmp/sha256 de los tres contratos coinciden con Core bfbaa04",
+            "Sin cambios requeridos en app/ ni GH-INTEROP",
+            "CS-CORE-20261014-001 (console) no relevante, no importado"
+          ],
+          "blockers": [],
+          "filesAffected": [
+            "harness/reports/wi-gh-014-contract-review.md"
+          ],
+          "evidence": [
+            "harness/reports/wi-gh-014-contract-review.md"
+          ],
+          "recommendedNextStep": "Revisión independiente por el agente reviewer (Modo fuera de casa).",
+          "executedBy": {
+            "agent": "contract-reviewer",
+            "configuredModel": "claude-sonnet-5-5",
+            "servedModel": "unknown",
+            "effort": "low"
+          }
         }
       ],
       "reviewCycles": 0,
@@ -2762,11 +2785,11 @@
       "implementationCompleted": "G-PASSED",
       "independentReviewPassed": "G-NOT_RUN",
       "technicalChecksPassed": "G-PASSED",
-      "interopSyncChecked": "G-NOT_RUN",
+      "interopSyncChecked": "G-PASSED",
       "noBlockingDecisions": "G-PASSED",
       "retryLimitRespected": "G-PASSED",
-      "contractReviewed": "G-NOT_RUN",
-      "canonicalContractSynced": "G-NOT_RUN",
+      "contractReviewed": "G-PASSED",
+      "canonicalContractSynced": "G-PASSED",
       "contractSyncPublished": "G-NOT_APPLICABLE"
     },
     "coordination": {
@@ -2828,6 +2851,34 @@
           "deferredSyncIds": [],
           "notRelevantSyncIds": [],
           "checkedAt": "2026-10-14T07:11:41.638Z"
+        },
+        {
+          "checkpoint": "before-review",
+          "workItem": "WI-GH-014",
+          "relevantPendingSyncIds": [],
+          "acknowledgedSyncIds": [],
+          "resolvedSyncIds": [
+            "CS-CORE-20260927-002",
+            "CS-CORE-20260927-004",
+            "CS-CORE-20260927-005",
+            "CS-CORE-20260927-006",
+            "CS-CORE-20261008-001",
+            "CS-CORE-20261008-004",
+            "CS-CORE-20261008-006",
+            "CS-CORE-20261008-007",
+            "CS-CORE-20261009-012",
+            "CS-CORE-20261010-001",
+            "CS-CORE-20261010-002",
+            "CS-CORE-20261011-003",
+            "CS-CORE-20261011-004",
+            "CS-CORE-20261011-005",
+            "CS-CORE-20261011-006",
+            "CS-CORE-20261012-006",
+            "CS-CORE-20261012-008"
+          ],
+          "deferredSyncIds": [],
+          "notRelevantSyncIds": [],
+          "checkedAt": "2026-10-14T07:13:00.823Z"
         }
       ],
       "publishedSyncIds": [],
@@ -2838,7 +2889,8 @@
       "harness/reports/wi-gh-014-external-dependency-gate.md",
       "harness/reports/wi-gh-014-spec-verification.md",
       "harness/reports/wi-gh-014-spec-verification.md",
-      "harness/reports/wi-gh-014-implementation.md"
+      "harness/reports/wi-gh-014-implementation.md",
+      "harness/reports/wi-gh-014-contract-review.md"
     ],
     "blockedReason": null,
     "syncScopePaths": [

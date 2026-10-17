@@ -56,3 +56,7 @@ Una idea nueva entra como `I-BACKLOGGED` sin alterar estas 18 HU; al seleccionar
 2. P1: extraer toda interacción con GitHub desde Core a `tjc-be-github-integration-api`, por cortes contractuales y con reutilización de código.
 3. P2: formalizar OC01–OC15 y sus subcasos en specs con trazabilidad a HU, comenzando por happy paths; el registro preliminar está en `spec/operational-cases.md`.
 4. Diferido: homologar Sandbox cuando el usuario recupere ese repositorio. Mutation testing está descartado para este alcance, no es un work item activo.
+
+## Ideas diferidas
+
+- **I-GH-001 · aseguramiento de Checks 1.7:** cuando se seleccione un nuevo WI de mantenimiento, ejecutar una revisión independiente post-fix y ampliar la matriz de regresión de transiciones `ACTIVE`/incertidumbre para el mutex efímero. Surge del cierre humano de `WI-GH-012`; no describe una incompatibilidad funcional conocida ni crea trabajo activo automáticamente.

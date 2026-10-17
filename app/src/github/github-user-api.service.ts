@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   GithubAccessService,
   GithubRepositoryDiscoveryService,
@@ -22,6 +22,8 @@ const DEFAULT_PAGE_SIZE = 20;
 
 @Injectable()
 export class GithubUserApiService {
+  private readonly logger = new Logger(GithubUserApiService.name);
+
   constructor(
     private readonly github: GithubAccessService,
     private readonly discovery: GithubRepositoryDiscoveryService,
@@ -43,16 +45,41 @@ export class GithubUserApiService {
     correlationId: string,
   ) {
     if (!providerToken?.trim() || /\s/.test(providerToken)) throw githubAccountRequired();
-    const { githubUserId } = await this.discovery.getAuthenticatedUser(providerToken);
-    const decision = await this.core.decide(sessionToken, {
-      action: 'DISCOVER_REPOSITORIES', projectId, githubUserId,
-    }, correlationId);
-    if (decision.decision !== 'ALLOW' || !decision.repositoryOwnerId || !decision.repositoryOwnerType) throw githubAccessDenied();
+    const identityStartedAt = performance.now();
+    let githubUserId: string;
+    try {
+      ({ githubUserId } = await this.discovery.getAuthenticatedUser(providerToken));
+    } catch (error) {
+      this.logDiscoveryFailure(correlationId, 'github_identity', identityStartedAt, error);
+      throw error;
+    }
+
+    const authorizationStartedAt = performance.now();
+    let decision: Awaited<ReturnType<GithubUiCoreClient['decide']>>;
+    try {
+      decision = await this.core.decide(sessionToken, {
+        action: 'DISCOVER_REPOSITORIES', projectId, githubUserId,
+      }, correlationId);
+    } catch (error) {
+      this.logDiscoveryFailure(correlationId, 'core_authorization', authorizationStartedAt, error);
+      throw error;
+    }
+    if (decision.decision !== 'ALLOW' || !decision.repositoryOwnerId || !decision.repositoryOwnerType) {
+      this.logDiscoveryFailure(correlationId, 'core_authorization', authorizationStartedAt, undefined, 'denied');
+      throw githubAccessDenied();
+    }
     const page = parseCursor(cursor);
     const perPage = limit ?? DEFAULT_PAGE_SIZE;
-    const result = await this.discovery.list(providerToken, page, perPage, decision.repositoryOwnerType === 'Organization'
-      ? { organizationOwnerId: decision.repositoryOwnerId }
-      : { personalOwnerId: decision.repositoryOwnerId });
+    const listingStartedAt = performance.now();
+    let result: Awaited<ReturnType<GithubRepositoryDiscoveryService['list']>>;
+    try {
+      result = await this.discovery.list(providerToken, page, perPage, decision.repositoryOwnerType === 'Organization'
+        ? { organizationOwnerId: decision.repositoryOwnerId }
+        : { personalOwnerId: decision.repositoryOwnerId });
+    } catch (error) {
+      this.logDiscoveryFailure(correlationId, 'github_repository_list', listingStartedAt, error);
+      throw error;
+    }
     return {
       items: result.items.map(({ owner, permission: _permission, ...repo }) => ({
         ...repo,
@@ -60,6 +87,25 @@ export class GithubUserApiService {
       })),
       nextCursor: result.hasNextPage ? String(page + 1) : null,
     };
+  }
+
+  private logDiscoveryFailure(
+    correlationId: string,
+    stage: 'github_identity' | 'core_authorization' | 'github_repository_list',
+    startedAt: number,
+    error?: unknown,
+    outcome?: string,
+  ): void {
+    const integrationError = error instanceof GithubIntegrationError ? error : null;
+    this.logger.warn(JSON.stringify({
+      event: 'github_repository_discovery_failed',
+      correlationId,
+      stage,
+      outcome: outcome ?? 'failed',
+      ...(integrationError ? { errorCode: integrationError.code, httpStatus: integrationError.status } : {}),
+      ...(!integrationError && error !== undefined ? { errorCode: 'UNEXPECTED' } : {}),
+      durationMs: Math.round(performance.now() - startedAt),
+    }));
   }
 
   async verifyRepositoryAccess(
@@ -103,7 +149,7 @@ export class GithubUserApiService {
     const decision = await this.core.decide(sessionToken, {
       action: 'VERIFY_REPOSITORY_ACCESS',
       projectId: input.projectId,
-      githubUserId: facts.githubUserId,
+      githubUserId,
       repositories: [facts],
       ...(input.integrationBranch ? { integrationBranch: input.integrationBranch } : {}),
     }, correlationId);
@@ -120,22 +166,20 @@ export class GithubUserApiService {
 
   async listBranches(
     sessionToken: string,
-    providerToken: string,
     projectId: string,
     repositoryName: string,
     correlationId: string,
   ) {
-    const identity = await this.discovery.getAuthenticatedUser(providerToken);
     const scope = await this.core.decide(sessionToken, {
-      action: 'LIST_REPOSITORY_BRANCHES', projectId, githubUserId: identity.githubUserId,
+      action: 'LIST_REPOSITORY_BRANCHES', projectId,
     }, correlationId);
-    if (scope.decision !== 'ALLOW' || !scope.repositoryOwnerId || !scope.repositoryOwnerType) throw githubAccessDenied();
-    const verifiedFacts = await this.repositoryFacts(providerToken, repositoryName, identity.githubUserId, scope);
+    if (scope.decision !== 'ALLOW' || !scope.githubUserId || !scope.repositoryOwnerId || !scope.repositoryOwnerType) throw githubAccessDenied();
+    const verifiedFacts = await this.installedRepositoryFacts(repositoryName, scope.githubUserId, scope);
     if (!verifiedFacts.installationActive) throw githubAppAccessRequired();
     if (!hasBindingPermission(verifiedFacts.permission)) throw repositoryPermissionInsufficient();
     const decision = await this.core.decide(sessionToken, {
       action: 'LIST_REPOSITORY_BRANCHES', projectId,
-      githubUserId: identity.githubUserId, repositories: [verifiedFacts],
+      githubUserId: scope.githubUserId, repositories: [verifiedFacts],
     }, correlationId);
     if (decision.decision !== 'ALLOW') throw githubAccessDenied();
     const branches = await this.github.listBranches(verifiedFacts.installationId as string, repositoryName);
@@ -148,7 +192,7 @@ export class GithubUserApiService {
     repositoryName: string,
     verifiedGithubUserId?: string,
     expectedScope?: Pick<NonNullable<Awaited<ReturnType<GithubUiCoreClient['decide']>>>, 'repositoryOwnerId' | 'repositoryOwnerType'>,
-  ): Promise<GithubRepositoryFact & { githubUserId: string }> {
+  ): Promise<GithubRepositoryFact> {
     if (!providerToken?.trim() || /\s/.test(providerToken)) throw githubAccountRequired();
     const githubUserId = verifiedGithubUserId ?? (await this.discovery.getAuthenticatedUser(providerToken)).githubUserId;
     const oauthFacts = await this.discovery.getRepositoryFacts(providerToken, repositoryName);
@@ -157,7 +201,10 @@ export class GithubUserApiService {
       throw this.repositoryNotFound();
     }
     const installationId = await this.github.resolveInstallation(repositoryName);
-    if (!installationId) return { ...oauthFacts, githubUserId, installationActive: false };
+    if (!installationId) {
+      const { ownerLogin: _ownerLogin, ...allowedOauthFacts } = oauthFacts;
+      return { ...allowedOauthFacts, installationActive: false };
+    }
 
     const owner = await this.github.getRepositoryOwner(installationId, repositoryName);
     if (owner.status !== 'OK') throw lookupError(owner, 'GITHUB_APP_ACCESS_REQUIRED');
@@ -186,7 +233,49 @@ export class GithubUserApiService {
       installationId,
       installationActive: true,
       ...(organizationMembership ? { organizationMembership } : {}),
-      githubUserId,
+    };
+  }
+
+  private async installedRepositoryFacts(
+    repositoryName: string,
+    githubUserId: string,
+    expectedScope: Pick<NonNullable<Awaited<ReturnType<GithubUiCoreClient['decide']>>>, 'repositoryOwnerId' | 'repositoryOwnerType'>,
+  ): Promise<GithubRepositoryFact> {
+    const installationId = await this.github.resolveInstallation(repositoryName);
+    if (!installationId) throw githubAppAccessRequired();
+
+    const owner = await this.github.getRepositoryOwner(installationId, repositoryName);
+    if (owner.status !== 'OK') throw lookupError(owner, 'GITHUB_APP_ACCESS_REQUIRED');
+    const facts: GithubRepositoryFact = {
+      repositoryId: owner.value.repositoryId,
+      repositoryName,
+      ownerId: owner.value.ownerId,
+      ownerType: owner.value.ownerType,
+      permission: 'none',
+      installationId,
+      installationActive: true,
+    };
+    if (expectedScope.repositoryOwnerId && expectedScope.repositoryOwnerType &&
+      !isWithinOwnerScope(facts, expectedScope.repositoryOwnerId, expectedScope.repositoryOwnerType)) {
+      throw this.repositoryNotFound();
+    }
+
+    const permission = await this.github.getRepositoryPermission(installationId, repositoryName, githubUserId);
+    const effectivePermission = permission.status === 'OK' ? permission.value : permission.status === 'NOT_FOUND' ? 'none' : null;
+    if (effectivePermission === null) throw lookupError(permission, 'REPOSITORY_PERMISSION_INSUFFICIENT');
+
+    let organizationMembership: GithubRepositoryFact['organizationMembership'];
+    if (owner.value.ownerType === 'Organization') {
+      const membership = await this.github.getOrganizationMembership(installationId, owner.value.ownerLogin, githubUserId);
+      if (membership.status === 'OK') organizationMembership = membership.value;
+      else if (membership.status === 'NOT_FOUND') organizationMembership = { state: 'pending', role: 'member' };
+      else throw lookupError(membership, 'GITHUB_APP_ACCESS_REQUIRED');
+    }
+
+    return {
+      ...facts,
+      permission: effectivePermission,
+      ...(organizationMembership ? { organizationMembership } : {}),
     };
   }
 

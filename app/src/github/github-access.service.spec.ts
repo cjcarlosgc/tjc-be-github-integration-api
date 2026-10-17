@@ -6,6 +6,26 @@ function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+function ok(value: string): { status: 'OK'; value: string } {
+  return { status: 'OK', value };
+}
+
+function permissionService(permissionBody: unknown): GithubAccessService {
+  const api = { request: vi.fn()
+    .mockResolvedValueOnce(json({ login: 'octocat' }))
+    .mockResolvedValueOnce(json(permissionBody)) };
+  const auth = { getInstallationToken: vi.fn().mockResolvedValue('token') };
+  return new GithubAccessService(api as never, auth as never);
+}
+
+function listedRepository(permissions: Record<string, boolean>) {
+  return {
+    id: 1, name: 'repo', full_name: 'acme/repo',
+    owner: { id: 8, login: 'acme', type: 'Organization', avatar_url: null },
+    private: false, default_branch: 'main', permissions,
+  };
+}
+
 describe('GithubAccessService', () => {
   it('returns repository owner using an installation token and preserves immutable IDs as strings', async () => {
     const api = { request: vi.fn().mockResolvedValue(json({
@@ -58,6 +78,34 @@ describe('GithubAccessService', () => {
 
     await expect(service.getRepositoryPermission('13', 'acme/widgets', '42')).resolves.toEqual({ status: 'NOT_FOUND' });
     await expect(service.getRepositoryPermission('13', 'acme/widgets', '42')).resolves.toEqual({ status: 'UNVERIFIABLE' });
+  });
+
+  it.each([
+    ['role_name admin', { role_name: 'admin', user: { permissions: { admin: true, maintain: true, push: true, pull: true } } }, ok('admin')],
+    ['role_name maintain', { role_name: 'maintain', user: { permissions: { maintain: true, push: true, pull: true } } }, ok('maintain')],
+    ['role_name write', { role_name: 'write', user: { permissions: { push: true, pull: true } } }, ok('write')],
+    ['role_name triage', { role_name: 'triage', user: { permissions: { pull: true, triage: true } } }, ok('triage')],
+    ['role_name read', { role_name: 'read', user: { permissions: { pull: true } } }, ok('read')],
+    ['legacy permission write without booleans', { permission: 'write' }, ok('write')],
+    ['legacy write with maintain boolean', { permission: 'write', user: { permissions: { maintain: true, push: true, pull: true } } }, ok('maintain')],
+    ['legacy read with triage boolean', { permission: 'read', user: { permissions: { triage: true, pull: true } } }, ok('triage')],
+    ['nested booleans {pull, triage}', { user: { permissions: { pull: true, triage: true } } }, ok('triage')],
+    ['nested booleans {push, maintain}', { user: { permissions: { push: true, maintain: true } } }, ok('maintain')],
+    ['nested push without maintain', { user: { permissions: { push: true, pull: true } } }, ok('write')],
+    ['custom role with legacy write', { role_name: 'custom-role', permission: 'write' }, ok('write')],
+    ['custom role with legacy read', { role_name: 'custom-role', permission: 'read' }, ok('read')],
+    ['custom role with unknown legacy value', { role_name: 'custom-role', permission: 'unknown' }, { status: 'UNVERIFIABLE' }],
+  ])('derives permission from %s', async (_name, body, expected) => {
+    const service = permissionService(body);
+    await expect(service.getRepositoryPermission('13', 'acme/widgets', '42')).resolves.toEqual(expected);
+  });
+
+  it.each([
+    ['role_name none', { role_name: 'none', permission: 'write', permissions: { push: true } }],
+    ['legacy permission none', { permission: 'none', permissions: { pull: true } }],
+  ])('returns NOT_FOUND for %s before deriving', async (_name, body) => {
+    const service = permissionService(body);
+    await expect(service.getRepositoryPermission('13', 'acme/widgets', '42')).resolves.toEqual({ status: 'NOT_FOUND' });
   });
 
   it('reads repository details by ID and preserves current name and owner', async () => {
@@ -187,6 +235,16 @@ describe('GithubRepositoryDiscoveryService', () => {
       hasNextPage: true,
     });
     expect(api.request).toHaveBeenCalledWith('/user/repos?per_page=2&page=2&sort=updated&affiliation=organization_member', 'token');
+  });
+
+  it.each([
+    ['nested triage (pull, triage)', { pull: true, triage: true }, 'triage'],
+    ['maintain with push', { push: true, maintain: true, pull: true }, 'maintain'],
+  ])('derives listed permission level from %s', async (_name, permissions, expected) => {
+    const api = { request: vi.fn().mockResolvedValue(json([listedRepository(permissions)])) };
+    const service = new GithubRepositoryDiscoveryService(api as never);
+    const result = await service.list('token', 1, 30, {});
+    expect(result.items[0].permission).toBe(expected);
   });
 
   it('rejects simultaneous personal and organization filters', async () => {

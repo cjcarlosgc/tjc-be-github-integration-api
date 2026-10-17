@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Logger } from '@nestjs/common';
 import { GithubIntegrationError } from './errors.js';
 import { GithubUiCoreClient } from './github-ui-core-client.js';
 
@@ -86,5 +87,27 @@ describe('GithubUiCoreClient', () => {
       .catch((value: unknown) => value);
     expect(misconfigured).toMatchObject({ code: 'CORE_AUTHORIZATION_UNAVAILABLE', status: 503 });
     expect(neverFetch).not.toHaveBeenCalled();
+  });
+
+  it('logs Core transport failures with safe diagnostics and without credentials or response bodies', async () => {
+    const responseSecret = 'private-core-response';
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(json({ code: responseSecret }, 500));
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const { client } = setup(fetcher);
+
+    try {
+      await expect(client.decide(sessionToken, { action: 'DISCOVER_REPOSITORIES' }, correlationId))
+        .rejects.toMatchObject({ code: 'CORE_AUTHORIZATION_UNAVAILABLE' });
+      const entry = String(warn.mock.calls[0]?.[0]);
+      expect(entry).toContain('"event":"github_ui_core_authorization_failed"');
+      expect(entry).toContain('"reason":"http_response"');
+      expect(entry).toContain('"httpStatus":500');
+      expect(entry).toContain('"coreCode":"UNRECOGNIZED"');
+      expect(entry).not.toContain(responseSecret);
+      expect(entry).not.toContain(serviceToken);
+      expect(entry).not.toContain(sessionToken);
+    } finally {
+      warn.mockRestore();
+    }
   });
 });

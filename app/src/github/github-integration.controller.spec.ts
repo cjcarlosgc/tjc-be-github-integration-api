@@ -24,10 +24,12 @@ const content = {
   compare: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
   getTree: vi.fn().mockResolvedValue({ status: 'OK', value: { paths: [], truncated: false } }),
   getFilesBatch: vi.fn().mockResolvedValue({ status: 'OK', value: { files: [] } }),
-  getPullRequestHead: vi.fn().mockResolvedValue({ status: 'OK', value: { headSha: 'head-sha', state: 'open' } }),
+  getPullRequestHead: vi.fn().mockResolvedValue({
+    status: 'OK', value: { headSha: 'head-sha', state: 'open', createdAt: '2026-09-25T12:00:00.000Z' },
+  }),
 };
 const publication = {
-  createCheck: vi.fn().mockResolvedValue(undefined),
+  createCheck: vi.fn().mockResolvedValue({ checkId: '99' }),
   preflight: vi.fn().mockResolvedValue({ status: 'READY' }),
   uploadProposalBlob: vi.fn().mockResolvedValue({ status: 'UPLOADED', path: 'tests/new.spec.ts', blobSha: 'b'.repeat(40) }),
   finalize: vi.fn().mockResolvedValue({
@@ -145,6 +147,9 @@ describe('private GitHub integration routes', () => {
     });
     expect(head.status).toBe(200);
     expect(content.getPullRequestHead).toHaveBeenCalledWith('13', 'acme/widgets', 42);
+    expect(await head.json()).toEqual({
+      status: 'OK', value: { headSha: 'head-sha', state: 'open', createdAt: '2026-09-25T12:00:00.000Z' },
+    });
   });
 
   it('rejects malformed snapshot DTOs, paths above the eight-file batch cap, and unknown fields', async () => {
@@ -178,8 +183,8 @@ describe('private GitHub integration routes', () => {
       conclusion: 'success', title: 'Passed', summary: 'Analysis complete.', detailsUrl: 'https://app.example/runs/1',
     };
     const check = await fetch(`${baseUrl}/checks`, { method: 'POST', headers, body: JSON.stringify(checkBody) });
-    expect(check.status).toBe(204);
-    expect(await check.text()).toBe('');
+    expect(check.status).toBe(200);
+    expect(await check.json()).toEqual({ checkId: '99' });
     expect(publication.createCheck).toHaveBeenCalledWith(checkBody);
 
     const request = { installationId: '13', repositoryName: 'acme/widgets', pullRequestNumber: 42, sourceHeadSha };

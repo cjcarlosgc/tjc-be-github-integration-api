@@ -102,15 +102,31 @@ describe('GithubRepositoryContentService', () => {
       .resolves.toEqual({ status: 'UNVERIFIABLE' });
   });
 
-  it('returns the current pull request head and state, rejecting malformed upstream data', async () => {
-    const api = { request: vi.fn().mockResolvedValueOnce(json({ head: { sha: 'current-sha' }, state: 'closed' })) };
+  it('returns the current pull request head, state and normalized creation date', async () => {
+    const api = { request: vi.fn().mockResolvedValueOnce(json({
+      head: { sha: 'current-sha' }, state: 'closed', created_at: '2026-09-25T08:00:00-04:00',
+    })) };
     const service = serviceFor(api);
     await expect(service.getPullRequestHead('13', 'acme/widgets', 42)).resolves.toEqual({
-      status: 'OK', value: { headSha: 'current-sha', state: 'closed' },
+      status: 'OK', value: { headSha: 'current-sha', state: 'closed', createdAt: '2026-09-25T12:00:00.000Z' },
     });
     expect(api.request).toHaveBeenCalledWith('/repos/acme/widgets/pulls/42', 'installation-token');
 
     api.request.mockResolvedValueOnce(json({ head: {}, state: 'merged' }));
+    await expect(service.getPullRequestHead('13', 'acme/widgets', 42)).resolves.toEqual({ status: 'UNVERIFIABLE' });
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['invalid', 'not-a-date'],
+    ['invalid calendar date', '2026-02-30T12:00:00Z'],
+    ['date without a timezone', '2026-09-25T12:00:00'],
+    ['date-only value', '2026-09-25'],
+    ['unknown offset', '2026-09-25T12:00:00-00:00'],
+  ])('returns UNVERIFIABLE without a value when created_at is %s', async (_case, createdAt) => {
+    const body: Record<string, unknown> = { head: { sha: 'current-sha' }, state: 'open' };
+    if (createdAt !== undefined) body.created_at = createdAt;
+    const service = serviceFor({ request: vi.fn().mockResolvedValue(json(body)) });
     await expect(service.getPullRequestHead('13', 'acme/widgets', 42)).resolves.toEqual({ status: 'UNVERIFIABLE' });
   });
 

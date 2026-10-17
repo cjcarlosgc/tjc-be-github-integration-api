@@ -45,7 +45,9 @@ for (const item of registry.workItems ?? []) {
   if (item.contractImpact) assert(record.execution?.handoffs?.some((handoff) => handoff.agent === 'contract-reviewer' && handoff.status === 'APPROVED' && handoff.evidence?.some(validReport)), `${item.id} lacks approved contract-reviewer handoff with evidence`);
   assert(record.decisionGate?.checked === true && record.decisionGate?.blockingDecisionIds?.length === 0, `${item.id} has unresolved decision gate`);
   assert(record.workItemType !== 'PRODUCT' || record.approved === true, `${item.id} product completion lacks approval`);
-  assert(Number.isInteger(record.execution?.reviewCycles) && record.execution.reviewCycles <= 2, `${item.id} exceeded review cycles`);
+  const humanApprovedAfterReviewLimit = record.execution?.reviewAgent === 'human-reviewer'
+    && record.execution?.handoffs?.some((handoff) => handoff.agent === 'human-reviewer' && handoff.status === 'APPROVED' && handoff.evidence?.some(validReport));
+  assert(Number.isInteger(record.execution?.reviewCycles) && (record.execution.reviewCycles <= 2 || humanApprovedAfterReviewLimit), `${item.id} exceeded review cycles without final human approval`);
   for (const gate of requiredGates) assert(record.gates?.[gate] === 'G-PASSED', `${item.id} gate ${gate} did not pass`);
   for (const gate of contractGates) assert(record.gates?.[gate] === (item.contractImpact ? 'G-PASSED' : 'G-NOT_APPLICABLE'), `${item.id} contract gate ${gate} is invalid`);
   assert(record.gates?.contractSyncPublished === (item.publishesContract ? 'G-PASSED' : 'G-NOT_APPLICABLE'), `${item.id} contractSyncPublished gate is invalid`);

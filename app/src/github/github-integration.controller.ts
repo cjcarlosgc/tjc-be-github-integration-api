@@ -125,8 +125,8 @@ export class GithubIntegrationController {
   }
 
   @Post('checks')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  createCheck(@Body() body: GithubCheckRequestDto): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  createCheck(@Body() body: GithubCheckRequestDto): Promise<{ checkId: string }> {
     return this.publication.createCheck(body);
   }
 

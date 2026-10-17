@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Línea base:** SDD 3.0 / SYSTEM-2.5 / INTEROP-2.5 / GH-INTEROP-1.1. La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
+**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.12 / INTEROP-2.16 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión `bfbaa04ae4f9caafb4f26d55ab12849bb389451f` (WI-GH-014; INTEROP-2.16 introducida en `7f24c169c7d774a2f22a5c74d1869a78d69ab53b`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
 
 ## Orden de lectura
 
@@ -10,15 +10,15 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.5` y `INTEROP-2.5` son copias espejo de las fuentes canónicas de Core, también mantenidas por Console; Sandbox conserva una línea base local anterior hasta su homologación.
-- Core es dueño canónico de `GH-INTEROP-1.1`. Los WIs GH-002–005 conservan su historial; WI-GH-006 añade las rutas directas de Console y su autorización síncrona con Core. El cambio no está desplegado ni cortado.
+- `SYSTEM-2.12`, `INTEROP-2.16` y `GH-INTEROP-1.7` son copias espejo byte por byte de las fuentes canónicas de Core; SYSTEM e INTEROP se sincronizaron con `WI-GH-013` (eventos `CS-CORE-20261012-006` y `-008`) e INTEROP-2.16 con `WI-GH-014` (documental, sin evento Contract Sync dirigido a este componente); GH-INTEROP-1.7 viene de `CS-CORE-20261011-006`; Sandbox conserva SDD 2.1 y una línea base contractual anterior hasta su homologación.
+- Core es dueño canónico de `GH-INTEROP-1.7`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 
 ## Planificación
 
 El catálogo de seis épicas, 18 HU y 15 OC se mantiene idéntico al backlog global; no se abre una HU por cada componente. El trabajo técnico se define como subtareas en `tasks.md` y WIs locales en `harness/work-items.json`. Las 18 HU y 15 OC son referencias de alcance, no evidencia de que GH las implemente o cubra.
 
-`WI-GH-001` prepara la base del servicio, health y configuración local. `WI-GH-002` discovery interno/autorización/repositorios/organizaciones/ramas, `WI-GH-003` compare/tree/files/PR, `WI-GH-004` Checks/publicación, `WI-GH-005` webhooks y `WI-GH-006` rutas de usuario Console/autorización síncrona. Los WIs 002–005 conservan sus snapshots de cierre; el nuevo corte requiere Contract Sync con Core y Console antes de la revisión final.
+`WI-GH-001` prepara la base del servicio, health y configuración local. `WI-GH-002` cubre discovery/autorización/repositorios/ramas, `WI-GH-003` compare/tree/files/PR, `WI-GH-004` Checks/publicación, `WI-GH-005` webhooks y `WI-GH-006` rutas de usuario Console/autorización síncrona; sus snapshots de cierre se conservan. `WI-GH-007` entregó `pullRequest.createdAt` verificable en webhook y lectura histórica y está cerrado; su Contract Sync coordinó Core y Console.
 
 ## Decisiones
 

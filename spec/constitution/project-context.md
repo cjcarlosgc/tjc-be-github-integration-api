@@ -1,6 +1,6 @@
 # Contexto operativo del proyecto
 
-**Estado:** topología y contrato `GH-INTEROP-1.1` aprobados; WI-GH-006 en implementación fuente, revisión personal y cutover pendientes
+**Estado:** topología `GH-INTEROP-1.1` implementada y revisada localmente en `WI-GH-006`; la extensión `GH-INTEROP-1.2` para la fecha original verificable del PR se implementó y cerró en `WI-GH-007` (`W-DONE`); `WI-GH-012` cerró la coordinación efímera de Checks de `GH-INTEROP-1.7`; el servicio no está desplegado ni cortado
 **Alcance:** especificación, implementación y revisión del cuarto componente de RAG Test Studio.
 
 ## Identidad
@@ -10,7 +10,7 @@
 ## Topología
 
 ```text
-Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.1──> GitHub Integration ──> GitHub
+Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.7──> GitHub Integration ──> GitHub
        └──rutas UI autenticadas──────────────────────────────────> GitHub Integration
 GitHub ──webhook firmado──> GitHub Integration ──evento verificado──> RAG Core API
 GitHub Integration ──sesión + hechos allowlisted──> autorización síncrona Core
@@ -19,6 +19,7 @@ GitHub Integration ──sesión + hechos allowlisted──> autorización sínc
 - Core mantiene identidad de dominio, autorización de Projects, persistencia, jobs, RAG y decisiones del pipeline.
 - Console llama a GitHub Integration solo para App info, discovery, verificación GitHub y ramas; consume Core para dominio, persistencia, RAG y análisis.
 - GitHub Integration mantiene App JWTs, installation tokens, API/SDK de GitHub, webhooks y publicación.
+- Para coordinar Checks, GitHub Integration opera con una única instancia activa y mutex efímero por identidad. No hay PostgreSQL técnico adicional, deduplicación entre procesos ni replay durable tras reinicio.
 - Supabase Auth mantiene la identidad de personas. El provider token de discovery es efímero, no se persiste ni registra.
 - Core conserva snapshot ZIP interno, Storage y URLs firmadas que consume Docker/Sandbox. No se reintroducen carga manual de ZIP ni descarga agrupada de artefactos.
 - Sandbox permanece neutral respecto de GitHub, usuarios y dominio.

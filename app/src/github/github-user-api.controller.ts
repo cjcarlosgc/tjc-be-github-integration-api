@@ -50,13 +50,12 @@ export class GithubUserApiController {
   @Header('Cache-Control', 'no-store')
   listBranches(
     @Req() request: UserApiRequest,
-    @Headers('x-github-provider-token') providerToken: string | string[] | undefined,
     @Param('owner') owner: string,
     @Param('repo') repo: string,
     @Query() query: ListUserRepositoryBranchesQueryDto,
   ): Promise<unknown> {
     return this.userApi.listBranches(
-      sessionToken(request), headerValue(providerToken), query.projectId,
+      sessionToken(request), query.projectId,
       `${owner}/${repo}`, correlationId(request),
     );
   }

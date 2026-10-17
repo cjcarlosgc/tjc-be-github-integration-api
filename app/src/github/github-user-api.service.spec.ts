@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Logger } from '@nestjs/common';
+import { GithubIntegrationError } from './errors.js';
 import { GithubUserApiService } from './github-user-api.service.js';
 
 const appInfo = { displayName: 'TJC', slug: 'tjc', configureUrl: 'https://github.com/apps/tjc/installations/new' };
@@ -29,6 +31,51 @@ function setup() {
 }
 
 describe('GithubUserApiService', () => {
+  it('logs OAuth identity failures by safe stage without logging credentials or exception text', async () => {
+    const { service, discovery } = setup();
+    const providerToken = 'provider-secret-do-not-log';
+    discovery.getAuthenticatedUser.mockRejectedValueOnce(new Error(`upstream response contains ${providerToken}`));
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+    try {
+      await expect(service.listRepositories('session-secret', providerToken, projectId, undefined, undefined, 'trace-oauth'))
+        .rejects.toThrow();
+      const entry = String(warn.mock.calls[0]?.[0]);
+      expect(entry).toContain('"stage":"github_identity"');
+      expect(entry).toContain('"correlationId":"trace-oauth"');
+      expect(entry).not.toContain(providerToken);
+      expect(entry).not.toContain('session-secret');
+      expect(entry).not.toContain('upstream response');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('logs Core denials and GitHub listing failures as distinct safe stages', async () => {
+    const { service, discovery, core } = setup();
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+    try {
+      core.decide.mockResolvedValueOnce({ decision: 'DENY' });
+      await expect(service.listRepositories('session', 'provider', projectId, undefined, undefined, 'trace-denied'))
+        .rejects.toMatchObject({ code: 'GITHUB_ACCESS_DENIED' });
+      expect(String(warn.mock.calls[0]?.[0])).toContain('"stage":"core_authorization"');
+
+      discovery.list.mockRejectedValueOnce(new GithubIntegrationError(
+        'GITHUB_UPSTREAM_UNAVAILABLE', 'private upstream details', 503, true,
+      ));
+      await expect(service.listRepositories('session', 'provider', projectId, undefined, undefined, 'trace-list'))
+        .rejects.toMatchObject({ code: 'GITHUB_UPSTREAM_UNAVAILABLE' });
+      const entry = String(warn.mock.calls[1]?.[0]);
+      expect(entry).toContain('"stage":"github_repository_list"');
+      expect(entry).toContain('"errorCode":"GITHUB_UPSTREAM_UNAVAILABLE"');
+      expect(entry).not.toContain('private upstream details');
+      expect(entry).not.toContain(projectId);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('filters discovery to the Core-authorized owner and uses the interoperable default page size', async () => {
     const { service, discovery, core } = setup();
     discovery.list.mockResolvedValueOnce({
@@ -67,9 +114,29 @@ describe('GithubUserApiService', () => {
     const { service, github, core } = setup();
     core.decide.mockResolvedValueOnce({ decision: 'DENY' });
 
-    await expect(service.listBranches('session', 'provider-token', projectId, 'octocat/repo', 'correlation'))
+    await expect(service.listBranches('session', projectId, 'octocat/repo', 'correlation'))
       .rejects.toMatchObject({ code: 'GITHUB_ACCESS_DENIED' });
     expect(github.listBranches).not.toHaveBeenCalled();
+  });
+
+  it('lists branches using Core identity and App-verified facts without an OAuth provider token', async () => {
+    const { service, github, discovery, core } = setup();
+    core.decide
+      .mockResolvedValueOnce({ decision: 'ALLOW', githubUserId: '100', repositoryOwnerId: '7', repositoryOwnerType: 'User' })
+      .mockResolvedValueOnce({ decision: 'ALLOW' });
+
+    await expect(service.listBranches('session', projectId, 'octocat/repo', 'correlation'))
+      .resolves.toEqual({ items: [{ name: 'main', protected: true }] });
+
+    expect(discovery.getAuthenticatedUser).not.toHaveBeenCalled();
+    expect(discovery.getRepositoryFacts).not.toHaveBeenCalled();
+    expect(core.decide).toHaveBeenNthCalledWith(1, 'session', { action: 'LIST_REPOSITORY_BRANCHES', projectId }, 'correlation');
+    expect(core.decide).toHaveBeenNthCalledWith(2, 'session', expect.objectContaining({
+      action: 'LIST_REPOSITORY_BRANCHES', projectId, githubUserId: '100',
+      repositories: [expect.objectContaining({ repositoryId: '42', ownerId: '7', permission: 'write' })],
+    }), 'correlation');
+    expect(core.decide.mock.calls[1][1].repositories[0]).not.toHaveProperty('githubUserId');
+    expect(github.listBranches).toHaveBeenCalledWith('33', 'octocat/repo');
   });
 
   it('does not expose installation IDs when returning verified user-facing access', async () => {
@@ -88,5 +155,23 @@ describe('GithubUserApiService', () => {
     });
     expect(result).not.toHaveProperty('installationId');
     expect(core.decide).toHaveBeenCalledTimes(2);
+    expect(core.decide.mock.calls[1][1].repositories[0]).not.toHaveProperty('githubUserId');
+  });
+
+  it('sends only DTO-allowlisted facts when the GitHub App is not installed', async () => {
+    const { service, github, core } = setup();
+    github.resolveInstallation.mockResolvedValueOnce(null);
+    core.decide
+      .mockResolvedValueOnce({ decision: 'ALLOW', repositoryOwnerId: '7', repositoryOwnerType: 'User' })
+      .mockResolvedValueOnce({ decision: 'ALLOW' });
+
+    await expect(service.verifyRepositoryAccess('session', 'provider-token', {
+      projectId, repositoryId: '42', repositoryName: 'octocat/repo',
+    }, 'correlation')).resolves.toMatchObject({ status: 'NOT_AUTHORIZED' });
+
+    const fact = core.decide.mock.calls[1][1].repositories[0];
+    expect(fact).toMatchObject({ repositoryId: '42', repositoryName: 'octocat/repo', installationActive: false });
+    expect(fact).not.toHaveProperty('githubUserId');
+    expect(fact).not.toHaveProperty('ownerLogin');
   });
 });

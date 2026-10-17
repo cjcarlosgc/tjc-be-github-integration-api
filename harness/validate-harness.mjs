@@ -20,7 +20,7 @@ const assignmentTests = spawnSync(process.execPath, ['--test', path.join(root, '
 if (assignmentTests.status !== 0) failures.push(assignmentTests.stderr.trim() || assignmentTests.stdout.trim() || assignmentTests.error?.message || 'agent assignment tests failed');
 const contractSyncTests = spawnSync(process.execPath, ['--test', path.join(root, 'harness/contract-sync.test.mjs')], { cwd: root, encoding: 'utf8' });
 if (contractSyncTests.status !== 0) failures.push(contractSyncTests.stderr.trim() || contractSyncTests.stdout.trim() || contractSyncTests.error?.message || 'contract sync tests failed');
-const requiredRoles = ['leader.md', 'sdd-analyst.md', 'implementer.md', 'contract-reviewer.md', 'reviewer.md'];
+const requiredRoles = ['leader.md', 'sdd-analyst.md', 'implementer.md', 'contract-reviewer.md', 'human-reviewer.md', 'reviewer.md', 'merge-reviewer.md'];
 const gateValues = new Set(['G-PASSED', 'G-FAILED', 'G-NOT_APPLICABLE', 'G-NOT_RUN']);
 const requiredGates = [
   'sddVerified', 'implementationCompleted', 'independentReviewPassed',
@@ -46,9 +46,26 @@ for (const role of requiredRoles) {
 }
 assert(!fs.existsSync(path.join(root, 'harness/roles/analyst.md')), 'deprecated role analyst.md still exists');
 
+for (const agent of ['leader', 'sdd-analyst', 'implementer', 'implementer-high', 'contract-reviewer', 'reviewer', 'merge-reviewer']) {
+  assert(fs.existsSync(path.join(root, '.claude/agents', `${agent}.md`)), `missing Claude agent profile: ${agent}`);
+}
+const agentProfiles = fs.readFileSync(path.join(root, 'harness/agent-profiles.yaml'), 'utf8');
+for (const modelId of ['claude-sonnet-5-5', 'claude-haiku-5-5', 'gpt-6-luna']) {
+  assert(agentProfiles.includes(modelId), `agent-profiles.yaml missing exactModelId: ${modelId}`);
+}
+
 const state = readJson('harness/state.json');
 const registry = readJson('harness/work-items.json');
 if (state) {
+  if (state.awayMode !== undefined) {
+    const away = state.awayMode;
+    assert(away && typeof away.enabled === 'boolean', 'awayMode.enabled must be boolean');
+    if (away?.enabled === true) {
+      assert(away.activatedBy === 'user', 'awayMode must be activated by user');
+      assert(typeof away.activatedAt === 'string' && away.activatedAt.length > 0, 'awayMode.activatedAt is required');
+      assert(typeof away.quote === 'string' && away.quote.length > 0, 'awayMode.quote is required');
+    }
+  }
   assert(state.schemaVersion === 4, 'state.schemaVersion must be 4');
   assert(state.sddVersion === '3.0', 'GitHub Integration state.sddVersion must be 3.0');
   assert(state.allowedStatuses?.includes('W-DECISION_REQUIRED'), 'W-DECISION_REQUIRED is not allowed');
@@ -78,7 +95,17 @@ if (state) {
     assert(item.execution?.leaderAgent === 'leader', 'execution.leaderAgent must be leader');
     assert(Number.isInteger(item.execution?.reviewCycles) && Number.isInteger(item.execution?.maxReviewCycles), 'review-cycle controls are required');
     assert(item.execution?.reviewCycles <= item.execution?.maxReviewCycles, 'review-cycle limit exceeded');
-    assert(item.execution?.maxReviewCycles === 2, 'review-cycle limit must be two');
+    const reviewException = item.execution?.reviewCycleException;
+    const authorizedThirdCycle = item.execution?.maxReviewCycles === 3
+      && reviewException?.authorizedBy === 'user'
+      && reviewException?.quote === 'esta vez que lo revise el reviewer, si todo okle das en DONE';
+    const authorizedFourthCycle = item.execution?.maxReviewCycles === 4
+      && reviewException?.authorizedBy === 'user'
+      && reviewException?.quote === 'por excepcion haz que lo revise un agente a ver si le da el visto bueno';
+    const authorizedFifthCycle = item.execution?.maxReviewCycles === 5
+      && reviewException?.authorizedBy === 'user'
+      && reviewException?.quote === 'El usuario autoriza explícitamente un quinto ciclo de revisión IA, limitado a WI-GH-012.';
+    assert(item.execution?.maxReviewCycles === 2 || authorizedThirdCycle || authorizedFourthCycle || authorizedFifthCycle, 'review-cycle limit must be two unless the user authorized this exact exception');
     for (const issue of agentAssignmentIssues(item)) assert(false, issue);
     for (const gate of requiredGates) assert(gateValues.has(item.gates?.[gate]), `invalid or missing gate: ${gate}`);
     assert(Array.isArray(item.coordination?.pullCheckpoints), 'coordination.pullCheckpoints must be an array');

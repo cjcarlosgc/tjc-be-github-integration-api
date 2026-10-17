@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 import { GithubApiClient, readJson } from './github-api.client.js';
 import { GithubAppAuthService, repositoryPath } from './github-app-auth.service.js';
-import { GithubApiError, GithubIntegrationError, invalidRequest, upstreamUnavailable } from './errors.js';
+import { checkCoordinationUnavailable, checkCreateRejected, checkIdentityAmbiguous, GithubApiError, GithubIntegrationError, invalidRequest, upstreamUnavailable } from './errors.js';
+import { CheckCoordinationStore, type CheckIdentity, type CheckState } from './check-coordination.store.js';
 import type {
   CompanionPullRequestRequestDto,
   GithubCheckRequestDto,
@@ -43,29 +45,289 @@ const maxProposalBase64Length = 4 * Math.ceil(maxProposalBytes / 3);
 const proposalBlobRequestTimeoutMs = 180_000;
 const pathPattern = /^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))(?!.*(?:^|\/)\.(?:\/|$))(?!.*\/\/)[^\\]+$/;
 const forbiddenBranchCharacters = new Set([' ', '~', '^', ':', '?', '*', '[', '\\']);
+const checkPageSize = 100;
+const maxCheckPages = 1000;
+
+interface GithubCheckRun {
+  id?: unknown;
+  name?: unknown;
+  head_sha?: unknown;
+  app?: { id?: unknown } | null;
+}
+
+interface GithubCheckSuite {
+  id?: unknown;
+  head_sha?: unknown;
+  app?: { id?: unknown } | null;
+}
 
 @Injectable()
 export class GithubPublicationService {
   constructor(
     private readonly api: GithubApiClient,
     private readonly appAuth: GithubAppAuthService,
+    private readonly checkCoordination: CheckCoordinationStore,
   ) {}
 
-  async createCheck(input: GithubCheckRequestDto): Promise<void> {
+  async createCheck(input: GithubCheckRequestDto): Promise<{ checkId: string }> {
     const token = await this.installationToken(input.installationId);
-    const body = {
-      name: input.name,
-      head_sha: input.headSha,
-      status: 'completed',
-      conclusion: input.conclusion,
-      ...(input.detailsUrl ? { details_url: input.detailsUrl } : {}),
-      output: { title: input.title, summary: input.summary },
-    };
-    const response = await this.request(`/repos/${repositoryPath(input.repositoryName)}/check-runs`, token, {
-      method: 'POST',
-      body,
-    });
-    await this.requireSuccess(response);
+    const appId = this.appAuth.getConfiguredAppId();
+    const repository = await this.getRepositoryIdentity(input.repositoryName, token);
+    const identity: CheckIdentity = { repositoryId: repository.id, appId, headSha: input.headSha, name: input.name };
+    const requestHash = checkRequestHash(input);
+    const reservation = await this.checkCoordination.claim(identity, requestHash);
+    let state = reservation.state;
+    let checkId = reservation.checkId;
+
+    if (state === 'CREATE_REJECTED') throw checkCreateRejected();
+
+    // Every request reconciles the complete remote identity while holding the
+    // process-local mutex, including ACTIVE reservations with a saved checkId.
+    let candidates: string[];
+    try {
+      candidates = await this.findCheckCandidates(input, appId, token);
+    } catch {
+      await this.releaseUncertain(identity, reservation.leaseToken, state, requestHash, checkId);
+      throw checkCoordinationUnavailable();
+    }
+    if (candidates.length > 1) {
+      await this.checkCoordination.transition(identity, reservation.leaseToken, 'AMBIGUOUS', requestHash, null);
+      throw checkIdentityAmbiguous();
+    }
+
+    if (state === 'UPDATE_UNKNOWN') {
+      if (candidates.length === 0 || !checkId || !(await this.checkMatches(input, candidates[0]!, token))) {
+        await this.releaseUncertain(identity, reservation.leaseToken, state, requestHash, checkId);
+        throw checkCoordinationUnavailable();
+      }
+      checkId = candidates[0]!;
+      await this.checkCoordination.transition(identity, reservation.leaseToken, 'ACTIVE', requestHash, checkId);
+      return { checkId };
+    }
+
+    if (state === 'CREATE_UNKNOWN' || state === 'RECONCILIATION_REQUIRED' || state === 'RESERVED') {
+      if (candidates.length === 1) {
+        checkId = candidates[0]!;
+        await this.checkCoordination.transition(identity, reservation.leaseToken, 'ACTIVE', requestHash, checkId, false);
+        state = 'ACTIVE';
+      } else if (state === 'CREATE_UNKNOWN' || state === 'RECONCILIATION_REQUIRED') {
+        await this.releaseUncertain(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+        throw checkCoordinationUnavailable();
+      } else {
+        await this.checkCoordination.transition(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null, false);
+        let response: Response;
+        try {
+          response = await this.request(`/repos/${repositoryPath(input.repositoryName)}/check-runs`, token, {
+            method: 'POST', body: checkRunBody(input),
+          });
+        } catch {
+          await this.releaseUncertain(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+          throw checkCoordinationUnavailable();
+        }
+        if (response.status === 422) {
+          let rejectedCandidates: string[];
+          try {
+            rejectedCandidates = await this.findCheckCandidates(input, appId, token);
+          } catch {
+            await this.releaseUncertain(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+            throw checkCoordinationUnavailable();
+          }
+          if (rejectedCandidates.length > 1) {
+            await this.checkCoordination.transition(identity, reservation.leaseToken, 'AMBIGUOUS', requestHash, null);
+            throw checkIdentityAmbiguous();
+          }
+          if (rejectedCandidates.length === 1) {
+            checkId = rejectedCandidates[0]!;
+            try {
+              await this.checkCoordination.transition(identity, reservation.leaseToken, 'ACTIVE', requestHash, checkId, false);
+              state = 'ACTIVE';
+            } catch {
+              await this.releaseUncertain(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, checkId);
+              throw checkCoordinationUnavailable();
+            }
+          } else {
+            try {
+              await this.checkCoordination.transition(identity, reservation.leaseToken, 'CREATE_REJECTED', requestHash, null);
+            } catch {
+              await this.releaseUncertain(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+              throw checkCoordinationUnavailable();
+            }
+            throw checkCreateRejected();
+          }
+        }
+        if (response.status !== 422) {
+          try {
+            const data = await this.requireJson<{ id?: unknown }>(response);
+            checkId = normalizeCheckId(data.id);
+            await this.checkCoordination.transition(identity, reservation.leaseToken, 'ACTIVE', requestHash, checkId);
+            return { checkId };
+          } catch {
+            await this.releaseUncertain(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+            throw checkCoordinationUnavailable();
+          }
+        }
+      }
+    } else if (state === 'ACTIVE') {
+      if (candidates.length === 0) {
+        await this.checkCoordination.transition(identity, reservation.leaseToken, 'RECONCILIATION_REQUIRED', requestHash, checkId);
+        throw checkCoordinationUnavailable();
+      }
+      checkId = candidates[0]!;
+      if (checkId !== reservation.checkId) {
+        await this.checkCoordination.transition(identity, reservation.leaseToken, 'ACTIVE', requestHash, checkId, false);
+      }
+    }
+
+    if (!checkId) throw checkCoordinationUnavailable();
+    await this.checkCoordination.transition(identity, reservation.leaseToken, 'UPDATE_UNKNOWN', requestHash, checkId, false);
+    try {
+      const response = await this.request(`/repos/${repositoryPath(input.repositoryName)}/check-runs/${checkId}`, token, {
+        method: 'PATCH', body: checkRunBody(input),
+      });
+      const data = await this.requireJson<{ id?: unknown }>(response);
+      if (normalizeCheckId(data.id) !== checkId) throw checkCoordinationUnavailable();
+      await this.checkCoordination.transition(identity, reservation.leaseToken, 'ACTIVE', requestHash, checkId);
+      return { checkId };
+    } catch (error) {
+      if (error instanceof GithubIntegrationError && error.code === 'GITHUB_RESOURCE_NOT_FOUND' && error.status === 404) {
+        return this.reconcileMissingCheckId(input, appId, token, identity, reservation.leaseToken, requestHash, checkId);
+      }
+      await this.releaseUncertain(identity, reservation.leaseToken, 'UPDATE_UNKNOWN', requestHash, checkId);
+      throw checkCoordinationUnavailable();
+    }
+  }
+
+  private async reconcileMissingCheckId(
+    input: GithubCheckRequestDto,
+    appId: string,
+    token: string,
+    identity: CheckIdentity,
+    fencingToken: string,
+    requestHash: string,
+    missingCheckId: string,
+  ): Promise<{ checkId: string }> {
+    let candidates: string[];
+    try {
+      candidates = await this.findCheckCandidates(input, appId, token);
+    } catch {
+      await this.releaseUncertain(identity, fencingToken, 'UPDATE_UNKNOWN', requestHash, missingCheckId);
+      throw checkCoordinationUnavailable();
+    }
+
+    if (candidates.length > 1) {
+      await this.checkCoordination.transition(identity, fencingToken, 'AMBIGUOUS', requestHash, null);
+      throw checkIdentityAmbiguous();
+    }
+    if (candidates.length === 0 || candidates[0] === missingCheckId) {
+      await this.checkCoordination.transition(identity, fencingToken, 'RECONCILIATION_REQUIRED', requestHash, missingCheckId);
+      throw checkCoordinationUnavailable();
+    }
+
+    const repairedCheckId = candidates[0]!;
+    await this.checkCoordination.transition(identity, fencingToken, 'ACTIVE', requestHash, repairedCheckId, false);
+    await this.checkCoordination.transition(identity, fencingToken, 'UPDATE_UNKNOWN', requestHash, repairedCheckId, false);
+    try {
+      const response = await this.request(`/repos/${repositoryPath(input.repositoryName)}/check-runs/${repairedCheckId}`, token, {
+        method: 'PATCH', body: checkRunBody(input),
+      });
+      const data = await this.requireJson<{ id?: unknown }>(response);
+      if (normalizeCheckId(data.id) !== repairedCheckId) throw checkCoordinationUnavailable();
+      await this.checkCoordination.transition(identity, fencingToken, 'ACTIVE', requestHash, repairedCheckId);
+      return { checkId: repairedCheckId };
+    } catch (error) {
+      if (error instanceof GithubIntegrationError && error.code === 'GITHUB_RESOURCE_NOT_FOUND' && error.status === 404) {
+        await this.checkCoordination.transition(identity, fencingToken, 'RECONCILIATION_REQUIRED', requestHash, repairedCheckId);
+        throw checkCoordinationUnavailable();
+      }
+      await this.releaseUncertain(identity, fencingToken, 'UPDATE_UNKNOWN', requestHash, repairedCheckId);
+      throw checkCoordinationUnavailable();
+    }
+  }
+
+  private async checkMatches(input: GithubCheckRequestDto, checkId: string, token: string): Promise<boolean> {
+    try {
+      const response = await this.request(`/repos/${repositoryPath(input.repositoryName)}/check-runs/${checkId}`, token);
+      const data = await this.requireJson<{
+        id?: unknown; name?: unknown; head_sha?: unknown; app?: { id?: unknown } | null;
+        status?: unknown; conclusion?: unknown; output?: { title?: unknown; summary?: unknown } | null;
+        details_url?: unknown;
+      }>(response);
+      return normalizeCheckId(data.id) === checkId && data.name === input.name && data.head_sha === input.headSha &&
+        String(data.app?.id) === this.appAuth.getConfiguredAppId() && data.status === 'completed' &&
+        data.conclusion === input.conclusion && data.output?.title === input.title && data.output?.summary === input.summary &&
+        (input.detailsUrl === undefined || data.details_url === input.detailsUrl);
+    } catch {
+      return false;
+    }
+  }
+
+  private async releaseUncertain(identity: CheckIdentity, token: string, state: CheckState, requestHash: string, checkId: string | null): Promise<void> {
+    await this.checkCoordination.transition(identity, token, state, requestHash, checkId).catch(() => undefined);
+  }
+
+  private async getRepositoryIdentity(repositoryName: string, token: string): Promise<{ id: string }> {
+    const response = await this.request(`/repos/${repositoryPath(repositoryName)}`, token);
+    const data = await this.requireJson<{ id?: unknown }>(response);
+    if (!Number.isSafeInteger(data.id) || (data.id as number) <= 0) throw upstreamUnavailable();
+    return { id: String(data.id) };
+  }
+
+  private async findCheckCandidates(input: GithubCheckRequestDto, appId: string, token: string): Promise<string[]> {
+    const basePath = `/repos/${repositoryPath(input.repositoryName)}`;
+    const suitesPath = `${basePath}/commits/${encodeURIComponent(input.headSha)}/check-suites`;
+    const suiteIds: string[] = [];
+    let expectedSuiteCount: number | null = null;
+    let traversedSuiteCount = 0;
+    for (let page = 1; page <= maxCheckPages; page += 1) {
+      const response = await this.request(`${suitesPath}?app_id=${encodeURIComponent(appId)}&per_page=${checkPageSize}&page=${page}`, token);
+      const data = await this.requireJson<{ total_count?: unknown; check_suites?: unknown }>(response);
+      if (!Number.isSafeInteger(data.total_count) || (data.total_count as number) < 0 || !Array.isArray(data.check_suites) || data.check_suites.length > checkPageSize) {
+        throw upstreamUnavailable();
+      }
+      if (expectedSuiteCount === null) expectedSuiteCount = data.total_count as number;
+      else if (expectedSuiteCount !== data.total_count) throw upstreamUnavailable();
+      traversedSuiteCount += data.check_suites.length;
+      for (const raw of data.check_suites as GithubCheckSuite[]) {
+        if (!Number.isSafeInteger(raw?.id) || (raw.id as number) <= 0 || raw.head_sha !== input.headSha || String(raw.app?.id) !== appId) {
+          throw upstreamUnavailable();
+        }
+        suiteIds.push(String(raw.id));
+      }
+      if (data.check_suites.length < checkPageSize) {
+        if (traversedSuiteCount !== expectedSuiteCount) throw upstreamUnavailable();
+        break;
+      }
+      if (page === maxCheckPages) throw upstreamUnavailable();
+    }
+
+    const candidates = new Map<string, true>();
+    for (const suiteId of suiteIds) {
+      const path = `${basePath}/check-suites/${suiteId}/check-runs`;
+      const query = `check_name=${encodeURIComponent(input.name)}&filter=all&per_page=${checkPageSize}`;
+      let expectedCount: number | null = null;
+      let traversedCount = 0;
+      for (let page = 1; page <= maxCheckPages; page += 1) {
+        const response = await this.request(`${path}?${query}&page=${page}`, token);
+        const data = await this.requireJson<{ total_count?: unknown; check_runs?: unknown }>(response);
+        if (!Number.isSafeInteger(data.total_count) || (data.total_count as number) < 0 || !Array.isArray(data.check_runs) || data.check_runs.length > checkPageSize) {
+          throw upstreamUnavailable();
+        }
+        if (expectedCount === null) expectedCount = data.total_count as number;
+        else if (expectedCount !== data.total_count) throw upstreamUnavailable();
+        traversedCount += data.check_runs.length;
+        for (const raw of data.check_runs as GithubCheckRun[]) {
+          const checkId = normalizeCheckId(raw?.id);
+          if (raw.name !== input.name || raw.head_sha !== input.headSha || String(raw.app?.id) !== appId) continue;
+          candidates.set(checkId, true);
+        }
+        if (data.check_runs.length < checkPageSize) {
+          if (traversedCount !== expectedCount) throw upstreamUnavailable();
+          break;
+        }
+        if (page === maxCheckPages) throw upstreamUnavailable();
+      }
+    }
+    return [...candidates.keys()];
   }
 
   async preflight(input: PublicationRequestDto): Promise<PublicationResult> {
@@ -407,6 +669,33 @@ export class GithubPublicationService {
 
 function companionBranchName(pullRequestNumber: number, sourceHeadSha: string): string {
   return `rag-tests/pr-${pullRequestNumber}-${sourceHeadSha.slice(0, 7)}`;
+}
+
+function normalizeCheckId(value: unknown): string {
+  if (!Number.isSafeInteger(value) || (value as number) <= 0) throw upstreamUnavailable();
+  return String(value);
+}
+
+function checkRunBody(input: GithubCheckRequestDto): Record<string, unknown> {
+  return {
+    name: input.name,
+    head_sha: input.headSha,
+    status: 'completed',
+    conclusion: input.conclusion,
+    ...(input.detailsUrl === undefined ? {} : { details_url: input.detailsUrl }),
+    output: { title: input.title, summary: input.summary },
+  };
+}
+
+function checkRequestHash(input: GithubCheckRequestDto): string {
+  const canonical = {
+    status: 'completed',
+    conclusion: input.conclusion,
+    title: input.title,
+    summary: input.summary,
+    ...(input.detailsUrl === undefined ? {} : { detailsUrl: input.detailsUrl }),
+  };
+  return createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
 }
 
 function isSafePath(path: string): boolean {

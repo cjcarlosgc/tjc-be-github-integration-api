@@ -190,21 +190,32 @@
       "id": "WI-GH-006",
       "component": "GH",
       "workItemType": "PRODUCT",
-      "status": "W-IN_PROGRESS",
+      "status": "W-DONE",
       "priority": "P1",
       "sprint": "Post-transition",
       "title": "Añadir API autenticada de GitHub para Console",
-      "storyIds": ["HU01", "HU02", "HU14", "HU16"],
-      "taskIds": ["ST-GH-006", "ST-GH-007"],
+      "storyIds": [
+        "HU01",
+        "HU02",
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-006",
+        "ST-GH-007"
+      ],
       "caseIds": [],
-      "dependsOn": ["WI-GH-001", "WI-GH-005"],
+      "dependsOn": [
+        "WI-GH-001",
+        "WI-GH-005"
+      ],
       "contractImpact": true,
       "publishesContract": true,
       "acceptanceCriteria": [
         "App info, discovery, verify-access y branches se exponen bajo /v1/github/*; ninguna ruta /internal/v1/github/* se reutiliza desde Console.",
         "Cada ruta valida sesión Supabase a través del callback síncrono Core con JWT de usuario y hechos GitHub allowlisted; denegación, timeout o fallo Core cierran el acceso.",
         "Core conserva las decisiones Project/workspace, emite evidencia de binding firmada y breve; el navegador nunca impone installationId ni rol.",
-        "CORS usa allowlist de Console. Provider token es efímero, no se envía a Core, persiste, registra ni retorna.",
+        "CORS usa allowlist de Console. Provider token es efímero, solo se usa en discovery y verificación de repositorio nuevo; no se envía a Core, persiste, registra ni retorna. Branches y verificación informativa de binding existente no aceptan provider token.",
         "El parser ampliado de 136 MB solo cubre proposal-blobs; finalización conserva el parser general de 100 KB.",
         "Pruebas locales cubren auth, CORS, callback, errores, evidence scope, provider-token redaction y parsers; lint, build y validadores SDD/Harness pasan.",
         "Contract Sync GH-INTEROP-1.1 se sincroniza a Core/Console; no se cambia Sandbox ni se realiza deploy/cutover.",
@@ -216,6 +227,432 @@
         "spec/features/006-console-github-api/tasks.md",
         "spec/contracts/github-integration-contract.md"
       ]
+    },
+    {
+      "id": "WI-GH-007",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "Post-transition",
+      "title": "Entregar fecha original del PR para elegibilidad temporal",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-008",
+        "ST-GH-009"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-006"
+      ],
+      "contractImpact": true,
+      "publishesContract": true,
+      "acceptanceCriteria": [
+        "El webhook pull_request siempre incluye pullRequest.createdAt: una fecha inequívoca de pull_request.created_at validada y serializada en ISO-8601 UTC, o null si falta o es inválida; nunca usa receivedAt como sustituto.",
+        "La falta o invalidez aislada de created_at no rechaza un webhook que cumple los demás requisitos.",
+        "pull-request-head devuelve OK con headSha, state y createdAt verificable; ante created_at ausente, inválido o ambiguo devuelve UNVERIFIABLE sin value y conserva la clasificación de los demás errores.",
+        "Las pruebas cubren UTC, offset convertido a UTC, fecha ausente, fecha inválida, fecha sin zona y fecha ambigua, sin filtrar payload raw.",
+        "WI-CORE-014 está cerrado y CS-CORE-20260927-002 fue importado; el espejo canónico GH-INTEROP-1.2 coincide byte por byte y su recepción queda registrada por WI-GH-007 antes de implementar.",
+        "La spec cubre la extensión; publicar Contract Sync namespaced a Core y Console. Lint, test, build y validadores Harness pasan."
+      ],
+      "specPaths": [
+        "spec/README.md",
+        "harness/roles/contract-reviewer.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/constitution/roadmap.md",
+        "spec/features/003-pr-snapshot-reads/spec.md",
+        "spec/features/003-pr-snapshot-reads/plan.md",
+        "spec/features/003-pr-snapshot-reads/tasks.md",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ]
+    },
+    {
+      "id": "WI-GH-008",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "Post-transition",
+      "title": "Homologar estado documental y espejos contractuales de GH",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-010"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-007"
+      ],
+      "contractImpact": true,
+      "publishesContract": false,
+      "acceptanceCriteria": [
+        "La documentación vigente propia de GH refleja WI-GH-007 como W-DONE y mantiene explícito que no hay deploy/cutover.",
+        "AGENTS.md identifica GH-INTEROP-1.2 como la superficie operativa y copia local vigente del contrato de GitHub Integration.",
+        "SYSTEM-2.5 y GH-INTEROP-1.2 permanecen idénticos a sus fuentes canónicas; INTEROP se actualiza byte por byte a la versión canónica de Core una vez importado y resuelto un Contract Sync dirigido a GitHub Integration.",
+        "No se altera semántica contractual, código de producto ni documentación histórica; el usuario revisa independientemente el diff antes de W-DONE."
+      ],
+      "specPaths": [
+        "AGENTS.md",
+        "spec/README.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/constitution/roadmap.md",
+        "spec/features/003-pr-snapshot-reads/spec.md",
+        "spec/features/003-pr-snapshot-reads/tasks.md",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/plan.md",
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "syncScopePaths": [
+        "spec/contracts/interoperability-contract.md"
+      ]
+    },
+    {
+      "id": "WI-GH-009",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "Post-transition",
+      "title": "Diagnosticar fallos en discovery de repositorios",
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-011"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-008"
+      ],
+      "contractImpact": false,
+      "publishesContract": false,
+      "acceptanceCriteria": [
+        "Los fallos en identidad OAuth, autorización Core y listado GitHub quedan diferenciados por etapa en logs de Integration, correlacionados con el X-Correlation-ID de la solicitud.",
+        "Cada log de fallo incluye resultado/categoría segura y duración de etapa; no incluye token, headers, body, nombre/ID de repositorio ni texto/stack de excepciones.",
+        "La respuesta HTTP y las decisiones de autorización no cambian; Core conserva la decisión de dominio y no se modifica ningún contrato.",
+        "Pruebas cubren fallos en cada etapa y verifican que las credenciales y los detalles crudos no aparecen en logs.",
+        "Validadores SDD/Harness, lint, tests y build aplicables pasan antes de presentar el corte a revisión humana."
+      ],
+      "specPaths": [
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "spec/constitution/conventions.md"
+      ]
+    },
+    {
+      "id": "WI-GH-010",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "SMART V3",
+      "title": "Auditar requisitos SMART V3 y sincronizar espejos SYSTEM-2.6/INTEROP-2.7",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-012"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/smart-v3-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "Se importan los eventos Contract Sync de WI-CORE-017 dirigidos a GitHub Integration con `node harness/contract-sync.mjs import --from` el outbox de Core, y el líder, solo con WI-CORE-017 en W-DONE, registra en externalDependencyGate la revisión canónica de Core y los SHA-256 de SYSTEM-2.6 e INTEROP-2.7; el implementer no ejecuta acknowledge, resolve ni copia espejos hasta que eso conste.",
+        "SYSTEM-2.6 e INTEROP-2.7 quedan byte por byte iguales a la fuente canónica de Core y los eventos pasan a C-ACKNOWLEDGED y C-RESOLVED con evidencia; GH-INTEROP-1.2 se verifica sin cambios y su espejo permanece idéntico a Core.",
+        "La matriz se entrega en harness/reports/smart-v3-audit-matrix.md con las columnas Requisito, Estado (YA CUMPLE, PARCIAL o FALTA), Evidencia (archivo:línea de código y de prueba) y Acción, con una fila por viñeta del handoff V3 (Permisos, Source trace, Webhooks, Publication trace, Freshness, Seguridad, Evidencia técnica). Una primera pasada del SDD Analyst marca YA CUMPLE casi todo y PARCIAL: el state del PR no viaja en el webhook, falta una prueba negativa de que el provider token no se registra, y la deduplicación por entrega se delega a Core; el implementer la verifica y corrige. PARCIAL o FALTA solo abre un WI de producto si reduce un hecho que Core necesita.",
+        "No se cambia código de app/ ni se introducen retrieval, RAG, FK, experimentos u otra lógica de dominio; la validación SDD/Harness y el diff check pasan."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "CHANGELOG.md",
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-017"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-010-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "ab5142b46addc0bff2c126cf3e8531f5ed111d5c"
+        },
+        "verifiedAt": "2026-10-08T16:55:00.000Z",
+        "verifiedBy": "leader"
+      }
+    },
+    {
+      "id": "WI-GH-011",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Confirmar la derivación del nivel de permiso de repositorio",
+      "storyIds": [
+        "HU02"
+      ],
+      "taskIds": [
+        "ST-GH-013"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": false,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/smart-v3-scope-approval.md",
+      "acceptanceCriteria": [
+        "El orden de derivación en toPermissionLevel es: 1) role_name conocido; 2) booleanos más específicos (admin > maintain > push > triage > pull); 3) el campo legacy permission (admin, write o read) solo si no hay señal más específica; 4) en otro caso null (UNVERIFIABLE). Nunca se reporta más privilegio que el observado.",
+        "Antes de modificar el tipo se confirma con la documentación de la API REST de GitHub (Context7) la forma real de la respuesta de GET /repos/{owner}/{repo}/collaborators/{username}/permission, porque los booleanos pueden venir anidados en user.permissions; ampliar el tipo interno ApiPermission es un cambio interno y no cambia el DTO RepositoryPermissionLevel.",
+        "Los fixtures de github-access.service.spec.ts cubren: role_name admin, write, triage y read; role_name ausente con permission write sin booleanos; ausente con permission write y maintain true (debe dar maintain); ausente con permission read y triage true (debe dar triage); solo booleanos {pull, triage} y {push, maintain}, y push sin maintain (write); rol personalizado con permission write, read y unknown (este último UNVERIFIABLE); y la lista de repositorios con permissions {pull, triage} y {push, maintain}.",
+        "Si todos los casos ya cumplen, el WI se cierra como YA CUMPLE con la evidencia de las pruebas añadidas y sin cambios en el código de producción; si algún caso reporta menos privilegio del real se corrige toPermissionLevel con pruebas de regresión sin cambiar el contrato.",
+        "Lint, pruebas, build y validadores SDD/Harness pasan antes de la revisión humana."
+      ],
+      "specPaths": [
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/contracts/github-integration-contract.md"
+      ]
+    },
+    {
+      "id": "WI-GH-012",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P0",
+      "sprint": "SMART V3",
+      "title": "Coordinar Checks con mutex efímero de instancia única conforme a GH-INTEROP-1.7",
+      "storyIds": [
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-014"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": true,
+      "scopeApprovalReport": "harness/reports/smart-v3-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "POST /internal/v1/github/checks conserva 200 { checkId } y la identidad exacta (repositoryId, appId, headSha, name); repositorio y App forman parte del scope y name compara bytewise, con sensibilidad a mayúsculas/minúsculas.",
+        "Una única instancia activa serializa create y updates con mutex efímero por identidad; no se habilitan réplicas, workers duplicados ni rolling overlap, y no existe base/URL/migración PostgreSQL de coordinación.",
+        "Conservar en memoria CREATE_UNKNOWN/UPDATE_UNKNOWN y hacer búsqueda completa con candidatos exactos; adoptar solo uno, devolver 409 GITHUB_CHECK_IDENTITY_AMBIGUOUS ante varios y no repetir a ciegas una llamada incierta mientras viva el proceso.",
+        "Un 422 remoto solo se conserva como CREATE_REJECTED tras búsqueda completa cero; la misma huella reproduce 422 GITHUB_CHECK_CREATE_REJECTED, retryable false, sin POST ni detalle crudo durante la vida del proceso. Tras reinicio no existe replay durable.",
+        "Una búsqueda incompleta o una creación/actualización incierta devuelve 503 GITHUB_CHECK_COORDINATION_UNAVAILABLE sin escribir a ciegas; después de reiniciar, una búsqueda completa cero puede crear y acepta el riesgo residual contractual.",
+        "Pruebas de concurrencia intra-proceso, fallos antes/después de las llamadas, replay en memoria y reinicio; retirar configuración, health, dependencia, store y migración exclusivos de PostgreSQL sin tocar Core/Supabase ni infraestructura.",
+        "Los tres espejos SYSTEM-2.8, INTEROP-2.8 y GH-INTEROP-1.7 coinciden byte a byte con Core; CS-CORE-20261011-006 se acusa al iniciar y se resuelve solo con evidencia de implementación."
+      ],
+      "specPaths": [
+        "spec/features/004-checks-publication/spec.md",
+        "spec/features/004-checks-publication/plan.md",
+        "spec/features/004-checks-publication/tasks.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/constitution/tech-stack.md",
+        "spec/constitution/architecture.md",
+        "spec/constitution/project-context.md",
+        "spec/README.md",
+        "CHANGELOG.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-019",
+            "WI-CORE-020",
+            "WI-CORE-026"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-012-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "3f06f44543b5899d98232b757310ce6d481624ea"
+        },
+        "verifiedAt": "2026-10-10T15:00:00.000Z",
+        "verifiedBy": "leader"
+      }
+    },
+    {
+      "id": "WI-GH-013",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Sincronizar espejos SYSTEM-2.12/INTEROP-2.15 y resolver CS-CORE-20261012-006/-008 (Fase 2)",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-015"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/fase2-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "system-contract.md (SYSTEM-2.12) e interoperability-contract.md (INTEROP-2.15) quedan byte por byte iguales a la fuente canónica de Core, verificado con cmp y SHA-256 registrados en externalDependencyGate; github-integration-contract.md (GH-INTEROP-1.7) se verifica con cmp sin cambios.",
+        "AGENTS.md, spec/README.md y cualquier otra referencia documental vigente declaran SYSTEM-2.12, INTEROP-2.15 y GH-INTEROP-1.7; CHANGELOG.md registra el WI y la historia anterior permanece intacta.",
+        "CS-CORE-20261012-006 y CS-CORE-20261012-008 pasan a C-ACKNOWLEDGED y C-RESOLVED con evidencia; ningún otro evento del outbox de Core con destino github-integration queda sin importar; no se emite Contract Sync.",
+        "No se cambia app/, GH-INTEROP ni decisiones PENDING/PROPOSED; si apareciera algo que lo exija, el WI pasa a W-DECISION_REQUIRED sin implementarlo. Validadores SDD/Harness, tests del harness y git diff --check pasan."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/README.md",
+        "CHANGELOG.md",
+        "AGENTS.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-045",
+            "WI-CORE-047"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-013-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "17642e0d554bc0cefad8a0d438eb9c5263f00c0d"
+        },
+        "contractSha256": {
+          "system-contract.md": "d180d4b171d80ed79e3ead1ec67036d34635da9f974288d817b21a797f94f507",
+          "interoperability-contract.md": "1c793c6f2d6cb9e1c647b1ba6815e4634be55b55370be4dbba1a998ef0a8dfd9",
+          "github-integration-contract.md": "584839c91a088918028bbe80cbf209d8d341246bcf3536288cff1ad0b02c1b34"
+        },
+        "verifiedAt": "2026-10-13T12:00:00.000Z",
+        "verifiedBy": "leader"
+      }
+    },
+    {
+      "id": "WI-GH-014",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Re-sincronizar el espejo de interoperability-contract.md a INTEROP-2.16",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-016"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/wi-gh-014-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "interoperability-contract.md (INTEROP-2.16) queda byte por byte igual a la fuente canónica de Core, verificado con cmp y SHA-256 registrados en externalDependencyGate; system-contract.md (SYSTEM-2.12) y github-integration-contract.md (GH-INTEROP-1.7) se verifican con cmp sin cambios.",
+        "AGENTS.md y spec/README.md declaran SYSTEM-2.12, INTEROP-2.16 y GH-INTEROP-1.7; CHANGELOG.md registra el WI en una entrada nueva y la historia anterior permanece intacta.",
+        "El outbox de Core no tiene eventos nuevos con destino github-integration sin importar; CS-CORE-20261014-001 (destino console) no se importa ni se acusa; no se emite Contract Sync.",
+        "No se cambia app/, GH-INTEROP ni decisiones PENDING/PROPOSED; si apareciera algo que lo exija, el WI pasa a W-DECISION_REQUIRED sin implementarlo. Validadores SDD/Harness, tests del harness y git diff --check pasan."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/README.md",
+        "CHANGELOG.md",
+        "AGENTS.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-062"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-014-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "bfbaa04ae4f9caafb4f26d55ab12849bb389451f"
+        },
+        "contractSha256": {
+          "system-contract.md": "d180d4b171d80ed79e3ead1ec67036d34635da9f974288d817b21a797f94f507",
+          "interoperability-contract.md": "411bd54955ddfea2fa8e058dc59bfc81b5a2ae03e9b8ee5dd9e72f529e0db789",
+          "github-integration-contract.md": "584839c91a088918028bbe80cbf209d8d341246bcf3536288cff1ad0b02c1b34"
+        },
+        "verifiedAt": "2026-10-14T12:00:00.000Z",
+        "verifiedBy": "leader"
+      }
     }
   ]
 }

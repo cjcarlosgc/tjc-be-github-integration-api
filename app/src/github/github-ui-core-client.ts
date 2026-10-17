@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { coreAuthorizationUnavailable, GithubIntegrationError, type PublicGithubErrorCode } from './errors.js';
 
@@ -43,6 +43,8 @@ export interface GithubUiAuthorizationDecision {
 
 @Injectable()
 export class GithubUiCoreClient {
+  private readonly logger = new Logger(GithubUiCoreClient.name);
+
   constructor(
     private readonly config: ConfigService,
     @Inject(GITHUB_UI_CORE_FETCH) private readonly fetcher: typeof fetch,
@@ -53,9 +55,13 @@ export class GithubUiCoreClient {
     body: GithubUiAuthorizationRequest,
     correlationId: string,
   ): Promise<GithubUiAuthorizationDecision> {
+    const startedAt = performance.now();
     const baseUrl = this.config.get<string>('CORE_API_BASE_URL');
     const serviceToken = this.config.get<string>('GITHUB_INTEGRATION_TO_CORE_TOKEN');
-    if (!baseUrl || !serviceToken || !sessionToken) throw coreAuthorizationUnavailable();
+    if (!baseUrl || !serviceToken || !sessionToken) {
+      this.logFailure(correlationId, body.action, 'configuration_missing', startedAt);
+      throw coreAuthorizationUnavailable();
+    }
 
     try {
       const response = await this.fetcher(new URL(AUTHORIZATION_PATH, baseUrl), {
@@ -74,17 +80,65 @@ export class GithubUiCoreClient {
 
       if (response.status !== 200) {
         const errorBody = await response.json().catch(() => null) as { code?: unknown } | null;
+        const coreCode = knownCoreErrorCode(response.status, errorBody?.code);
+        this.logFailure(correlationId, body.action, 'http_response', startedAt, {
+          httpStatus: response.status,
+          coreCode: coreCode ?? 'UNRECOGNIZED',
+        });
         throw mapCoreError(response.status, errorBody?.code);
       }
 
-      const value: unknown = await response.json();
-      if (!isDecision(value)) throw coreAuthorizationUnavailable();
+      let value: unknown;
+      try {
+        value = await response.json();
+      } catch {
+        this.logFailure(correlationId, body.action, 'malformed_response', startedAt, { httpStatus: response.status });
+        throw coreAuthorizationUnavailable();
+      }
+      if (!isDecision(value)) {
+        this.logFailure(correlationId, body.action, 'malformed_response', startedAt, { httpStatus: response.status });
+        throw coreAuthorizationUnavailable();
+      }
       return value;
     } catch (error) {
       if (error instanceof GithubIntegrationError) throw error;
+      const reason = error instanceof Error && error.name === 'TimeoutError'
+        ? 'timeout'
+        : error instanceof Error && error.name === 'TypeError' ? 'network_error' : 'unexpected_failure';
+      this.logFailure(correlationId, body.action, reason, startedAt);
       throw coreAuthorizationUnavailable();
     }
   }
+
+  private logFailure(
+    correlationId: string,
+    action: GithubUiAction,
+    reason: string,
+    startedAt: number,
+    details: { httpStatus?: number; coreCode?: string } = {},
+  ): void {
+    this.logger.warn(JSON.stringify({
+      event: 'github_ui_core_authorization_failed',
+      correlationId,
+      action,
+      reason,
+      durationMs: Math.round(performance.now() - startedAt),
+      ...details,
+    }));
+  }
+}
+
+function knownCoreErrorCode(status: number, rawCode: unknown): string | null {
+  if (typeof rawCode !== 'string') return null;
+  const allowed = new Map<string, number>([
+    ['AUTH_REQUIRED', 401],
+    ['INVALID_ACCESS_TOKEN', 401],
+    ['GITHUB_IDENTITY_REQUIRED', 401],
+    ['IDENTITY_UNAVAILABLE', 503],
+    ['PROJECT_NOT_FOUND', 404],
+    ['PROJECT_ROLE_INSUFFICIENT', 403],
+  ]);
+  return allowed.get(rawCode) === status ? rawCode : null;
 }
 
 function mapCoreError(status: number, rawCode: unknown): GithubIntegrationError {

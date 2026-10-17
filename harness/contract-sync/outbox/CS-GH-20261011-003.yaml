@@ -1,0 +1,13 @@
+type: CONTRACT_SYNC
+id: CS-GH-20261011-003
+source: github-integration
+sourceWorkItem: WI-GH-012
+targets: [core]
+scopePaths: [spec/contracts/github-integration-contract.md]
+breaking: false
+changed:
+  - Corrects immutable provenance for CS-GH-20261011-002 without changing the GH-INTEROP contract or product behavior.
+requiredAction:
+  - Core must import and record this provenance correction, preserving CS-GH-20261011-002 unchanged; no contract, deployment, or cutover action is authorized.
+sourceRevision: e9de71dd51c15b84d004b7f4ebb84f49213604c7
+status: C-PENDING

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GithubApiClient, readJson } from './github-api.client.js';
+import { normalizeGithubTimestamp } from './github-date-time.js';
 import { GithubApiError } from './errors.js';
 import { GithubAppAuthService, repositoryPath } from './github-app-auth.service.js';
 import type { GithubLookup } from './github-access.service.js';
@@ -17,6 +18,7 @@ export interface CompareFile {
 export interface PullRequestHead {
   headSha: string;
   state: 'open' | 'closed';
+  createdAt: string;
 }
 
 interface InstallationToken {
@@ -129,7 +131,9 @@ export class GithubRepositoryContentService {
       (result.value.state !== 'open' && result.value.state !== 'closed')) {
       return { status: 'UNVERIFIABLE' };
     }
-    return { status: 'OK', value: { headSha: result.value.head.sha, state: result.value.state } };
+    const createdAt = normalizeGithubTimestamp(result.value.created_at);
+    if (createdAt === null) return { status: 'UNVERIFIABLE' };
+    return { status: 'OK', value: { headSha: result.value.head.sha, state: result.value.state, createdAt } };
   }
 
   private async getInstallationToken(installationId: string): Promise<TokenLookup> {

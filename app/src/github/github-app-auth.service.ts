@@ -43,10 +43,16 @@ export class GithubAppAuthService {
     private readonly api: GithubApiClient,
   ) {}
 
-  async signAppJwt(): Promise<string> {
+  getConfiguredAppId(): string {
     const appId = this.config.get<string>('GITHUB_APP_ID');
+    if (!appId) throw appConfigurationUnavailable();
+    return appId;
+  }
+
+  async signAppJwt(): Promise<string> {
+    const appId = this.getConfiguredAppId();
     const keyBase64 = this.config.get<string>('GITHUB_APP_PRIVATE_KEY_BASE64');
-    if (!appId || !keyBase64) throw appConfigurationUnavailable();
+    if (!keyBase64) throw appConfigurationUnavailable();
 
     try {
       const pem = Buffer.from(keyBase64, 'base64').toString('utf8');

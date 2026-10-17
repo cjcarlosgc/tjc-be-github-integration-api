@@ -517,6 +517,142 @@
         "verifiedAt": "2026-10-10T15:00:00.000Z",
         "verifiedBy": "leader"
       }
+    },
+    {
+      "id": "WI-GH-013",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Sincronizar espejos SYSTEM-2.12/INTEROP-2.15 y resolver CS-CORE-20261012-006/-008 (Fase 2)",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-015"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/fase2-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "system-contract.md (SYSTEM-2.12) e interoperability-contract.md (INTEROP-2.15) quedan byte por byte iguales a la fuente canónica de Core, verificado con cmp y SHA-256 registrados en externalDependencyGate; github-integration-contract.md (GH-INTEROP-1.7) se verifica con cmp sin cambios.",
+        "AGENTS.md, spec/README.md y cualquier otra referencia documental vigente declaran SYSTEM-2.12, INTEROP-2.15 y GH-INTEROP-1.7; CHANGELOG.md registra el WI y la historia anterior permanece intacta.",
+        "CS-CORE-20261012-006 y CS-CORE-20261012-008 pasan a C-ACKNOWLEDGED y C-RESOLVED con evidencia; ningún otro evento del outbox de Core con destino github-integration queda sin importar; no se emite Contract Sync.",
+        "No se cambia app/, GH-INTEROP ni decisiones PENDING/PROPOSED; si apareciera algo que lo exija, el WI pasa a W-DECISION_REQUIRED sin implementarlo. Validadores SDD/Harness, tests del harness y git diff --check pasan."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/README.md",
+        "CHANGELOG.md",
+        "AGENTS.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-045",
+            "WI-CORE-047"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-013-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "17642e0d554bc0cefad8a0d438eb9c5263f00c0d"
+        },
+        "contractSha256": {
+          "system-contract.md": "d180d4b171d80ed79e3ead1ec67036d34635da9f974288d817b21a797f94f507",
+          "interoperability-contract.md": "1c793c6f2d6cb9e1c647b1ba6815e4634be55b55370be4dbba1a998ef0a8dfd9",
+          "github-integration-contract.md": "584839c91a088918028bbe80cbf209d8d341246bcf3536288cff1ad0b02c1b34"
+        },
+        "verifiedAt": "2026-10-13T12:00:00.000Z",
+        "verifiedBy": "leader"
+      }
+    },
+    {
+      "id": "WI-GH-014",
+      "component": "GH",
+      "workItemType": "HARNESS",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Re-sincronizar el espejo de interoperability-contract.md a INTEROP-2.16",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-016"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "scopeApprovalReport": "harness/reports/wi-gh-014-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/interoperability-contract.md"
+      ],
+      "acceptanceCriteria": [
+        "interoperability-contract.md (INTEROP-2.16) queda byte por byte igual a la fuente canónica de Core, verificado con cmp y SHA-256 registrados en externalDependencyGate; system-contract.md (SYSTEM-2.12) y github-integration-contract.md (GH-INTEROP-1.7) se verifican con cmp sin cambios.",
+        "AGENTS.md y spec/README.md declaran SYSTEM-2.12, INTEROP-2.16 y GH-INTEROP-1.7; CHANGELOG.md registra el WI en una entrada nueva y la historia anterior permanece intacta.",
+        "El outbox de Core no tiene eventos nuevos con destino github-integration sin importar; CS-CORE-20261014-001 (destino console) no se importa ni se acusa; no se emite Contract Sync.",
+        "No se cambia app/, GH-INTEROP ni decisiones PENDING/PROPOSED; si apareciera algo que lo exija, el WI pasa a W-DECISION_REQUIRED sin implementarlo. Validadores SDD/Harness, tests del harness y git diff --check pasan."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/README.md",
+        "CHANGELOG.md",
+        "AGENTS.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-062"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-014-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "bfbaa04ae4f9caafb4f26d55ab12849bb389451f"
+        },
+        "contractSha256": {
+          "system-contract.md": "d180d4b171d80ed79e3ead1ec67036d34635da9f974288d817b21a797f94f507",
+          "interoperability-contract.md": "411bd54955ddfea2fa8e058dc59bfc81b5a2ae03e9b8ee5dd9e72f529e0db789",
+          "github-integration-contract.md": "584839c91a088918028bbe80cbf209d8d341246bcf3536288cff1ad0b02c1b34"
+        },
+        "verifiedAt": "2026-10-14T12:00:00.000Z",
+        "verifiedBy": "leader"
+      }
     }
   ]
 }

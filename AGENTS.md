@@ -16,7 +16,7 @@ Este repositorio aplica Specification-Driven Development (SDD) 3.0 y Harness V3.
 - La rama base es `develop`; la rama de trabajo solicitada, `feature/jean`, parte de `develop`. El commit semilla local de SDD/Harness en `develop` es la base del repositorio nuevo; el código de producto se implementa en `feature/jean`. No hacer push sin solicitud explícita.
 - No inventar como cerrada una decisión marcada `PENDING` o `PROPOSED`. Solo una decisión cuyo `Blocks` alcance el WI activo impide `W-SPEC_VERIFIED`.
 - Registrar en `harness/state.json` los IDs de decisión aplicables; no duplicar allí su contenido.
-- Las copias locales de `SYSTEM-*`, `INTEROP-*` y `GH-INTEROP-*` espejan byte por byte los contratos canónicos de Core. Actualmente rigen `SYSTEM-2.8`, `INTEROP-2.8` y `GH-INTEROP-1.7`; tras una revisión o cambio de la fuente canónica, sincronizarlas antes de continuar con WIs afectados. El cutover sigue pendiente.
+- Las copias locales de `SYSTEM-*`, `INTEROP-*` y `GH-INTEROP-*` espejan byte por byte los contratos canónicos de Core. Actualmente rigen `SYSTEM-2.12`, `INTEROP-2.16` y `GH-INTEROP-1.7`; tras una revisión o cambio de la fuente canónica, sincronizarlas antes de continuar con WIs afectados. El cutover sigue pendiente.
 - Mantener `storyIds`, `taskIds`, `component` y `sprint` en el WI activo; cada subtarea nueva de `tasks.md` enlaza un WI local.
 - Implementar cortes coherentes. Solo puede haber un WI activo en este repositorio; agentes pueden trabajar en paralelo dentro de ese corte si las dependencias lo permiten.
 - Cada commit debe ser coherente y declarar en el cuerpo `Refs: HU...` con todas las historias afectadas.

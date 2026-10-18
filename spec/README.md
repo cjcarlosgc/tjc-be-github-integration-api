@@ -10,7 +10,7 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.13`, `INTEROP-2.17` y `GH-INTEROP-1.8` son copias espejo byte por byte de las fuentes canónicas de Core, junto con los esquemas JSON de `spec/contracts/schemas/`. Los espejos previos se sincronizaron con `WI-GH-013` y `WI-GH-014`; la homologación a SYSTEM-2.13 / INTEROP-2.17 / GH-INTEROP-1.8 (editorial y aditiva) se hizo desde la sesión cross el 2026-10-18.
+- `SYSTEM-2.13`, `INTEROP-2.17` y `GH-INTEROP-1.8` son copias espejo byte por byte de las fuentes canónicas de Core, junto con los esquemas JSON de `spec/contracts/schemas/`. Los espejos previos se sincronizaron con `WI-GH-013` y `WI-GH-014`; la homologación a SYSTEM-2.13 / INTEROP-2.17 / GH-INTEROP-1.8 (editorial y aditiva) se hizo desde la sesión cross el 2026-10-18 y se regularizó con `WI-GH-015`, que además re-espejó `interoperability-contract.md` byte a byte desde Core `67519a2`.
 - Core es dueño canónico de `GH-INTEROP-1.8`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 

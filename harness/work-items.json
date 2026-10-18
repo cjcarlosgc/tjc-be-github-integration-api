@@ -653,6 +653,76 @@
         "verifiedAt": "2026-10-14T12:00:00.000Z",
         "verifiedBy": "leader"
       }
+    },
+    {
+      "id": "WI-GH-015",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "SMART V3",
+      "title": "Regularizar retroactivamente el trabajo de cross y re-espejar INTEROP-2.17",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-017"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "lane": "STANDARD",
+      "scopeApprovalReport": "harness/reports/wi-gh-015-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas"
+      ],
+      "acceptanceCriteria": [
+        "El trabajo retroactivo de e6beb06, b457533, ffc890b y a3ebecf queda documentado con un reporte que declara que fue retroactivo, que cross fue implementationAgent y que lo revisan un reviewer independiente y un contract-reviewer.",
+        "CS-CORE-20261018-001 se importa y se acusa/resuelve con evidencia; interoperability-contract.md queda byte por byte igual a Core 67519a2 (sha256 b9ed40dc...) y system-contract.md, github-integration-contract.md y spec/contracts/schemas siguen coincidiendo con Core.",
+        "contracts:check, lint, test y build pasan; sdd-check, validate-work-items, validate-harness y validate-completions pasan.",
+        "No se amplía el error envelope (INTEROP-2.18), no hay tiempo real, no hay push, PR, merge ni cambios externos."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-069"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-015-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "67519a20a5e061bd81a880fe539693c9a364bba3"
+        },
+        "contractSha256": {
+          "system-contract.md": "b70f9358fabdaa6d8ac61d07e25258ec5256f9dacd31049edb4f08e6879a0444",
+          "interoperability-contract.md": "b9ed40dc8d15a414b7cca4ccee4f320ba9da8f7444ef426b8321d17bdc0dea05",
+          "github-integration-contract.md": "6c553ee856d0c53420a75d2bde5a9eb04cce2e029ffae1bf4194dcbc7a25565a"
+        },
+        "verifiedAt": "2026-10-18T23:50:00.000Z",
+        "verifiedBy": "leader"
+      }
     }
   ]
 }

@@ -1,5 +1,7 @@
 # Changelog
 
+- **WI-GH-015 (2026-10-18, regularización retroactiva):** el trabajo ejecutado desde cross (`e6beb06`, `b457533`, `ffc890b`, `a3ebecf`) queda cubierto por un WI propio con revisión independiente (ver `harness/reports/wi-gh-015-retroactive-implementation.md`). Se importó `CS-CORE-20261018-001` y `interoperability-contract.md` se re-espejó byte a byte desde Core `67519a2` (INTEROP-2.17): la copia previa, con cabecera 2.17, difería de Core en dos líneas editoriales (`4bab54e8…` frente a `b9ed40dc…`). Sin cambios en `app/`.
+
 - **Estabilización (2026-10-18, decisión del usuario, ejecutado desde cross):** los 4xx no previstos responden `INVALID_REQUEST` no reintentable (antes un 503 reintentable); el store de coordinación de Checks descarta entradas `ACTIVE` ociosas; red de seguridad de proceso; `engines`, `.nvmrc`, Prettier y CI. Ver `harness/reports/cross-fase3-estabilidad-2026-10-18.md`.
 
 - **GH-INTEROP-1.8 / INTEROP-2.17 — error envelope unificado (2026-10-18, decisión del usuario, ejecutado desde cross):** los errores internos usan el `ErrorEnvelope` completo (`statusCode`, `code`, `message`, `details`, `correlationId`, `timestamp`, `path` sin query string, `retryable`) en el filtro y en los parsers de body; tipos generados desde `spec/contracts/schemas` y tests de contrato. Aditivo para Core y Console. Ver `harness/reports/cross-fase2-esquemas-contratos-2026-10-18.md`.

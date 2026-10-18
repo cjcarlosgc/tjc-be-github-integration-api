@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { Response } from 'express';
+import { buildErrorEnvelope } from '../error-envelope.js';
 import { GithubIntegrationError, upstreamUnavailable } from './errors.js';
 import type { CorrelatedRequest } from '../correlation-id.middleware.js';
 
@@ -30,11 +31,15 @@ export class InternalErrorFilter implements ExceptionFilter {
       error = upstreamUnavailable();
     }
 
-    response.status(error.status).json({
-      code: error.code,
-      message: error.message,
-      retryable: error.retryable,
-      correlationId,
-    });
+    response.status(error.status).json(
+      buildErrorEnvelope({
+        status: error.status,
+        code: error.code,
+        message: error.message,
+        retryable: error.retryable,
+        correlationId,
+        originalUrl: request.originalUrl,
+      }),
+    );
   }
 }

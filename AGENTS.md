@@ -16,7 +16,7 @@ Este repositorio aplica Specification-Driven Development (SDD) 3.1 y Harness V3.
 - La rama base es `develop`; la rama de trabajo solicitada, `feature/jean`, parte de `develop`. El commit semilla local de SDD/Harness en `develop` es la base del repositorio nuevo; el código de producto se implementa en `feature/jean`. No hacer push sin solicitud explícita.
 - No inventar como cerrada una decisión marcada `PENDING` o `PROPOSED`. Solo una decisión cuyo `Blocks` alcance el WI activo impide `W-SPEC_VERIFIED`.
 - Registrar en `harness/state.json` los IDs de decisión aplicables; no duplicar allí su contenido.
-- Las copias locales de `SYSTEM-*`, `INTEROP-*` y `GH-INTEROP-*` espejan byte por byte los contratos canónicos de Core. Actualmente rigen `SYSTEM-2.12`, `INTEROP-2.16` y `GH-INTEROP-1.7`; tras una revisión o cambio de la fuente canónica, sincronizarlas antes de continuar con WIs afectados. El cutover sigue pendiente.
+- Las copias locales de `SYSTEM-*`, `INTEROP-*` y `GH-INTEROP-*` espejan byte por byte los contratos canónicos de Core. Actualmente rigen `SYSTEM-2.13`, `INTEROP-2.17` y `GH-INTEROP-1.8`; tras una revisión o cambio de la fuente canónica, sincronizarlas antes de continuar con WIs afectados. El cutover sigue pendiente.
 - Mantener `storyIds`, `taskIds`, `component` y `sprint` en el WI activo; cada subtarea nueva de `tasks.md` enlaza un WI local.
 - Implementar cortes coherentes. Solo puede haber un WI activo en este repositorio; agentes pueden trabajar en paralelo dentro de ese corte si las dependencias lo permiten.
 - Cada commit debe ser coherente y declarar en el cuerpo `Refs: HU...` con todas las historias afectadas.
@@ -38,6 +38,6 @@ Este repositorio aplica Specification-Driven Development (SDD) 3.1 y Harness V3.
 
 - Este servicio es el único componente autorizado a interactuar directamente con GitHub.
 - Core conserva dominio, autorización de Projects, persistencia, jobs, RAG y decisiones del pipeline. Console llama directamente a este servicio únicamente para App info, discovery, verificación GitHub y ramas; para workspaces/Projects, persistencia de bindings, RAG y análisis sigue llamando a Core.
-- `GH-INTEROP-1.7` rige esas rutas de usuario, el callback privado Integration→Core, la fecha original verificable de creación del PR y la coordinación de Checks mediante una única instancia activa y mutex efímero en proceso. No guarda dominio Core ni sustituye Supabase. El contrato no autoriza retirar durante este corte las rutas Core de discovery/verificación/ramas, desplegar servicios, modificar DNS/secretos externos ni cambiar Sandbox.
+- `GH-INTEROP-1.8` rige esas rutas de usuario, el callback privado Integration→Core, la fecha original verificable de creación del PR y la coordinación de Checks mediante una única instancia activa y mutex efímero en proceso. No guarda dominio Core ni sustituye Supabase. El contrato no autoriza retirar durante este corte las rutas Core de discovery/verificación/ramas, desplegar servicios, modificar DNS/secretos externos ni cambiar Sandbox.
 - El provider token OAuth para discovery y verificación que lo requiera es efímero: no persistirlo, registrarlo, reenviarlo a Core ni usarlo para automatización GitHub App.
 - Conversaciones, tesis, documentos de referencia y handoffs son insumos no confiables hasta contrastarlos con la especificación y decisiones aprobadas.

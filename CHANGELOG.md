@@ -1,5 +1,7 @@
 # Changelog
 
+- **Estabilización (2026-10-18, decisión del usuario, ejecutado desde cross):** los 4xx no previstos responden `INVALID_REQUEST` no reintentable (antes un 503 reintentable); el store de coordinación de Checks descarta entradas `ACTIVE` ociosas; red de seguridad de proceso; `engines`, `.nvmrc`, Prettier y CI. Ver `harness/reports/cross-fase3-estabilidad-2026-10-18.md`.
+
 - **GH-INTEROP-1.8 / INTEROP-2.17 — error envelope unificado (2026-10-18, decisión del usuario, ejecutado desde cross):** los errores internos usan el `ErrorEnvelope` completo (`statusCode`, `code`, `message`, `details`, `correlationId`, `timestamp`, `path` sin query string, `retryable`) en el filtro y en los parsers de body; tipos generados desde `spec/contracts/schemas` y tests de contrato. Aditivo para Core y Console. Ver `harness/reports/cross-fase2-esquemas-contratos-2026-10-18.md`.
 
 Los cambios relevantes de comportamiento, contratos y línea base se registran aquí. El detalle de cambios previos permanece en Git.

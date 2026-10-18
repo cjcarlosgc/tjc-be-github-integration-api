@@ -25,6 +25,11 @@ export class InternalErrorFilter implements ExceptionFilter {
       error = new GithubIntegrationError('SERVICE_UNAUTHORIZED', 'A valid service bearer is required.', 401, false);
     } else if (exception instanceof HttpException && exception.getStatus() === 404) {
       error = new GithubIntegrationError('GITHUB_RESOURCE_NOT_FOUND', 'The requested resource was not found.', 404, false);
+    } else if (exception instanceof HttpException && exception.getStatus() === 413) {
+      error = new GithubIntegrationError('INVALID_REQUEST', 'The request is invalid.', 413, false);
+    } else if (exception instanceof HttpException && exception.getStatus() >= 400 && exception.getStatus() < 500) {
+      // Un 4xx del framework (405, 406, 415...) es un error del cliente: no es una falla de GitHub ni se debe reintentar.
+      error = new GithubIntegrationError('INVALID_REQUEST', 'The request is invalid.', 400, false);
     } else {
       // Never log exception text, stack, request headers or upstream bodies.
       this.logger.warn(`Unhandled internal request failure (correlationId=${correlationId}).`);

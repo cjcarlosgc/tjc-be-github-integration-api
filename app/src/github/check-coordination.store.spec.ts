@@ -57,3 +57,45 @@ describe('CheckCoordinationStore process-local mutex', () => {
     await store.transition(identity, current.leaseToken, 'ACTIVE', requestHash, '42');
   });
 });
+
+describe('CheckCoordinationStore: expulsión de entradas ociosas', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  it('descarta una entrada ACTIVE ociosa pasado el TTL y conserva la reciente', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const old = await store.claim(identity, requestHash);
+    await store.transition(identity, old.leaseToken, 'ACTIVE', requestHash, '1');
+    clock += DAY + 1;
+    const recentIdentity = { ...identity, headSha: 'c'.repeat(40) };
+    const recent = await store.claim(recentIdentity, requestHash);
+    await store.transition(recentIdentity, recent.leaseToken, 'ACTIVE', requestHash, '2');
+
+    expect(store.evictIdleActive()).toBe(1);
+    expect(store.size).toBe(1);
+  });
+
+  it('nunca descarta estados de incertidumbre: protegen contra duplicados', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const reservation = await store.claim(identity, requestHash);
+    await store.transition(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+    clock += 10 * DAY;
+
+    expect(store.evictIdleActive()).toBe(0);
+    expect(store.size).toBe(1);
+  });
+
+  it('no descarta una entrada bloqueada aunque sea vieja', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const held = await store.claim(identity, requestHash);
+    await store.transition(identity, held.leaseToken, 'ACTIVE', requestHash, '1', false);
+    clock += 10 * DAY;
+
+    expect(store.evictIdleActive()).toBe(0);
+  });
+});

@@ -1,4 +1,4 @@
-import { ArgumentsHost, BadRequestException, ForbiddenException, Module } from '@nestjs/common';
+import { ArgumentsHost, BadRequestException, ForbiddenException, HttpException, Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -35,6 +35,17 @@ describe('InternalErrorFilter cumple el ErrorEnvelope canónico', () => {
     expect(check.errors).toEqual([]);
     expect(status).toBe(expectedStatus);
     expect(body).toMatchObject({ statusCode: expectedStatus, retryable, correlationId: 'corr-gh', details: null });
+  });
+
+  it.each([
+    ['405 del framework', new HttpException('Method Not Allowed', 405), 400],
+    ['415 del framework', new HttpException('Unsupported Media Type', 415), 400],
+    ['413 payload demasiado grande', new HttpException('Payload Too Large', 413), 413],
+  ])('un 4xx no previsto (%s) es un error del cliente no reintentable, no una falla de GitHub', (_name, exception, expectedStatus) => {
+    const { status, body } = runFilter(exception);
+    expect(status).toBe(expectedStatus);
+    expect(body).toMatchObject({ code: 'INVALID_REQUEST', retryable: false });
+    expect(envelope(body).errors).toEqual([]);
   });
 
   it('emite solo la ruta, sin query string, y nunca el texto del error original', () => {

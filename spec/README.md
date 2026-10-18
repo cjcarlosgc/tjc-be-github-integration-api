@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.12 / INTEROP-2.16 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión `bfbaa04ae4f9caafb4f26d55ab12849bb389451f` (WI-GH-014; INTEROP-2.16 introducida en `7f24c169c7d774a2f22a5c74d1869a78d69ab53b`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
+**Espejos locales de GH:** SDD 3.1 / SYSTEM-2.12 / INTEROP-2.16 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión `bfbaa04ae4f9caafb4f26d55ab12849bb389451f` (WI-GH-014; INTEROP-2.16 introducida en `7f24c169c7d774a2f22a5c74d1869a78d69ab53b`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
 
 ## Orden de lectura
 

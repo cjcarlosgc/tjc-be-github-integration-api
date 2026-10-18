@@ -15,8 +15,8 @@ Modelo: leader · configurado claude-sonnet-5-5 · atendido unknown · esfuerzo 
 ## Precondiciones
 1. **Calentar Core e Integration** (plan Free, se duermen a los ~15 min; GitHub espera 10 s sin reintento):
    `curl -s -o /dev/null -w '%{http_code}\n' https://tjc-be-rag-core-api.onrender.com/health` y lo mismo con `tjc-be-github-integration-api`.
-2. Core en Render con: `SANDBOX_URL=https://136-115-2-208.sslip.io`, `SANDBOX_SERVICE_TOKEN` (igual al de la VM; huella sha256 corta `baa55dd8`), `LLM_SUPPORTED_COMBINATIONS`, `GITHUB_INTEGRATION_API_BASE_URL`, tokens GH↔Core iguales a los de Integration, `CORE_API_BASE_URL` de Integration apuntando al Core de Render. Tras cambiar una variable usar «Save, rebuild and deploy» (no «Save only»).
-3. VM: `curl -s -o /dev/null -w '%{http_code}' -X POST https://136-115-2-208.sslip.io/executions` debe dar `401`.
+2. Core en Render con: `SANDBOX_URL=https://<SANDBOX_HOST>.sslip.io`, `SANDBOX_SERVICE_TOKEN` (igual al de la VM; huella sha256 corta `baa55dd8`), `LLM_SUPPORTED_COMBINATIONS`, `GITHUB_INTEGRATION_API_BASE_URL`, tokens GH↔Core iguales a los de Integration, `CORE_API_BASE_URL` de Integration apuntando al Core de Render. Tras cambiar una variable usar «Save, rebuild and deploy» (no «Save only»).
+3. VM: `curl -s -o /dev/null -w '%{http_code}' -X POST https://<SANDBOX_HOST>.sslip.io/executions` debe dar `401`.
 4. Project `PilotoDeVentas` ENABLED con binding a `rag-tesis-org/tjc-piloto-ventas` (rama de integración `develop`).
 
 ## Pasos

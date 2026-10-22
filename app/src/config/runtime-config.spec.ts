@@ -155,4 +155,12 @@ describe('runtime configuration', () => {
     expect(hasCoreWebhookDeliveryConfiguration({})).toBe(false);
     expect(hasCoreWebhookDeliveryConfiguration(testWebhookDeliveryEnvironment())).toBe(true);
   });
+
+  it('usa el tope de cierre por defecto y acepta solo enteros de 1000 a 60000 ms', () => {
+    expect(validateEnvironment({})).toMatchObject({ SHUTDOWN_TIMEOUT_MS: 10_000 });
+    expect(validateEnvironment({ SHUTDOWN_TIMEOUT_MS: '25000' })).toMatchObject({ SHUTDOWN_TIMEOUT_MS: 25_000 });
+    for (const value of ['', '999', '60001', ' abc ', '1.5', 'secreto']) {
+      expect(validateEnvironment({ SHUTDOWN_TIMEOUT_MS: value })).toMatchObject({ SHUTDOWN_TIMEOUT_MS: 10_000 });
+    }
+  });
 });

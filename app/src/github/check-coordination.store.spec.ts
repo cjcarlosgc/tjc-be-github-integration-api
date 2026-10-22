@@ -99,3 +99,48 @@ describe('CheckCoordinationStore: expulsión de entradas ociosas', () => {
     expect(store.evictIdleActive()).toBe(0);
   });
 });
+
+describe('CheckCoordinationStore: barrido automático y reclamo tras expulsión', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  /** Mismo valor que `SWEEP_EVERY_CLAIMS` del store (no exportado). */
+  const SWEEP_EVERY_CLAIMS = 200;
+
+  function identityNumber(index: number): CheckIdentity {
+    return { ...identity, headSha: index.toString(16).padStart(40, '0') };
+  }
+
+  it('el barrido automático al alcanzar 200 claims descarta las entradas ACTIVE ociosas', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    for (let index = 0; index < SWEEP_EVERY_CLAIMS; index += 1) {
+      const reservation = await store.claim(identityNumber(index), requestHash);
+      await store.transition(identityNumber(index), reservation.leaseToken, 'ACTIVE', requestHash, String(index));
+    }
+    clock += DAY + 1;
+    for (let index = SWEEP_EVERY_CLAIMS; index < 2 * SWEEP_EVERY_CLAIMS; index += 1) {
+      const reservation = await store.claim(identityNumber(index), requestHash);
+      await store.transition(identityNumber(index), reservation.leaseToken, 'RESERVED', requestHash, null);
+    }
+
+    await expect(store.claim(identityNumber(0), requestHash)).resolves.toMatchObject({
+      state: 'RESERVED',
+      checkId: null,
+    });
+  });
+
+  it('reclamar una identidad expulsada devuelve RESERVED sin checkId y con token nuevo', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const first = await store.claim(identity, requestHash);
+    await store.transition(identity, first.leaseToken, 'ACTIVE', requestHash, '42');
+    clock += DAY + 1;
+    expect(store.evictIdleActive()).toBe(1);
+
+    const again = await store.claim(identity, requestHash);
+
+    expect(again).toMatchObject({ state: 'RESERVED', checkId: null });
+    expect(again.leaseToken).not.toBe(first.leaseToken);
+  });
+});

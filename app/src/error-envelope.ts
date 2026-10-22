@@ -11,7 +11,7 @@ export interface ErrorEnvelopeInput {
 }
 
 /**
- * Construye el `ErrorEnvelope` canónico de la solución (INTEROP-2.17 §4, GH-INTEROP-1.8). GitHub Integration siempre
+ * Construye el `ErrorEnvelope` canónico de la solución (INTEROP-2.18 §4, GH-INTEROP-1.8). GitHub Integration siempre
  * declara `retryable`; nunca incluye texto crudo de GitHub, tokens ni query strings.
  */
 export function buildErrorEnvelope(input: ErrorEnvelopeInput): ErrorEnvelope {

@@ -8,6 +8,7 @@ type ShutdownFn = (exitCode: number) => void | Promise<void>;
  *   tumbar trabajos en curso; los fallos de infraestructura del poller se capturan en su origen.
  * - `uncaughtException`: el estado del proceso es incierto, así que se registra y se apaga de forma ordenada con
  *   código 1 para que la plataforma lo reinicie.
+ * Los logs solo describen el tipo del fallo (nombre o `code` corto), nunca su mensaje ni su stack.
  * Devuelve una función que quita los manejadores (para pruebas).
  */
 export function registerProcessSafetyNets(
@@ -33,6 +34,19 @@ export function registerProcessSafetyNets(
   };
 }
 
+const SAFE_NAME = /^[A-Za-z_$][\w$]{0,63}$/;
+const SAFE_CODE = /^[A-Za-z0-9_]{1,32}$/;
+
+/** Nombre del tipo de un fallo, validado; nunca texto de excepción. */
+export function errorName(value: unknown): string {
+  if (!(value instanceof Error)) return typeof value;
+  return SAFE_NAME.test(value.name) ? value.name : 'Error';
+}
+
+/** Describe un fallo sin texto de excepción: solo nombre del tipo y, si es corto y alfanumérico, su `code`. */
 function describe(value: unknown): string {
-  return value instanceof Error ? value.message : String(value);
+  if (!(value instanceof Error)) return typeof value;
+  const name = errorName(value);
+  const code = (value as { code?: unknown }).code;
+  return typeof code === 'string' && SAFE_CODE.test(code) ? `${name} (${code})` : name;
 }

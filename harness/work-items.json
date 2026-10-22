@@ -793,6 +793,44 @@
         "verifiedAt": "2026-10-21T15:00:00.000Z",
         "verifiedBy": "leader"
       }
+    },
+    {
+      "id": "WI-GH-017",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Estabilidad de proceso: logs sin mensaje crudo, cierre con tope de tiempo y pruebas del store de Checks",
+      "storyIds": [
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-019"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": false,
+      "publishesContract": false,
+      "lane": "STANDARD",
+      "scopeApprovalReport": "harness/reports/wi-gh-017-scope-approval.md",
+      "acceptanceCriteria": [
+        "process-safety registra las excepciones y rechazos sin el texto crudo de error.message (solo tipo/nombre y un identificador no sensible), con pruebas que lo aseguran.",
+        "main.ts cierra la aplicación con un tope de tiempo configurable: si app.close() no termina en el plazo, el proceso sale con código distinto de cero; la lógica queda en una función testeable con pruebas (cierre normal, cierre colgado, error al cerrar).",
+        "Pruebas nuevas del store de coordinación de Checks: barrido automático tras 200 claims y claim posterior a la expulsión que vuelve a RESERVED.",
+        "Las citas INTEROP-2.17 en comentarios de app/src pasan a INTEROP-2.18; sin cambio de contrato, de rutas ni de respuestas públicas.",
+        "lint, test, build, contracts:check y los cuatro validadores pasan; sin push, PR ni merge."
+      ],
+      "specPaths": [
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "spec/features/004-checks-publication/spec.md",
+        "spec/features/004-checks-publication/plan.md",
+        "spec/features/004-checks-publication/tasks.md",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

@@ -7,7 +7,7 @@ import { InternalErrorFilter } from './github/internal-error.filter.js';
 import { GithubIntegrationError, upstreamUnavailable } from './github/errors.js';
 import { configureRequestBodyParsers } from './request-body-parsers.js';
 
-/** Contrato del error envelope (INTEROP-2.17 §4, GH-INTEROP-1.8, schemas/error-envelope.schema.json). */
+/** Contrato del error envelope (INTEROP-2.18 §4, GH-INTEROP-1.8, schemas/error-envelope.schema.json). */
 const envelope = (body: unknown) => validateContract('error-envelope.schema.json', null, body);
 
 function runFilter(exception: unknown, originalUrl = '/internal/v1/github/checks?installationId=1&secret=abc') {

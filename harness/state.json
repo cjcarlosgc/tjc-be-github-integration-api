@@ -3577,6 +3577,213 @@
         ]
       },
       "closedAt": "2026-10-22T00:41:41.506Z"
+    },
+    {
+      "id": "WI-GH-017",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": [
+        "HU14",
+        "HU16"
+      ],
+      "taskIds": [
+        "ST-GH-019"
+      ],
+      "caseIds": [],
+      "sprint": "SMART V3",
+      "status": "W-DONE",
+      "specPaths": [
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "spec/features/004-checks-publication/spec.md",
+        "spec/features/004-checks-publication/plan.md",
+        "spec/features/004-checks-publication/tasks.md",
+        "CHANGELOG.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [
+          "DEC-CHECK-003"
+        ],
+        "checkedAt": "2026-10-21T17:00:00.000Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "implementer",
+        "contractReviewAgent": null,
+        "reviewAgent": "reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [
+              "SUFFICIENT; sin DEC/Blocks aplicables",
+              "Ningún requisito exige loguear error.message; GH-INTEROP-1.8 intacto",
+              "Diseño: módulo graceful-shutdown con tope; citas 2.17 editables solo en 3 archivos (no los generados)"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-017-spec-verification.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-017-spec-verification.md"
+            ],
+            "recommendedNextStep": "Implementar en un corte con implementer.",
+            "executedBy": {
+              "agent": "sdd-analyst",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          },
+          {
+            "agent": "implementer",
+            "status": "IMPLEMENTED",
+            "findings": [
+              "process-safety sin error.message crudo",
+              "graceful-shutdown con tope SHUTDOWN_TIMEOUT_MS",
+              "pruebas del barrido de 200 claims y reclamo tras expulsión",
+              "citas INTEROP-2.18 en comentarios"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-017-implementation.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-017-implementation.md"
+            ],
+            "recommendedNextStep": "Revisión independiente por el agente reviewer.",
+            "executedBy": {
+              "agent": "implementer",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "low"
+            }
+          },
+          {
+            "agent": "reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "Ciclo 1: P2-1 señales sin tope, P3-1 sanitización de nombre, P3-2 pruebas débiles (corregidos)",
+              "Ciclo 2 APPROVED",
+              "P3-3 y prueba del cableado de main.ts diferidos"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-017-independent-review.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-017-independent-review.md"
+            ],
+            "recommendedNextStep": "Cerrar WI-GH-017.",
+            "executedBy": {
+              "agent": "reviewer",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          }
+        ],
+        "reviewCycles": 2,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-NOT_APPLICABLE",
+        "canonicalContractSynced": "G-NOT_APPLICABLE",
+        "contractSyncPublished": "G-NOT_APPLICABLE",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": false,
+        "publishesContract": false,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-017",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:41:25.597Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-017",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:45:30.504Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-017",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:45:30.654Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-017",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:48:25.465Z"
+          }
+        ],
+        "publishedSyncIds": [],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-017-scope-approval.md",
+        "harness/reports/wi-gh-017-spec-verification.md",
+        "harness/reports/wi-gh-017-implementation.md",
+        "harness/reports/wi-gh-017-independent-review.md",
+        "harness/reports/wi-gh-017-closure.md"
+      ],
+      "blockedReason": null,
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-017-spec-verification.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-017-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-017-implementation.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-017-implementation.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-017-implementation.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-017-implementation.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-017-independent-review.md"
+        ]
+      },
+      "closedAt": "2026-10-22T00:49:25.465Z"
     }
   ],
   "activeWorkItem": null

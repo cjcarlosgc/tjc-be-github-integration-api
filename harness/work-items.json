@@ -831,6 +831,75 @@
         "spec/features/004-checks-publication/tasks.md",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "id": "WI-GH-018",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P2",
+      "sprint": "SMART V3",
+      "title": "Re-espejar SYSTEM-2.14 e INTEROP-2.19 desde Core (CS-CORE-20261021-004)",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-020"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "lane": "STANDARD",
+      "scopeApprovalReport": "harness/reports/wi-gh-018-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas"
+      ],
+      "acceptanceCriteria": [
+        "CS-CORE-20261021-004 se importa y se acusa/resuelve con evidencia; system-contract.md (SYSTEM-2.14, f60d6c4b...) e interoperability-contract.md (INTEROP-2.19, f9866d16...) quedan byte por byte iguales a Core 3d2383e; github-integration-contract.md (6c553ee8...) y el árbol schemas (a1ba9a19...) siguen idénticos.",
+        "Las citas vigentes a SYSTEM-2.13/INTEROP-2.18 en AGENTS.md, spec/README.md y CHANGELOG pasan a SYSTEM-2.14/INTEROP-2.19 donde corresponda, sin reescribir historia; sin cambio de código ni de GH-INTEROP-1.8.",
+        "lint, test, build y contracts:check pasan; sdd-check, validate-work-items, validate-harness y validate-completions pasan; sin push, PR ni merge."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-076"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-018-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "3d2383e4b6efc20162b77945261fe08d384094a8"
+        },
+        "contractSha256": {
+          "system-contract.md": "f60d6c4b19e2bfbce232894614667e5898197a8677eb80db284d96b9f2b96ce3",
+          "interoperability-contract.md": "f9866d16e8c738001d7a9dd664599cd542d857b676d17723fa9c3a25bd2cc6f9",
+          "github-integration-contract.md": "6c553ee856d0c53420a75d2bde5a9eb04cce2e029ffae1bf4194dcbc7a25565a"
+        },
+        "verifiedAt": "2026-10-21T18:00:00.000Z",
+        "verifiedBy": "leader"
+      }
     }
   ]
 }

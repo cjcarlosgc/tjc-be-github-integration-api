@@ -3272,6 +3272,311 @@
         ]
       },
       "closedAt": "2026-10-19T00:30:00.000Z"
+    },
+    {
+      "id": "WI-GH-016",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-018"
+      ],
+      "caseIds": [],
+      "sprint": "SMART V3",
+      "status": "W-DONE",
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [
+          "DEC-ERR-001",
+          "DEC-RT-001"
+        ],
+        "checkedAt": "2026-10-21T15:00:00.000Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "leader",
+        "contractReviewAgent": "contract-reviewer",
+        "reviewAgent": "reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [
+              "SUFFICIENT; ningún Blocks alcanza el WI",
+              "code abierto y genéricos §4.1 se toleran hoy (fallo cerrado en github-ui-core-client)",
+              "contracts:generate produce tipos distintos (esperado); §6.6 no aplica (sin WebSocket)"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-016-spec-verification.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-016-spec-verification.md"
+            ],
+            "recommendedNextStep": "Re-espejar desde Core, regenerar tipos, validar y derivar a contract-reviewer y reviewer.",
+            "executedBy": {
+              "agent": "sdd-analyst",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          },
+          {
+            "agent": "contract-reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "Contratos y árbol schemas idénticos a Core (cmp/sha256/diff -r)",
+              "Único cambio en app/: tipos generados; contracts:check pasa",
+              "INVALID_REQUEST propia sin conflicto con §4.1; github-ui-core-client falla cerrado con code abierto",
+              "Sin WebSocket: §6.6 no aplica"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-016-contract-review.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-016-contract-review.md"
+            ],
+            "recommendedNextStep": "Revisión independiente por el agente reviewer.",
+            "executedBy": {
+              "agent": "contract-reviewer",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          },
+          {
+            "agent": "reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "Sin P0-P2",
+              "P3: citas INTEROP-2.17 en comentarios de app/src (fuera de alcance)",
+              "P3: ST-GH-018 a T-DONE al cerrar"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-016-independent-review.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-016-independent-review.md"
+            ],
+            "recommendedNextStep": "Cerrar WI-GH-016.",
+            "executedBy": {
+              "agent": "reviewer",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          }
+        ],
+        "reviewCycles": 1,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-PASSED",
+        "canonicalContractSynced": "G-PASSED",
+        "contractSyncPublished": "G-NOT_APPLICABLE",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": true,
+        "publishesContract": false,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-016",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [
+              "CS-CORE-20261021-002"
+            ],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001",
+              "CS-CORE-20261008-004",
+              "CS-CORE-20261008-006",
+              "CS-CORE-20261008-007",
+              "CS-CORE-20261009-012",
+              "CS-CORE-20261010-001",
+              "CS-CORE-20261010-002",
+              "CS-CORE-20261011-003",
+              "CS-CORE-20261011-004",
+              "CS-CORE-20261011-005",
+              "CS-CORE-20261011-006",
+              "CS-CORE-20261012-006",
+              "CS-CORE-20261012-008",
+              "CS-CORE-20261018-001"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:36:31.579Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-016",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001",
+              "CS-CORE-20261008-004",
+              "CS-CORE-20261008-006",
+              "CS-CORE-20261008-007",
+              "CS-CORE-20261009-012",
+              "CS-CORE-20261010-001",
+              "CS-CORE-20261010-002",
+              "CS-CORE-20261011-003",
+              "CS-CORE-20261011-004",
+              "CS-CORE-20261011-005",
+              "CS-CORE-20261011-006",
+              "CS-CORE-20261012-006",
+              "CS-CORE-20261012-008",
+              "CS-CORE-20261018-001",
+              "CS-CORE-20261021-002"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:38:54.234Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-016",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001",
+              "CS-CORE-20261008-004",
+              "CS-CORE-20261008-006",
+              "CS-CORE-20261008-007",
+              "CS-CORE-20261009-012",
+              "CS-CORE-20261010-001",
+              "CS-CORE-20261010-002",
+              "CS-CORE-20261011-003",
+              "CS-CORE-20261011-004",
+              "CS-CORE-20261011-005",
+              "CS-CORE-20261011-006",
+              "CS-CORE-20261012-006",
+              "CS-CORE-20261012-008",
+              "CS-CORE-20261018-001",
+              "CS-CORE-20261021-002"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:38:54.326Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-016",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [
+              "CS-CORE-20260927-002",
+              "CS-CORE-20260927-004",
+              "CS-CORE-20260927-005",
+              "CS-CORE-20260927-006",
+              "CS-CORE-20261008-001",
+              "CS-CORE-20261008-004",
+              "CS-CORE-20261008-006",
+              "CS-CORE-20261008-007",
+              "CS-CORE-20261009-012",
+              "CS-CORE-20261010-001",
+              "CS-CORE-20261010-002",
+              "CS-CORE-20261011-003",
+              "CS-CORE-20261011-004",
+              "CS-CORE-20261011-005",
+              "CS-CORE-20261011-006",
+              "CS-CORE-20261012-006",
+              "CS-CORE-20261012-008",
+              "CS-CORE-20261018-001",
+              "CS-CORE-20261021-002"
+            ],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-22T00:40:41.506Z"
+          }
+        ],
+        "publishedSyncIds": [],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-016-scope-approval.md",
+        "harness/reports/wi-gh-016-contract-sync-acknowledgement.md",
+        "harness/reports/wi-gh-016-external-dependency-gate.md",
+        "harness/reports/wi-gh-016-spec-verification.md",
+        "harness/reports/wi-gh-016-implementation.md",
+        "harness/reports/wi-gh-016-contract-review.md",
+        "harness/reports/wi-gh-016-independent-review.md",
+        "harness/reports/wi-gh-016-closure.md"
+      ],
+      "blockedReason": null,
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas"
+      ],
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-016-spec-verification.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-016-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-016-implementation.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-016-implementation.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-016-implementation.md"
+        ],
+        "contractReviewed": [
+          "harness/reports/wi-gh-016-contract-review.md"
+        ],
+        "canonicalContractSynced": [
+          "harness/reports/wi-gh-016-contract-review.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-016-contract-review.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-016-independent-review.md"
+        ]
+      },
+      "closedAt": "2026-10-22T00:41:41.506Z"
     }
   ],
   "activeWorkItem": null

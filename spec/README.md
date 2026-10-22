@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Espejos locales de GH:** SDD 3.1 / SYSTEM-2.13 / INTEROP-2.17 / GH-INTEROP-1.8. Los tres contratos y la carpeta `spec/contracts/schemas/` de este repositorio coinciden byte por byte con las fuentes canónicas de Core. La línea base SDD 3.1 es común a los cuatro componentes; eso no implica una integración desplegada.
+**Espejos locales de GH:** SDD 3.1 / SYSTEM-2.13 / INTEROP-2.18 / GH-INTEROP-1.8. Los tres contratos y la carpeta `spec/contracts/schemas/` de este repositorio coinciden byte por byte con las fuentes canónicas de Core. La línea base SDD 3.1 es común a los cuatro componentes; eso no implica una integración desplegada.
 
 ## Orden de lectura
 
@@ -10,7 +10,7 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.13`, `INTEROP-2.17` y `GH-INTEROP-1.8` son copias espejo byte por byte de las fuentes canónicas de Core, junto con los esquemas JSON de `spec/contracts/schemas/`. Los espejos previos se sincronizaron con `WI-GH-013` y `WI-GH-014`; la homologación a SYSTEM-2.13 / INTEROP-2.17 / GH-INTEROP-1.8 (editorial y aditiva) se hizo desde la sesión cross el 2026-10-18 y se regularizó con `WI-GH-015`, que además re-espejó `interoperability-contract.md` byte a byte desde Core `67519a2`.
+- `SYSTEM-2.13`, `INTEROP-2.18` y `GH-INTEROP-1.8` son copias espejo byte por byte de las fuentes canónicas de Core, junto con los esquemas JSON de `spec/contracts/schemas/`. Los espejos previos se sincronizaron con `WI-GH-013` y `WI-GH-014`; la homologación a SYSTEM-2.13 / INTEROP-2.18 / GH-INTEROP-1.8 (editorial y aditiva) se hizo desde la sesión cross el 2026-10-18 y se regularizó con `WI-GH-015`, que además re-espejó `interoperability-contract.md` byte a byte desde Core `67519a2`.
 - Core es dueño canónico de `GH-INTEROP-1.8`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 

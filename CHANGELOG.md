@@ -1,5 +1,7 @@
 # Changelog
 
+- **WI-GH-016 (2026-10-21, documental/contractual):** `CS-CORE-20261021-002` importado y resuelto; `interoperability-contract.md` (INTEROP-2.18) y `spec/contracts/schemas/` re-espejados byte a byte desde Core `5c82853` (nuevo §4.1 de códigos genéricos con `code` abierto, esquema `realtime-events` y ejemplos); tipos generados regenerados. `SYSTEM-2.13` y `GH-INTEROP-1.8` sin cambio. Sin cambio de comportamiento: los códigos desconocidos de Core ya fallan cerrados en `github-ui-core-client` y se conserva la política `INVALID_REQUEST`; §6.6 (WebSocket) no aplica.
+
 - **WI-GH-015 (2026-10-18, regularización retroactiva):** el trabajo ejecutado desde cross (`e6beb06`, `b457533`, `ffc890b`, `a3ebecf`) queda cubierto por un WI propio con revisión independiente (ver `harness/reports/wi-gh-015-retroactive-implementation.md`). Se importó `CS-CORE-20261018-001` y `interoperability-contract.md` se re-espejó byte a byte desde Core `67519a2` (INTEROP-2.17): la copia previa, con cabecera 2.17, difería de Core en dos líneas editoriales (`4bab54e8…` frente a `b9ed40dc…`). Sin cambios en `app/`.
 
 - **Estabilización (2026-10-18, decisión del usuario, ejecutado desde cross):** los 4xx no previstos responden `INVALID_REQUEST` no reintentable (antes un 503 reintentable); el store de coordinación de Checks descarta entradas `ACTIVE` ociosas; red de seguridad de proceso; `engines`, `.nvmrc`, Prettier y CI. Ver `harness/reports/cross-fase3-estabilidad-2026-10-18.md`.

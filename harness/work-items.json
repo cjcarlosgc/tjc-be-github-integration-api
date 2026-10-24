@@ -970,6 +970,52 @@
         "verifiedAt": "2026-10-24T18:00:00.000Z",
         "verifiedBy": "leader"
       }
+    },
+    {
+      "id": "WI-GH-020",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "SMART V3",
+      "title": "Validar el normalizador de webhooks y los ejemplos contra el esquema CT-01 (CT-01-A5)",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-022"
+      ],
+      "caseIds": [],
+      "dependsOn": [
+        "WI-GH-019"
+      ],
+      "contractImpact": true,
+      "publishesContract": false,
+      "lane": "STANDARD",
+      "scopeApprovalReport": "harness/reports/wi-gh-019-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas"
+      ],
+      "acceptanceCriteria": [
+        "Una prueba de contrato valida con el esquema github-webhook-event (Ajv strict ya usado por contract-validator) todos los ejemplos github-webhook-event.* de manifest.json: los ejemplos de payload contra GithubWebhookEvent y las respuestas aceptadas contra su definición.",
+        "Pruebas validan que lo que emite el normalizador (cada kind: PULL_REQUEST, REPOSITORY, INSTALLATION, INSTALLATION_REPOSITORIES, ORGANIZATION, MEMBERSHIP/MEMBER/TEAM, ignorados) cumple el esquema, incluidos los casos con nulls y sin owner; se documenta cualquier desvío (Integration más estricto en deliveryId y caracteres de control) sin cambiar el wire.",
+        "No cambia código de producción ni el wire; lint, test, build, contracts:check y los cuatro validadores pasan; sin push, PR ni merge salvo la autorización permanente al cerrar el WI."
+      ],
+      "specPaths": [
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas",
+        "spec/features/005-webhook-delivery/spec.md",
+        "spec/features/005-webhook-delivery/plan.md",
+        "spec/features/005-webhook-delivery/tasks.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

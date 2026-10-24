@@ -1,11 +1,13 @@
 import 'reflect-metadata';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 import { correlationIdMiddleware } from './correlation-id.middleware.js';
 import { configureConsoleCors } from './console-cors.js';
+import { createShutdown, registerSignalShutdown } from './graceful-shutdown.js';
+import { registerProcessSafetyNets } from './process-safety.js';
 import { configureRequestBodyParsers } from './request-body-parsers.js';
 
 async function bootstrap(): Promise<void> {
@@ -28,7 +30,14 @@ async function bootstrap(): Promise<void> {
     transformOptions: { enableImplicitConversion: false },
   }));
 
-  app.enableShutdownHooks();
+  const shutdown = createShutdown({
+    close: () => app.close(),
+    exit: (code) => process.exit(code),
+    timeoutMs: config.get<number>('SHUTDOWN_TIMEOUT_MS') ?? 10_000,
+    logger: new Logger('Shutdown'),
+  });
+  registerProcessSafetyNets(new Logger('Process'), shutdown);
+  registerSignalShutdown(process, shutdown);
   await app.listen(port, '0.0.0.0');
 }
 

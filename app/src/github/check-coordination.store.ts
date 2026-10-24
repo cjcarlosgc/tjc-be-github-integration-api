@@ -12,18 +12,28 @@ interface Entry {
   token: number;
   locked: boolean;
   waiters: Array<() => void>;
+  /** Último uso (ms epoch); solo las entradas `ACTIVE` ociosas son elegibles para expulsión. */
+  touchedAt: number;
 }
+
+/** Una entrada `ACTIVE` sin uso durante este tiempo se descarta: el siguiente claim vuelve a buscar el Check en GitHub. */
+export const ACTIVE_ENTRY_IDLE_TTL_MS = 24 * 60 * 60 * 1000;
+const SWEEP_EVERY_CLAIMS = 200;
 
 @Injectable()
 export class CheckCoordinationStore {
   private readonly entries = new Map<string, Entry>();
   private tokenSequence = 0;
+  private claimsSinceSweep = 0;
+  /** Reloj inyectable para pruebas. */
+  now: () => number = Date.now;
 
   async claim(identity: CheckIdentity, requestHash: string): Promise<CheckReservation> {
+    if (++this.claimsSinceSweep >= SWEEP_EVERY_CLAIMS) this.evictIdleActive();
     const key = identityKey(identity);
     let entry = this.entries.get(key);
     if (!entry) {
-      entry = { state: 'RESERVED', checkId: null, requestHash, token: 0, locked: false, waiters: [] };
+      entry = { state: 'RESERVED', checkId: null, requestHash, token: 0, locked: false, waiters: [], touchedAt: this.now() };
       this.entries.set(key, entry);
     }
 
@@ -43,6 +53,7 @@ export class CheckCoordinationStore {
       }
 
       entry.token = ++this.tokenSequence;
+      entry.touchedAt = this.now();
       return {
         state: entry.state,
         checkId: entry.checkId,
@@ -61,7 +72,30 @@ export class CheckCoordinationStore {
     entry.state = state;
     entry.requestHash = requestHash;
     entry.checkId = checkId;
+    entry.touchedAt = this.now();
     if (release) unlock(entry);
+  }
+
+  /**
+   * Descarta entradas `ACTIVE` ociosas (sin bloqueo ni espera). Los estados de incertidumbre (`CREATE_UNKNOWN`,
+   * `CREATE_REJECTED`, `AMBIGUOUS`...) se conservan: protegen contra duplicados y su pérdida solo ocurre al reiniciar
+   * (GH-INTEROP-1.8). Devuelve cuántas entradas se descartaron.
+   */
+  evictIdleActive(idleTtlMs: number = ACTIVE_ENTRY_IDLE_TTL_MS): number {
+    this.claimsSinceSweep = 0;
+    const cutoff = this.now() - idleTtlMs;
+    let evicted = 0;
+    for (const [key, entry] of this.entries) {
+      if (entry.state === 'ACTIVE' && !entry.locked && entry.waiters.length === 0 && entry.touchedAt < cutoff) {
+        this.entries.delete(key);
+        evicted += 1;
+      }
+    }
+    return evicted;
+  }
+
+  get size(): number {
+    return this.entries.size;
   }
 }
 

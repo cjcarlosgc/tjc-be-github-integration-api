@@ -9,6 +9,16 @@ export interface RuntimeConfig extends Record<string, unknown> {
   GITHUB_APP_ID?: string;
   GITHUB_APP_PRIVATE_KEY_BASE64?: string;
   CONSOLE_CORS_ORIGINS?: string;
+  SHUTDOWN_TIMEOUT_MS: number;
+}
+
+export const DEFAULT_SHUTDOWN_TIMEOUT_MS = 10_000;
+
+/** Tope del cierre ordenado: entero de 1000 a 60000 ms; ausente o inválido usa el default sin eco del valor. */
+export function parseShutdownTimeoutMs(value: unknown): number {
+  if (value === undefined || value === '') return DEFAULT_SHUTDOWN_TIMEOUT_MS;
+  const timeout = typeof value === 'string' || typeof value === 'number' ? Number(value) : Number.NaN;
+  return Number.isInteger(timeout) && timeout >= 1_000 && timeout <= 60_000 ? timeout : DEFAULT_SHUTDOWN_TIMEOUT_MS;
 }
 
 export function validateEnvironment(
@@ -86,6 +96,7 @@ export function validateEnvironment(
   return {
     ...environment,
     PORT: port,
+    SHUTDOWN_TIMEOUT_MS: parseShutdownTimeoutMs(environment.SHUTDOWN_TIMEOUT_MS),
   };
 }
 

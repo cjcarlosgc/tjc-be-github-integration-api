@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { isValidCoreServiceBearer } from './core-service-token.js';
 import type { CorrelatedRequest } from './correlation-id.middleware.js';
+import { buildErrorEnvelope } from './error-envelope.js';
 
 export const LARGE_JSON_BODY_ROUTES = [
   '/internal/v1/github/publications/companion-pull-request/proposal-blobs',
@@ -71,5 +72,5 @@ function writeRequestError(
 ): void {
   const correlationId = (request as CorrelatedRequest).correlationId ?? randomUUID();
   response.setHeader('X-Correlation-ID', correlationId);
-  response.status(status).json({ code, message, retryable, correlationId });
+  response.status(status).json(buildErrorEnvelope({ status, code, message, retryable, correlationId, originalUrl: request.originalUrl }));
 }

@@ -1,0 +1,34 @@
+# WI-GH-015 — Verificación SDD
+
+Modelo: sdd-analyst · configurado claude-sonnet-5-5 · atendido unknown · esfuerzo low
+
+Estado: `SUFFICIENT`.
+
+- Alcance: regularizar retroactivamente e6beb06, b457533, ffc890b y a3ebecf (ejecutados desde cross), importar `CS-CORE-20261018-001` y re-espejar `interoperability-contract.md` a INTEROP-2.17 de Core. STANDARD, `contractImpact=true`, `publishesContract=false`; autorizado en `wi-gh-015-scope-approval.md`. Sin ampliar el error envelope (INTEROP-2.18), sin tiempo real, sin push/PR/merge.
+- IDs: `HU02`, `HU14` y `ST-GH-017` (T-READY, WI-GH-015) coinciden con `spec/features/006-console-github-api/tasks.md:9`; `harness/work-items.json` (WI-GH-015, `W-SELECTED`, component GH) concuerda.
+- Decisiones: no hay registro DEC local propio (solo se citan `DEC-CHECK-003` y `DEC-ORG-003`, ambas aprobadas y ajenas al alcance). `DEC-VAL-001` sigue `PENDING` según reportes previos y su `Blocks` (ingestión/despliegue con código empresarial) no alcanza este WI. Ningún `Blocks` alcanza WI-GH-015.
+- Commits retroactivos (base 6a3ef5c):
+  1. `e6beb06` chore(security): redacta host/IP pública de Sandbox en el runbook E2E (2 líneas, un reporte). Higiene; sin código ni contrato.
+  2. `b457533` docs(harness): SDD 3.1 (19 archivos: AGENTS, WORKFLOW, roles, agent-profiles, state-schema, validadores, `harness/state.json` -430 líneas, delivery-workflow). Quita `awayMode`, agrega lane FAST, política de commits y coordinación por cross, limpia `archivedActiveWorkItem`. Cambia proceso/harness, no `app/`. EXCEDE: no tuvo aprobación de alcance local; Core ya lo definió. Requiere ratificación humana y que reviewer valide que validadores y `state.json` siguen consistentes.
+  3. `ffc890b` feat(contracts): `ErrorEnvelope` completo con `retryable` (GH-INTEROP-1.8), tipos y esquemas generados, `app/` (filtro, parsers, validator, tests) y espejos de contratos/esquemas (31 archivos). CAMBIA comportamiento y contrato sin DEC propio en este repo: los errores internos pasan a la forma completa (aditivo según contrato, decisión del usuario referida a cross). Necesita revisión de contract-reviewer.
+  4. `a3ebecf` fix: 4xx no previstos pasan de 503 reintentable a `INVALID_REQUEST` no reintentable; store de Checks descarta entradas `ACTIVE` ociosas; red de seguridad de proceso (`process-safety.ts`, `main.ts`); `engines`, `.nvmrc`, Prettier y CI (`.github/workflows/ci.yml`). CAMBIA comportamiento sin DEC ni aprobación de alcance local (cita «decisión del usuario» en CHANGELOG). Excede aprobaciones existentes de WIs previos; este WI solo lo regulariza, no lo amplía.
+  - Los 4 commits quedan dentro del alcance aprobado como documentación retroactiva. Los dos de comportamiento (ffc890b, a3ebecf) deben constar en el reporte como tales, con cross como `implementationAgent`.
+- Hashes frente a Core (Core HEAD real `71cb9b4`; el prompt citaba `2b8ac52`, que existe pero no es HEAD. `67519a2` es ancestro de HEAD y `git diff 67519a2 HEAD -- spec/contracts` es vacío, así que los contratos son idénticos en ambos puntos):
+  - `system-contract.md` `b70f9358...0444` idéntico (SYSTEM-2.13).
+  - `github-integration-contract.md` `6c553ee8...5565a` idéntico (GH-INTEROP-1.8).
+  - árbol `spec/contracts/schemas` `c45e4513...1b31` idéntico.
+  - `interoperability-contract.md`: local `4bab54e8...9e02` NO coincide con Core `b9ed40dc...0a05`, aunque su cabecera ya dice INTEROP-2.17. Difiere en 2 líneas editoriales: línea 87 (nota de `pollAfterMs` opcional, tope y reintentos de GET del Sandbox) y línea 1539 (validación en frontera: Core solo avisa en log transitoriamente). Requiere copia completa desde Core, no edición manual.
+- Evento `CS-CORE-20261018-001`: fuente core, WI-CORE-069, target `github-integration`, `breaking=false`, `sourceRevision` `67519a20...`, `status: C-PENDING`, `consumerImportedAt` ya presente. Pide re-espejar los 3 contratos y esquemas, emitir `ErrorEnvelope` completo con `retryable` (ya hecho en ffc890b) y ejecutar contracts:check, lint, build, test. Los hashes del evento coinciden con Core. Falta acusar/resolver con evidencia. Los otros eventos `CS-CORE-20261012/13/14-*` del inbox sin rastrear no pertenecen a este análisis (ver riesgos).
+- Referencias documentales vigentes tras INTEROP-2.17 (ya al día en contenido): `AGENTS.md:19,41`, `spec/README.md:5,13,14`, `README.md:11`, `spec/constitution/project-context.md:13`, `CHANGELOG.md` (entradas de cross 2026-10-18 al inicio) ya citan SYSTEM-2.13/INTEROP-2.17/GH-INTEROP-1.8. Pendiente: (a) `CHANGELOG.md`, entrada WI-GH-015 (regularización, hash corregido del espejo; hoy el texto de cross al inicio queda sobre el encabezado `Unreleased`); (b) `spec/README.md:13` aclarar que el espejo se completó byte a byte con WI-GH-015 (hoy atribuye la homologación a cross); (c) `tasks.md` marcar ST-GH-017 al cerrar. No tocar historia (ST-GH-015/016, entradas WI-GH-013/014).
+- Riesgos: (1) la afirmación «espejo = Core» de cross era falsa para INTEROP; el reporte retroactivo debe decirlo. (2) `harness/state.json` y `work-items.json` tienen cambios sin commit y el inbox contiene 17 eventos sin rastrear; no mezclarlos en el commit de este WI. (3) discrepancia del prompt con HEAD de Core (`2b8ac52` vs `71cb9b4`), sin impacto sobre contratos.
+- Contract Sync: importar y acusar solo `CS-CORE-20261018-001` (destino GH). Puerta externa: no aplica (documental/contractual sin infraestructura).
+- `W-DECISION_REQUIRED`: no necesario. El re-espejo es aditivo y el comportamiento ya está implementado; no hay cambio nuevo. Se activaría solo si reviewer/contract-reviewer concluyen que ffc890b o a3ebecf exigen DEC.
+
+## Handoff
+
+- status: SUFFICIENT
+- findings: IDs coinciden; ningún Blocks alcanza el WI; 4 commits resumidos (2 cambian comportamiento/contrato sin DEC local, b457533 excede por proceso); `system`, `github-integration` y `schemas` idénticos a Core; `interoperability-contract.md` local diverge en 2 líneas pese a decir 2.17; referencias documentales ya en 2.17.
+- blockers: ninguno.
+- filesAffected: `spec/contracts/interoperability-contract.md` (copia completa de Core), `CHANGELOG.md`, `spec/README.md`, `spec/features/006-console-github-api/tasks.md`, reporte retroactivo `harness/reports/wi-gh-015-*.md`; resolución de `harness/contract-sync/inbox/CS-CORE-20261018-001.yaml` vía flujo del leader. Sin `app/` salvo que contracts:check lo exija.
+- evidence: `git show --stat` de los 4 commits; sha256 locales/Core arriba; `diff` local vs Core (líneas 87 y 1539); `git diff 67519a2 HEAD -- spec/contracts` vacío en Core.
+- recommendedNextStep: leader pasa a `W-SPEC_VERIFIED`, copia byte a byte `interoperability-contract.md` desde Core, verifica `cmp` y hashes, ejecuta contracts:check/lint/test/build y validadores, redacta el reporte retroactivo y deriva a reviewer y contract-reviewer (máx. 2 ciclos).

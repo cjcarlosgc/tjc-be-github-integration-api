@@ -1,6 +1,6 @@
 # Entrega y trazabilidad Git
 
-**Estado:** adoptado para GitHub Integration junto a SDD 3.0 / Harness V3.
+**Estado:** adoptado para GitHub Integration junto a SDD 3.1 / Harness V3.
 
 ## Rama base
 
@@ -35,4 +35,12 @@ Refs: HUxx[, HUyy...]
 - Si una causa raíz está en Core, Console o Sandbox, no cambiar ese repositorio desde este WI; entregar diagnóstico compacto al responsable.
 - Los cambios públicos Core↔Console pertenecen a sus contratos; GitHub Integration cambia su contrato interno con Core mediante decisión y Contract Sync.
 - Los contratos compartidos `SYSTEM-*`, `INTEROP-*` y `GH-INTEROP-*` mantienen versionado independiente.
-- La línea base común de Sandbox sigue pendiente; SDD 3.0 no implica homologación global ni despliegue.
+- La línea base común SDD 3.1 / Harness V3 cubre los cuatro repositorios; no implica despliegue.
+
+## Delegación entre sesiones de agente
+
+- La sesión coordinadora es **cross** (carpeta raíz `Tesis/`). Ningún repositorio es la sesión coordinadora: cada uno trabaja dentro de su propio SDD y Harness.
+- Cross envía handoffs a la sesión de cada componente sin pedir confirmación previa al usuario. Cada handoff es autocontenido (alcance, decisiones ya tomadas, criterio de terminado) y pide responder a cross.
+- Una sesión que recibe un handoff lo ejecuta con su propio flujo (WI, reviewer, gates) y responde a cross al terminar o al bloquearse con resultado, evidencia y pendientes. Un handoff no modifica por sí solo la fuente de verdad.
+- Excepcionalmente el usuario puede pedir que un cambio compartido lo ejecute la propia sesión cross sobre varios repositorios; esa autorización vale solo para ese cambio.
+- El trabajo se hace siempre en `feature/jean`. El merge a `develop` y todo push, PR o cambio de `main` los ordena el usuario en cada ocasión.

@@ -2,7 +2,7 @@
 
 `spec/` es la fuente local de verdad implementable de este componente. Las decisiones globales se comparten con Core/Console conforme a sus contratos vigentes.
 
-**Espejos locales de GH:** SDD 3.0 / SYSTEM-2.12 / INTEROP-2.16 / GH-INTEROP-1.7. Los tres contratos de este repositorio coinciden byte por byte con las fuentes canónicas de Core en la revisión `bfbaa04ae4f9caafb4f26d55ab12849bb389451f` (WI-GH-014; INTEROP-2.16 introducida en `7f24c169c7d774a2f22a5c74d1869a78d69ab53b`). La homologación global con Test Execution Sandbox sigue pendiente; no se declara una línea base común de los cuatro componentes ni una integración desplegada.
+**Espejos locales de GH:** SDD 3.1 / SYSTEM-2.14 / INTEROP-2.19 / GH-INTEROP-1.8. Los tres contratos y la carpeta `spec/contracts/schemas/` de este repositorio coinciden byte por byte con las fuentes canónicas de Core. La línea base SDD 3.1 es común a los cuatro componentes; eso no implica una integración desplegada.
 
 ## Orden de lectura
 
@@ -10,8 +10,8 @@
 
 ## Contratos y sincronización
 
-- `SYSTEM-2.12`, `INTEROP-2.16` y `GH-INTEROP-1.7` son copias espejo byte por byte de las fuentes canónicas de Core; SYSTEM e INTEROP se sincronizaron con `WI-GH-013` (eventos `CS-CORE-20261012-006` y `-008`) e INTEROP-2.16 con `WI-GH-014` (documental, sin evento Contract Sync dirigido a este componente); GH-INTEROP-1.7 viene de `CS-CORE-20261011-006`; Sandbox conserva SDD 2.1 y una línea base contractual anterior hasta su homologación.
-- Core es dueño canónico de `GH-INTEROP-1.7`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
+- `SYSTEM-2.14`, `INTEROP-2.19` y `GH-INTEROP-1.8` son copias espejo byte por byte de las fuentes canónicas de Core, junto con los esquemas JSON de `spec/contracts/schemas/`. Los espejos previos se sincronizaron con `WI-GH-013` y `WI-GH-014`; la homologación a SYSTEM-2.13 / INTEROP-2.18 / GH-INTEROP-1.8 (editorial y aditiva) se hizo desde la sesión cross el 2026-10-18 y se regularizó con `WI-GH-015`, que además re-espejó `interoperability-contract.md` byte a byte desde Core `67519a2`.
+- Core es dueño canónico de `GH-INTEROP-1.8`. WI-GH-007 implementó localmente la fecha original del PR; WI-GH-012 cerró la coordinación efímera de instancia única y el rechazo terminal confirmado de creación. La decisión y sincronización no acreditan despliegue ni cutover.
 - Las nuevas necesidades contractuales usan `CONTRACT_SYNC` dirigido al dueño. Un evento no aprueba el cambio ni autoriza a modificar al consumidor.
 
 ## Planificación

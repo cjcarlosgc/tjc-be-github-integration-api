@@ -57,3 +57,90 @@ describe('CheckCoordinationStore process-local mutex', () => {
     await store.transition(identity, current.leaseToken, 'ACTIVE', requestHash, '42');
   });
 });
+
+describe('CheckCoordinationStore: expulsión de entradas ociosas', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  it('descarta una entrada ACTIVE ociosa pasado el TTL y conserva la reciente', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const old = await store.claim(identity, requestHash);
+    await store.transition(identity, old.leaseToken, 'ACTIVE', requestHash, '1');
+    clock += DAY + 1;
+    const recentIdentity = { ...identity, headSha: 'c'.repeat(40) };
+    const recent = await store.claim(recentIdentity, requestHash);
+    await store.transition(recentIdentity, recent.leaseToken, 'ACTIVE', requestHash, '2');
+
+    expect(store.evictIdleActive()).toBe(1);
+    expect(store.size).toBe(1);
+  });
+
+  it('nunca descarta estados de incertidumbre: protegen contra duplicados', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const reservation = await store.claim(identity, requestHash);
+    await store.transition(identity, reservation.leaseToken, 'CREATE_UNKNOWN', requestHash, null);
+    clock += 10 * DAY;
+
+    expect(store.evictIdleActive()).toBe(0);
+    expect(store.size).toBe(1);
+  });
+
+  it('no descarta una entrada bloqueada aunque sea vieja', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const held = await store.claim(identity, requestHash);
+    await store.transition(identity, held.leaseToken, 'ACTIVE', requestHash, '1', false);
+    clock += 10 * DAY;
+
+    expect(store.evictIdleActive()).toBe(0);
+  });
+});
+
+describe('CheckCoordinationStore: barrido automático y reclamo tras expulsión', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  /** Mismo valor que `SWEEP_EVERY_CLAIMS` del store (no exportado). */
+  const SWEEP_EVERY_CLAIMS = 200;
+
+  function identityNumber(index: number): CheckIdentity {
+    return { ...identity, headSha: index.toString(16).padStart(40, '0') };
+  }
+
+  it('el barrido automático al alcanzar 200 claims descarta las entradas ACTIVE ociosas', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    for (let index = 0; index < SWEEP_EVERY_CLAIMS; index += 1) {
+      const reservation = await store.claim(identityNumber(index), requestHash);
+      await store.transition(identityNumber(index), reservation.leaseToken, 'ACTIVE', requestHash, String(index));
+    }
+    clock += DAY + 1;
+    for (let index = SWEEP_EVERY_CLAIMS; index < 2 * SWEEP_EVERY_CLAIMS; index += 1) {
+      const reservation = await store.claim(identityNumber(index), requestHash);
+      await store.transition(identityNumber(index), reservation.leaseToken, 'RESERVED', requestHash, null);
+    }
+
+    await expect(store.claim(identityNumber(0), requestHash)).resolves.toMatchObject({
+      state: 'RESERVED',
+      checkId: null,
+    });
+  });
+
+  it('reclamar una identidad expulsada devuelve RESERVED sin checkId y con token nuevo', async () => {
+    const store = new CheckCoordinationStore();
+    let clock = 1_000_000;
+    store.now = () => clock;
+    const first = await store.claim(identity, requestHash);
+    await store.transition(identity, first.leaseToken, 'ACTIVE', requestHash, '42');
+    clock += DAY + 1;
+    expect(store.evictIdleActive()).toBe(1);
+
+    const again = await store.claim(identity, requestHash);
+
+    expect(again).toMatchObject({ state: 'RESERVED', checkId: null });
+    expect(again.leaseToken).not.toBe(first.leaseToken);
+  });
+});

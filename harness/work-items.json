@@ -1016,6 +1016,42 @@
         "spec/features/006-console-github-api/tasks.md",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "id": "WI-GH-021",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "SMART V3",
+      "title": "Registrar el motivo de cada UNVERIFIABLE en listOrganizationInstallations",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-023"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": false,
+      "publishesContract": false,
+      "lane": "STANDARD",
+      "scopeApprovalReport": "harness/reports/wi-gh-021-scope-approval.md",
+      "acceptanceCriteria": [
+        "listOrganizationInstallations() registra un WARN por cada punto que devuelve UNVERIFIABLE con el motivo: JWT_NO_FIRMABLE, GITHUB_SIN_RESPUESTA (con duración en ms), GITHUB_HTTP_<estatus>, RESPUESTA_NO_ES_LISTA, INSTALACION_INVALIDA:<tipo> y DEMASIADAS_PAGINAS.",
+        "Los logs no incluyen cuerpos de respuesta, JWT, clave, variables de entorno, ids ni logins (política de logs de WI-GH-017); hay pruebas por motivo y una prueba de no fuga.",
+        "Sin cambio de contrato, de wire ni del valor devuelto (sigue {status:'UNVERIFIABLE'}); lint, test, build, contracts:check y los cuatro validadores pasan; push, PR y merge solo por la autorización permanente al cerrar el WI."
+      ],
+      "specPaths": [
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

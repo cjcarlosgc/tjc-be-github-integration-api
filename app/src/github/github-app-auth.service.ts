@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createPrivateKey } from 'node:crypto';
 import { importPKCS8, SignJWT } from 'jose';
 import { GithubApiClient, readJson } from './github-api.client.js';
+import { errorName } from '../process-safety.js';
 import {
   GithubApiError,
   appConfigurationUnavailable,
@@ -33,8 +34,19 @@ interface InstallationResponse {
   id?: number;
 }
 
+/** Motivos cerrados por los que listOrganizationInstallations() devuelve UNVERIFIABLE (solo para logs). */
+type UnverifiableReason =
+  | 'JWT_NO_FIRMABLE'
+  | 'GITHUB_SIN_RESPUESTA'
+  | `GITHUB_HTTP_${number}`
+  | 'GITHUB_HTTP_DESCONOCIDO'
+  | 'RESPUESTA_NO_ES_LISTA'
+  | `INSTALACION_INVALIDA:${'AUSENTE' | 'Organization' | 'OTRO'}`
+  | 'DEMASIADAS_PAGINAS';
+
 @Injectable()
 export class GithubAppAuthService {
+  private readonly logger = new Logger(GithubAppAuthService.name);
   private readonly installationTokens = new Map<string, CachedInstallationToken>();
   private appInfoCache: { name: string; slug: string } | null = null;
 
@@ -122,35 +134,61 @@ export class GithubAppAuthService {
     let jwt: string;
     try {
       jwt = await this.signAppJwt();
-    } catch {
-      return { status: 'UNVERIFIABLE' };
+    } catch (error) {
+      return this.warnUnverifiable('JWT_NO_FIRMABLE', { errorName: errorName(error) });
     }
 
     const result: Array<{ installationId: string; organizationId: string; organizationLogin: string; avatarUrl: string | null; suspended: boolean }> = [];
     for (let page = 1; page <= MAX_PAGES; page += 1) {
       let response: Response;
+      const startedAt = Date.now();
       try {
         response = await this.api.request(`/app/installations?per_page=${PAGE_SIZE}&page=${page}`, jwt);
-      } catch {
-        return { status: 'UNVERIFIABLE' };
+      } catch (error) {
+        return this.warnUnverifiable('GITHUB_SIN_RESPUESTA', { durationMs: Date.now() - startedAt, errorName: errorName(error) });
       }
-      if (!response.ok) return { status: 'UNVERIFIABLE' };
+      if (!response.ok) {
+        const status = response.status;
+        const reason: UnverifiableReason = Number.isInteger(status) && status >= 100 && status <= 599
+          ? `GITHUB_HTTP_${status}`
+          : 'GITHUB_HTTP_DESCONOCIDO';
+        return this.warnUnverifiable(reason);
+      }
       const data = await readJson<unknown>(response);
-      if (!Array.isArray(data)) return { status: 'UNVERIFIABLE' };
+      if (!Array.isArray(data)) return this.warnUnverifiable('RESPUESTA_NO_ES_LISTA');
       for (const entry of data as Array<{ id?: unknown; account?: { id?: unknown; login?: unknown; type?: unknown; avatar_url?: unknown } | null; suspended_at?: unknown }>) {
-        if (!entry.account || (entry.account.type !== 'Organization' && entry.account.type !== 'User')) return { status: 'UNVERIFIABLE' };
-        if (entry.account.type === 'User') continue;
-        if (!Number.isSafeInteger(entry.id) || !Number.isSafeInteger(entry.account.id) || typeof entry.account.login !== 'string') return { status: 'UNVERIFIABLE' };
+        const account = entry.account;
+        if (!account) return this.warnUnverifiable('INSTALACION_INVALIDA:AUSENTE');
+        if (account.type !== 'Organization' && account.type !== 'User') return this.warnUnverifiable('INSTALACION_INVALIDA:OTRO');
+        if (account.type === 'User') continue;
+        if (!Number.isSafeInteger(entry.id) || !Number.isSafeInteger(account.id) || typeof account.login !== 'string') {
+          return this.warnUnverifiable('INSTALACION_INVALIDA:Organization');
+        }
         result.push({
           installationId: String(entry.id),
-          organizationId: String(entry.account.id),
-          organizationLogin: entry.account.login,
-          avatarUrl: typeof entry.account.avatar_url === 'string' ? entry.account.avatar_url : null,
+          organizationId: String(account.id),
+          organizationLogin: account.login,
+          avatarUrl: typeof account.avatar_url === 'string' ? account.avatar_url : null,
           suspended: Boolean(entry.suspended_at),
         });
       }
       if (data.length < PAGE_SIZE) return { status: 'OK', value: result };
     }
+    return this.warnUnverifiable('DEMASIADAS_PAGINAS');
+  }
+
+  /**
+   * Registra el motivo (y, si se pasa, la duración o el nombre sanitizado del error) y devuelve el resultado
+   * UNVERIFIABLE sin cambios. Nunca recibe ni registra cuerpos, JWT, clave, ids, logins ni texto de error.
+   */
+  private warnUnverifiable(
+    reason: UnverifiableReason,
+    extra: { durationMs?: number; errorName?: string } = {},
+  ): { status: 'UNVERIFIABLE' } {
+    let message = `listOrganizationInstallations UNVERIFIABLE motivo=${reason}`;
+    if (extra.durationMs !== undefined) message += ` duracionMs=${extra.durationMs}`;
+    if (extra.errorName !== undefined) message += ` error=${extra.errorName}`;
+    this.logger.warn(message);
     return { status: 'UNVERIFIABLE' };
   }
 }

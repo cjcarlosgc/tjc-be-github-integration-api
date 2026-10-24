@@ -1,5 +1,7 @@
 # Changelog
 
+- **WI-GH-020 (2026-10-24, pruebas de contrato):** el normalizador de webhooks y los 15 ejemplos `github-webhook-event.*` se validan en pruebas contra el esquema canónico `github-webhook-event.schema.json` (mitad de Integration de CT-01-A5). Sin cambio de producción ni de wire; queda documentada la brecha informativa de `action` (el normalizador no limita a 100 caracteres).
+
 - **WI-GH-019 (2026-10-24, contractual):** `CS-CORE-20261024-001` y `-004` importados y resueltos; `system-contract.md` (SYSTEM-2.16), `interoperability-contract.md` (INTEROP-2.21), `github-integration-contract.md` (GH-INTEROP-1.9) y `spec/contracts/schemas/` re-espejados byte a byte desde Core `2318b9d` en un solo paso (sin pasar por SYSTEM-2.15/INTEROP-2.20). Entran `github-webhook-event.schema.json` y 15 ejemplos; los tipos generados se regeneraron. Sin cambio de wire, rutas ni comportamiento; la validación del normalizador contra el esquema es `WI-GH-020`.
 
 - **WI-GH-018 (2026-10-21, documental):** `CS-CORE-20261021-004` importado y resuelto; `system-contract.md` (SYSTEM-2.14) e `interoperability-contract.md` (INTEROP-2.19) re-espejados byte a byte desde Core `3d2383e` (DEC-EXP-005 sobre la configuración única del LLM; documental y no incompatible). `github-integration-contract.md` (GH-INTEROP-1.8) y `spec/contracts/schemas/` sin cambio. Sin cambios en `app/`.

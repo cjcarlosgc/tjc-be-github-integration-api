@@ -900,6 +900,76 @@
         "verifiedAt": "2026-10-21T18:00:00.000Z",
         "verifiedBy": "leader"
       }
+    },
+    {
+      "id": "WI-GH-019",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "status": "W-DONE",
+      "priority": "P1",
+      "sprint": "SMART V3",
+      "title": "Re-espejar SYSTEM-2.16, INTEROP-2.21, GH-INTEROP-1.9 y esquemas desde Core (CS-CORE-20261024-001 y -004)",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-021"
+      ],
+      "caseIds": [],
+      "dependsOn": [],
+      "contractImpact": true,
+      "publishesContract": false,
+      "lane": "STANDARD",
+      "scopeApprovalReport": "harness/reports/wi-gh-019-scope-approval.md",
+      "syncScopePaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas"
+      ],
+      "acceptanceCriteria": [
+        "CS-CORE-20261024-001 y -004 se importan y se acusan/resuelven con evidencia; los tres contratos y spec/contracts/schemas quedan byte por byte iguales a la versión vigente de Core (SYSTEM-2.16 d0a492b4..., INTEROP-2.21 7f946d55..., GH-INTEROP-1.9 dedf00fa... y árbol 8079ab73...).",
+        "Los tipos generados se regeneran (el esquema github-webhook-event cambia generated/) y contracts:check, lint, test y build pasan; sin cambio de wire ni de comportamiento.",
+        "Las citas vigentes (AGENTS.md, spec/README.md, CHANGELOG) pasan a SYSTEM-2.16/INTEROP-2.21/GH-INTEROP-1.9 sin reescribir historia; sdd-check, validate-work-items, validate-harness y validate-completions pasan; sin push, PR ni merge."
+      ],
+      "specPaths": [
+        "spec/contracts/system-contract.md",
+        "spec/contracts/interoperability-contract.md",
+        "spec/contracts/github-integration-contract.md",
+        "spec/contracts/schemas",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ],
+      "externalDependencies": [
+        {
+          "component": "CORE",
+          "repository": "tjc-be-rag-core-api",
+          "workItemIds": [
+            "WI-CORE-079",
+            "WI-CORE-089"
+          ],
+          "requiredStatus": "W-DONE",
+          "requiredContractSync": "imported-and-acknowledged",
+          "verification": "manual-cross-repository"
+        }
+      ],
+      "externalDependencyGate": {
+        "status": "G-PASSED",
+        "evidenceReport": "harness/reports/wi-gh-019-external-dependency-gate.md",
+        "sourceRevisions": {
+          "CORE": "2318b9df292b337db4998f04b66b0457f1df8e3f"
+        },
+        "contractSha256": {
+          "system-contract.md": "d0a492b4484c8883d65e709f76d8c7ff2462b0eb8c832649cf75723b9543ea77",
+          "interoperability-contract.md": "7f946d55b24cf13dad180927108cf777b8dde036ce2185d37590e6c072d0d29d",
+          "github-integration-contract.md": "dedf00fa2f0f5be928cfaf1e5a12ff19f96e7579524a0a689757f1077bfc6e4e"
+        },
+        "verifiedAt": "2026-10-24T18:00:00.000Z",
+        "verifiedBy": "leader"
+      }
     }
   ]
 }

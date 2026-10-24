@@ -8,7 +8,7 @@ Servicio backend de RAG Test Studio responsable de toda la interacción directa 
 - `develop` es la rama base. La rama de trabajo acordada es `feature/jean`, derivada de `develop`; el usuario ya autorizó iniciar ese trabajo.
 - El bootstrap documental sirve como baseline local. No se publica nada al remoto sin autorización expresa para ese push.
 - Sandbox permanece fuera de este corte y su homologación SDD sigue pendiente. No se declara una línea base común desplegada.
-- Core mantiene la versión canónica de `GH-INTEROP-1.8`; Console y GitHub Integration conservan copias espejo. WI-GH-006 añade rutas autenticadas de usuario y autorización síncrona con Core. La revisión personal de los WIs, configuración externa y cutover siguen pendientes; no se declara integración desplegada.
+- Core mantiene la versión canónica de `GH-INTEROP-1.9`; Console y GitHub Integration conservan copias espejo. WI-GH-006 añade rutas autenticadas de usuario y autorización síncrona con Core. La revisión personal de los WIs, configuración externa y cutover siguen pendientes; no se declara integración desplegada.
 
 ## Desarrollo
 

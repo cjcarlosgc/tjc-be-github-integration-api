@@ -4743,6 +4743,211 @@
         ]
       },
       "closedAt": "2026-10-24T17:54:59.360Z"
+    },
+    {
+      "id": "WI-GH-021",
+      "component": "GH",
+      "workItemType": "PRODUCT",
+      "storyIds": [
+        "HU02",
+        "HU14"
+      ],
+      "taskIds": [
+        "ST-GH-023"
+      ],
+      "caseIds": [],
+      "sprint": "SMART V3",
+      "status": "W-DONE",
+      "specPaths": [
+        "spec/features/002-repository-access/spec.md",
+        "spec/features/002-repository-access/plan.md",
+        "spec/features/002-repository-access/tasks.md",
+        "spec/features/006-console-github-api/spec.md",
+        "spec/features/006-console-github-api/plan.md",
+        "spec/features/006-console-github-api/tasks.md",
+        "CHANGELOG.md"
+      ],
+      "transversalPaths": [],
+      "approved": true,
+      "decisionGate": {
+        "checked": true,
+        "blockingDecisionIds": [],
+        "nonBlockingDecisionIds": [],
+        "checkedAt": "2026-10-24T20:00:00.000Z"
+      },
+      "execution": {
+        "leaderAgent": "leader",
+        "analysisAgent": "sdd-analyst",
+        "implementationAgent": "implementer",
+        "contractReviewAgent": null,
+        "reviewAgent": "reviewer",
+        "handoffs": [
+          {
+            "agent": "sdd-analyst",
+            "status": "APPROVED",
+            "findings": [
+              "SUFFICIENT; sin Blocks aplicables",
+              "Siete retornos UNVERIFIABLE para seis motivos en github-app-auth.service.ts",
+              "Diseño: helper warnUnverifiable sin error.message ni datos sensibles; sin cambio de valor devuelto ni wire"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-021-spec-verification.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-021-spec-verification.md"
+            ],
+            "recommendedNextStep": "Implementar con implementer.",
+            "executedBy": {
+              "agent": "sdd-analyst",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          },
+          {
+            "agent": "implementer",
+            "status": "IMPLEMENTED",
+            "findings": [
+              "WARN por motivo en los siete retornos UNVERIFIABLE",
+              "Valor devuelto, wire y lógica sin cambios; sin error.message (solo errorName)",
+              "Pruebas por motivo, de no fuga y de camino OK sin WARN"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "app/src/github/github-app-auth.service.ts",
+              "app/src/github/github-app-auth.service.spec.ts",
+              "harness/reports/wi-gh-021-implementation.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-021-implementation.md"
+            ],
+            "recommendedNextStep": "Revisión independiente.",
+            "executedBy": {
+              "agent": "implementer",
+              "configuredModel": "claude-haiku-5-5",
+              "servedModel": "unknown",
+              "effort": "low"
+            }
+          },
+          {
+            "agent": "reviewer",
+            "status": "APPROVED",
+            "findings": [
+              "Ciclo 1: P3-1 prueba de no fuga vacía en el camino de error, P3-2 miembro inalcanzable (corregidos)",
+              "Ciclo 2 APPROVED; mutación temporal detectada por la prueba"
+            ],
+            "blockers": [],
+            "filesAffected": [
+              "harness/reports/wi-gh-021-independent-review.md"
+            ],
+            "evidence": [
+              "harness/reports/wi-gh-021-independent-review.md"
+            ],
+            "recommendedNextStep": "Cerrar WI-GH-021.",
+            "executedBy": {
+              "agent": "reviewer",
+              "configuredModel": "claude-sonnet-5-5",
+              "servedModel": "unknown",
+              "effort": "medium"
+            }
+          }
+        ],
+        "reviewCycles": 2,
+        "maxReviewCycles": 2
+      },
+      "gates": {
+        "sddVerified": "G-PASSED",
+        "implementationCompleted": "G-PASSED",
+        "independentReviewPassed": "G-PASSED",
+        "technicalChecksPassed": "G-PASSED",
+        "contractReviewed": "G-NOT_APPLICABLE",
+        "canonicalContractSynced": "G-NOT_APPLICABLE",
+        "contractSyncPublished": "G-NOT_APPLICABLE",
+        "interopSyncChecked": "G-PASSED",
+        "noBlockingDecisions": "G-PASSED",
+        "retryLimitRespected": "G-PASSED"
+      },
+      "coordination": {
+        "contractImpact": false,
+        "publishesContract": false,
+        "pullCheckpoints": [
+          {
+            "checkpoint": "start",
+            "workItem": "WI-GH-021",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-24T18:30:21.763Z"
+          },
+          {
+            "checkpoint": "implementation-delivery",
+            "workItem": "WI-GH-021",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-24T18:33:23.784Z"
+          },
+          {
+            "checkpoint": "before-review",
+            "workItem": "WI-GH-021",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-24T18:33:23.902Z"
+          },
+          {
+            "checkpoint": "before-done",
+            "workItem": "WI-GH-021",
+            "relevantPendingSyncIds": [],
+            "acknowledgedSyncIds": [],
+            "resolvedSyncIds": [],
+            "deferredSyncIds": [],
+            "notRelevantSyncIds": [],
+            "checkedAt": "2026-10-24T18:35:59.270Z"
+          }
+        ],
+        "publishedSyncIds": [],
+        "pendingRelevantSyncIds": []
+      },
+      "evidence": [
+        "harness/reports/wi-gh-021-scope-approval.md",
+        "harness/reports/wi-gh-021-spec-verification.md",
+        "harness/reports/wi-gh-021-implementation.md",
+        "harness/reports/wi-gh-021-independent-review.md",
+        "harness/reports/wi-gh-021-closure.md"
+      ],
+      "blockedReason": null,
+      "gateEvidence": {
+        "sddVerified": [
+          "harness/reports/wi-gh-021-spec-verification.md"
+        ],
+        "noBlockingDecisions": [
+          "harness/reports/wi-gh-021-spec-verification.md"
+        ],
+        "implementationCompleted": [
+          "harness/reports/wi-gh-021-implementation.md"
+        ],
+        "technicalChecksPassed": [
+          "harness/reports/wi-gh-021-implementation.md"
+        ],
+        "retryLimitRespected": [
+          "harness/reports/wi-gh-021-implementation.md"
+        ],
+        "interopSyncChecked": [
+          "harness/reports/wi-gh-021-implementation.md"
+        ],
+        "independentReviewPassed": [
+          "harness/reports/wi-gh-021-independent-review.md"
+        ]
+      },
+      "closedAt": "2026-10-24T18:36:59.270Z"
     }
   ],
   "activeWorkItem": null

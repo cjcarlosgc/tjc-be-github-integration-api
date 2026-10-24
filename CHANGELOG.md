@@ -1,5 +1,7 @@
 # Changelog
 
+- **WI-GH-021 (2026-10-24, observabilidad):** `listOrganizationInstallations()` registra un WARN por motivo cuando devuelve `UNVERIFIABLE` (`JWT_NO_FIRMABLE`, `GITHUB_SIN_RESPUESTA` con duración, `GITHUB_HTTP_<estatus>`, `RESPUESTA_NO_ES_LISTA`, `INSTALACION_INVALIDA:<tipo>`, `DEMASIADAS_PAGINAS`) sin cuerpos, JWT, clave, ids, logins ni `error.message`, para diagnosticar `ACCESS_REVERIFY` de Core. Sin cambio de valor devuelto, de contrato ni de wire.
+
 - **WI-GH-020 (2026-10-24, pruebas de contrato):** el normalizador de webhooks y los 15 ejemplos `github-webhook-event.*` se validan en pruebas contra el esquema canónico `github-webhook-event.schema.json` (mitad de Integration de CT-01-A5). Sin cambio de producción ni de wire; queda documentada la brecha informativa de `action` (el normalizador no limita a 100 caracteres).
 
 - **WI-GH-019 (2026-10-24, contractual):** `CS-CORE-20261024-001` y `-004` importados y resueltos; `system-contract.md` (SYSTEM-2.16), `interoperability-contract.md` (INTEROP-2.21), `github-integration-contract.md` (GH-INTEROP-1.9) y `spec/contracts/schemas/` re-espejados byte a byte desde Core `2318b9d` en un solo paso (sin pasar por SYSTEM-2.15/INTEROP-2.20). Entran `github-webhook-event.schema.json` y 15 ejemplos; los tipos generados se regeneraron. Sin cambio de wire, rutas ni comportamiento; la validación del normalizador contra el esquema es `WI-GH-020`.

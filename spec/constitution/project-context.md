@@ -10,7 +10,7 @@
 ## Topología
 
 ```text
-Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.8──> GitHub Integration ──> GitHub
+Developer Console ──API pública de dominio──> RAG Core API ──GH-INTEROP-1.9──> GitHub Integration ──> GitHub
        └──rutas UI autenticadas──────────────────────────────────> GitHub Integration
 GitHub ──webhook firmado──> GitHub Integration ──evento verificado──> RAG Core API
 GitHub Integration ──sesión + hechos allowlisted──> autorización síncrona Core
